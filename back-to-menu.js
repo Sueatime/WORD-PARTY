@@ -18,3 +18,5 @@
      s.src = document.currentScript.src.replace('back-to-menu.js', 'live-comments.js');
      document.head.appendChild(s);
    })();
+
+// ok
