@@ -65,6 +65,30 @@
     });
   }
 
+  // For games with no text box (they listen to the keyboard):
+  // press each letter key, then Enter, one after another
+  function typeOnKeyboard(text) {
+    var letters = text.toUpperCase().replace(/[^A-Z]/g, '');
+    if (!letters) return;
+    var keys = letters.split('').concat(['Enter']);
+    var target = document.body || document;
+    keys.forEach(function (k, i) {
+      setTimeout(function () {
+        var isEnter = k === 'Enter';
+        var code = isEnter ? 13 : k.charCodeAt(0);
+        ['keydown', 'keyup'].forEach(function (type) {
+          target.dispatchEvent(new KeyboardEvent(type, {
+            key: isEnter ? 'Enter' : k.toLowerCase(),
+            code: isEnter ? 'Enter' : 'Key' + k,
+            keyCode: code,
+            which: code,
+            bubbles: true
+          }));
+        });
+      }, i * 30);
+    });
+  }
+
   function handleComment(user, text) {
     text = String(text || '').trim();
     if (!text) return;
@@ -77,7 +101,10 @@
 
     // Default: type it in and submit
     var input = findInput();
-    if (!input) return;
+    if (!input) {
+      typeOnKeyboard(text);
+      return;
+    }
     input.value = text;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     var btn = findButton();
