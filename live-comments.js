@@ -148,6 +148,11 @@
       try { ws.close(); } catch (e) {}
     };
   }
-
+// ---- send points to the relay (saved to the leaderboard) ----
+  window.sendScore = function (user, game, points) {
+    if (ws && ws.readyState === 1) {
+      ws.send(JSON.stringify({ type: 'score', user: user, game: game, points: points }));
+    }
+  };
   connect();
 })();
