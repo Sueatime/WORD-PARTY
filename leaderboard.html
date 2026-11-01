@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Party Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:20px;display:flex;justify-content:center}
+main{width:100%;max-width:560px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9vw,48px)}
+.sub{color:var(--muted);margin:0 0 16px}
+.tabs{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+button,a.back{font:inherit;font-weight:600;cursor:pointer;padding:8px 18px;border-radius:8px;background:transparent;color:var(--ink);border:2px solid var(--muted);text-decoration:none}
+button.on{background:var(--pur);border-color:var(--pur);color:#1a1033}
+.row{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:12px;padding:12px 16px;margin-bottom:8px;text-align:left}
+.rank{width:42px;font-weight:700;font-size:22px;text-align:center}
+.name{flex:1;font-weight:600;word-break:break-all}
+.pts{font-weight:700;color:var(--pur);font-size:22px}
+.empty{color:var(--muted);padding:24px}
+a.back{position:fixed;left:10px;top:10px;font-size:15px;padding:6px 12px}
+</style>
+</head>
+<body>
+<a class="back" href="./">&larr; Menu</a>
+<main>
+<h1>Leaderboard</h1>
+<p class="sub" id="sub"></p>
+<div class="tabs"><button id="cur" class="on">This month</button><button id="prev">Last month</button></div>
+<div id="list"></div>
+</main>
+<script>
+var URL_="https://igezympgwgxgqaqnuhqo.supabase.co";
+var KEY="sb_publishable_Vf0-TBuyjmtifEFAzF7row_HuK9PAnS";
+function month(offset){var d=new Date(Date.now()+8*3600000);d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+offset);return d.toISOString().slice(0,7)}
+function show(offset){
+  var m=month(offset),list=document.getElementById("list");
+  document.getElementById("cur").className=offset===0?"on":"";
+  document.getElementById("prev").className=offset===0?"":"on";
+  document.getElementById("sub").textContent="Top 10 for "+m;
+  list.innerHTML='<div class="empty">Loading...</div>';
+  fetch(URL_+"/rest/v1/leaderboard?month=eq."+m+"&order=total.desc&limit=10&select=viewer_name,total",{headers:{apikey:KEY}})
+   .then(function(r){return r.json()})
+   .then(function(rows){
+     list.innerHTML="";
+     if(!Array.isArray(rows)||!rows.length){list.innerHTML='<div class="empty">No scores yet.</div>';return}
+     var medals=["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"];
+     rows.forEach(function(r,i){
+       var d=document.createElement("div");d.className="row";
+       var a=document.createElement("div");a.className="rank";a.textContent=medals[i]||String(i+1);
+       var b=document.createElement("div");b.className="name";b.textContent=r.viewer_name;
+       var c=document.createElement("div");c.className="pts";c.textContent=r.total;
+       d.appendChild(a);d.appendChild(b);d.appendChild(c);list.appendChild(d);
+     });
+   })
+   .catch(function(){list.innerHTML='<div class="empty">Could not load scores.</div>'});
+}
+document.getElementById("cur").onclick=function(){show(0)};
+document.getElementById("prev").onclick=function(){show(-1)};
+show(0);
+</script>
+</body>
+</html>
