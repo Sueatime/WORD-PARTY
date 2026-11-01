@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Party</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14122b;
+  --card:#211e45;
+  --text:#f3f1ff;
+  --muted:#a9a5d1;
+  --green:#3ecf8e;
+  --blue:#4c8dff;
+  --purple:#a46bff;
+  --amber:#ffbf3c;
+  --pink:#ff6b9d;
+  --teal:#2ec4c9;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',sans-serif;
+  min-height:100vh;padding:28px 14px 48px;
+}
+header{max-width:960px;margin:0 auto 26px;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.logo{display:flex;justify-content:center;gap:6px;margin-bottom:8px}
+header p{margin-top:8px}
+.logo span{
+  width:46px;height:52px;border-radius:10px;display:grid;place-items:center;
+  font-size:28px;font-weight:700;color:#14122b;
+}
+header p{color:var(--muted);font-size:1.05rem}
+main{
+  max-width:960px;margin:0 auto;display:grid;gap:12px;
+  grid-template-columns:repeat(2,1fr);
+}
+@media(min-width:640px){main{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){main{grid-template-columns:repeat(4,1fr)}}
+a.game{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  min-height:128px;padding:16px 10px;border-radius:18px;
+  background:var(--card);color:var(--text);text-decoration:none;
+  border-bottom:6px solid var(--c);
+  text-align:center;font-size:1.1rem;font-weight:600;line-height:1.15;
+  -webkit-tap-highlight-color:transparent;
+}
+a.game .ico{
+  width:56px;height:56px;border-radius:14px;background:var(--c);
+  display:grid;place-items:center;font-size:30px;
+}
+a.game:hover{background:#2a2658}
+a.game:active{transform:translateY(2px);border-bottom-width:4px}
+a.game:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(prefers-reduced-motion:no-preference){
+  a.game{transition:background .15s,transform .1s}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="sr">Word Party</h1>
+  <div class="logo" aria-hidden="true">
+    <span style="background:var(--green)">W</span>
+    <span style="background:var(--blue)">O</span>
+    <span style="background:var(--purple)">R</span>
+    <span style="background:var(--amber)">D</span>
+  </div>
+  <div class="logo" aria-hidden="true">
+    <span style="background:var(--pink)">P</span>
+    <span style="background:var(--teal)">A</span>
+    <span style="background:var(--green)">R</span>
+    <span style="background:var(--blue)">T</span>
+    <span style="background:var(--amber)">Y</span>
+  </div>
+  <p>Tap a game to play</p>
+</header>
+<main id="games"></main>
+<script>
+// [name, emoji, folder name on GitHub]. Folder names are case-sensitive.
+var games = [
+  ["Color Spell","🎨","Color"],["Emoji Words","😀","Emoji"],["Guess the Country","🌍","Country"],["Guess the Picture","🖼️","Picture"],
+  ["Icon Spell","🔣","Icons"],["Letter Order","🔤","Order"],["Number Code","🔢","Number"],["Secret Word","🔐","Secret"],
+  ["Spot the Difference","🔍","Odd"],["Survey Says","📊","Survey"],["Word Between","↕️","Between"],["Word Blur","🌫️","Blur"],
+  ["Word Border","🔲","Border"],["Word Chain","🔗","Chain"],["Word Clues","💡","Clues"],["Word Compare","⚖️","Compare"],
+  ["Word Counts","🧮","Counts"],["Word Gap","📏","Gap"],["Word Graph","📈","Graph"],["Word Jumble","🔀","Jumble"],
+  ["Word Overlap","🔄","Overlap"],["Word Pixels","🟦","Pixel"],["Word Related","🕸️","Related"],["Word Search","🔎","Search"],
+  ["Word Shift","↔️","Shift"],["Word Symbol","❓","Symbol"],["Word Tangle","🪢","Tangle"],["Word Thread","🧵","Thread"],
+  ["Word Trail","👣","Trail"],["Word Trick","🃏","Trick"]
+];
+var colors = ["--green","--blue","--purple","--amber","--pink","--teal"];
+var html = "";
+games.forEach(function(g, i){
+  var slug = g[2];
+  html += '<a class="game" href="' + slug + '/" style="--c:var(' + colors[i % 6] + ')">' +
+          '<span class="ico">' + g[1] + '</span><span>' + g[0] + '</span></a>';
+});
+document.getElementById("games").innerHTML = html;
+</script>
+</body>
+</html>
