@@ -13,3 +13,8 @@
     "-webkit-tap-highlight-color:transparent;";
   document.body.appendChild(a);
 })();
+   (function () {
+     var s = document.createElement('script');
+     s.src = document.currentScript.src.replace('back-to-menu.js', 'live-comments.js');
+     document.head.appendChild(s);
+   })();
