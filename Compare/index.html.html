@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Compare</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:230;--bg:hsl(var(--h) 45% 96%);--ink:hsl(var(--h) 50% 18%);--dark:hsl(var(--h) 40% 50%);--cink:#fff;--light:hsl(var(--h) 58% 85%);--lightink:hsl(var(--h) 50% 18%);--muted:hsl(var(--h) 20% 42%);--green:hsl(140 60% 52%);--pop:hsl(var(--h) 42% 44%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:hsl(var(--h) 35% 12%);--ink:hsl(var(--h) 60% 95%);--dark:hsl(var(--h) 36% 46%);--cink:#fff;--light:hsl(var(--h) 48% 76%);--lightink:hsl(var(--h) 50% 14%);--muted:hsl(var(--h) 25% 70%);--pop:hsl(var(--h) 38% 46%)}}
+:root[data-theme="dark"]{--bg:hsl(var(--h) 35% 12%);--ink:hsl(var(--h) 60% 95%);--dark:hsl(var(--h) 36% 46%);--cink:#fff;--light:hsl(var(--h) 48% 76%);--lightink:hsl(var(--h) 50% 14%);--muted:hsl(var(--h) 25% 70%);--pop:hsl(var(--h) 38% 46%)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 16px;color:var(--muted);font-size:18px}
+.row{display:flex;align-items:center;justify-content:center;gap:2px}
+.tile{width:clamp(44px,13vw,58px);height:clamp(44px,13vw,58px);border-radius:8px;display:grid;place-items:center;font-size:24px;font-weight:700}
+.c{background:var(--dark);color:var(--cink)}
+.v{background:var(--light);color:var(--lightink)}
+.hid{opacity:.55;font-weight:400}
+.sym{width:clamp(20px,5.5vw,28px);font-size:32px;line-height:1;font-weight:700;color:var(--muted)}
+#board{margin-bottom:22px}
+.abc{width:100%;margin:0 auto 22px;display:flex;flex-direction:column;gap:4px}
+.abc .row{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;width:100%}
+.abc .tile{width:auto;height:36px;font-size:18px;font-weight:700;border-radius:8px}
+.key{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 16px}
+.key span{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:2px solid var(--muted);border-radius:10px;font-size:16px;font-weight:600;color:var(--ink);white-space:nowrap}
+.key b{font-size:28px;line-height:1;font-weight:700}
+button{font:inherit;font-weight:600;padding:6px 18px;border-radius:8px;border:2px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.msg{min-height:26px;font-weight:600;margin:0 0 14px}
+.hist{margin-bottom:12px;gap:8px}
+.hist .tiles{display:flex;gap:6px}
+.hist .tile{width:clamp(40px,12vw,52px);height:clamp(40px,12vw,52px);font-size:24px;border-radius:8px}
+.hist .who{font-size:16px;color:var(--muted);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile.right{background:var(--green);color:hsl(140 70% 12%);font-weight:800}
+input.tile{border:0;padding:0;margin:0;text-align:center;font-family:inherit;text-transform:uppercase;outline:none;caret-color:currentColor;border-radius:8px}
+input.tile:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.end{margin-top:16px;display:flex;gap:10px;justify-content:center}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
+.win{background:var(--pop);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+input.tile.no{animation:shake .3s}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+@media (min-width:800px){
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.key{gap:14px;margin-bottom:24px}
+.key span{font-size:23px;padding:8px 20px;gap:12px}
+.key b{font-size:40px}
+.tile{width:76px;height:76px;font-size:34px;border-radius:10px}
+.sym{width:38px;font-size:46px}
+.abc{gap:6px}
+.abc .row{gap:6px}
+.abc .tile{height:54px;font-size:26px}
+.hist .tile{width:66px;height:66px;font-size:32px}
+.hist .who{font-size:20px;max-width:180px}
+.hist .tiles{gap:10px}
+.hist{margin-bottom:16px}
+#msg{min-height:40px}
+.end button{padding:8px 26px}
+.win{font-size:30px;max-width:620px}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Word Compare</h1>
+  <p class="sub">Each symbol compares a letter with the next by alphabet order (A is smallest, Z is biggest). Green means the right spot.</p>
+  <div class="key"><span><b>&lt;</b> smaller than</span><span><b>&gt;</b> bigger than</span><span><b>=</b> equal</span></div>
+  <div class="abc" id="abc" aria-label="Alphabet reference"></div>
+  <div class="msg" id="msg" role="status"></div>
+  <div id="board" class="row" aria-label="Secret word"></div>
+  <div id="hist"></div>
+  <div class="end"><button id="new">New game</button><button id="giveup">Give up</button></div>
+</main>
+<script>
+const W3="ANT APE ARM ART BAG BAT BED BEE BIG BOX BOY BUS CAP CAR COW CUP CUT DAY DIG EAR EAT EGG END EYE FAN FAR FIG FIT FLY FOG FOX FUN GAS GET GUM GUN HAT HEN HIT HOT HUG ICE INK JAM JAR JAW JET JOB JOY KEY KID KIT LAB LAP LEG LID LIP LOG MAD MAP MAT MUD MUG NAP NET NEW NUT OAK OWL PAN PEN PET PIE PIG PIN POT RAT RED RIB RUG RUN SAD SAW SEA SIT SKY SON SUM TAG TAN TAP TEA TEN TIE TIP TOE TOP TOY TUB URN VAN VET WAX WEB WET WIG WIN YES ZIP ZOO BAD BAY BOW BUD BUG CAB COT DAD DEN DEW DIP DOT DRY DUE EEL ELF ELM FAT FEW FIN FIR FIX GEM GYM HAM HAY HIP HOP HUT JOG LAW LAY LIE LOT LOW MAN MIX MOP NOD OAR ODD OIL OLD OPT OWN PAD PAL PAW PEA PIT POD POP PUP RAG RAM RAW RAY ROB ROD ROW RUB SAP SET SEW SHY SIP SIR SIX SPY SUB TAB TAR TIN TON TOW TRY TWO USE VAT VOW WAR WAY WEE YAK YAM CAT DOG SUN ACE ACT ADD AGE AID AIM AIR ALE ARC ASH ASK AWE AXE BAN BAR BEG BET BIB BIN BOG BUN BUY CAM CAN COD COG CON COP CRY CUB DAM DIM DIE DOE DUO DYE EBB EGO ELK EMU ERA ERR EVE EWE FAD FEE FLU FOE FRY FUR GAP GEL GIG GNU GUT GUY HEM HOE HOG HUB HUE HUM IVY JAB JIG JOT JUG KIN LAD LAG LED LET LIT MOB MOM MUM NAG NIL NIP OAT ODE ORB ORE OWE PAR PAT PAY PEG PEP PRO PRY PUB PUN PUT RAP RIG RIM RIP ROE ROT RUM RUT RYE SAG SKI SLY SPA SUP TAX TEE TOT TUG VIA WAD WAN WED WIT WOK YAP YEW ZEN".split(" ");
+const W4="PLAN WORD GAME LOVE TREE BOOK FISH MOON STAR RAIN SNOW WIND FIRE LAKE ROAD HAND FOOT HEAD DOOR WALL ROOM BIRD FROG BEAR LION DUCK CAKE MILK RICE SOUP CORN PEAR PLUM LIME SONG DRUM BELL KING SHIP BOAT CITY TOWN FARM HILL SAND WAVE CLAY IRON GOLD SILK WOOL GIFT MAIL NOTE PAGE LAMP DESK ROSE LEAF SEED FOOD MOOD POOL COOL MEET FEEL BALL TOLL ARMY AUNT BABY BACK BAKE BARN BASE BATH BEAN BEAT BEEF BEND BEST BIKE BILL BIND BITE BLUE BOLD BOMB BOND BONE BOWL BURN BUSY CAFE CALL CALM CAMP CARD CARE CART CASE CASH CAST CAVE CHAT CHEF CHIP CLIP CLUB COAL COAT CODE COIN COLD COOK COPY CORD COST CREW CROP CURE DARK DATA DATE DAWN DEAL DEAR DEEP DIET DISH DIVE DOLL DONE DOVE DOWN DRAW DREW DROP DUST DUTY EACH EARN EASE EAST EASY EDGE EXIT FACE FACT FAIL FAIR FALL FAME FAST FATE FEAR FEED FILE FILM FIND FINE FIST FLAG FLAT FLOW FOLD FORK FORM FORT FREE FUEL FULL FUND GAIN GATE GAZE GIRL GLAD GLOW GLUE GOAL GOAT GRAB GRAY GREW GRID GRIP GROW GULF GUST HAIR HALF HALL HARD HARM HATE HEAL HEAR HEAT HELP HERB HERO HIDE HIGH HIKE HOLD HOLE HOME HOPE HORN HOST HOUR HUGE HUNT HURT IDEA INCH JAZZ JOIN JOKE JUMP JURY JUST KEEN KEEP KICK KIND KISS KNEE KNOT KNOW LACE LACK LAID LAND LANE LAST LATE LAWN LAZY LEAD LEAN LEAP LEFT LEND LESS LIFE LIFT LIKE LINE LINK LIST LIVE LOAD LOAN LOCK LONE LONG LOOK LOOP LORD LOSE LOSS LOUD LUCK LUNG MADE MAIN MAKE MALL MARK MASK MASS MATH MAZE MEAL MEAN MEAT MELT MENU MESS MILD MILE MIND MINE MINT MISS MOLD MOSS MOST MOVE MUCH MUST MYTH NAIL NAME NAVY NEAR NEAT NECK NEED NEST NICE NINE NONE NOON NOSE OATH OPEN OVEN OVER PACE PACK PAIN PAIR PALE PALM PARK PART PASS PAST PATH PEAK PICK PILE PINE PINK PIPE PLAY PLOT PLUG POEM POET POLE POLL PONY PORT POSE POST POUR PRAY PULL PUMP PURE PUSH RACE RACK RAFT RAIL RAKE RANK RARE RATE READ REAL REEF RENT REST RICH RIDE RING RISE RISK ROCK ROLE ROLL ROOF ROOT ROPE RULE RUSH RUST SAFE SAGE SAIL SALT SAME SAVE SCAN SEAL SEAT SELL SEND SHED SHOE SHOP SHOW SHUT SICK SIDE SIGN SINK SIZE SKIN SKIP SLED SLIM SLOW SNAP SOAP SOCK SOFA SOFT SOIL SOLD SOLE SOME SOON SORE SORT SOUL SPIN SPOT STEM STEP STIR STOP SUCH SUIT SURE SWAN SWIM TAIL TAKE TALE TALK TALL TANK TAPE TASK TEAM TEAR TELL TENT TERM TEST TEXT THAN THEN THIN TIDE TIDY TILE TIME TINY TIRE TOAD TOOL TOUR TRAP TRIM TRIP TRUE TUBE TUNE TURN TWIN TYPE UNIT UPON USED VASE VAST VERB VIEW VINE VOTE WAGE WAIT WAKE WALK WARM WASH WASP WEAK WEAR WEED WEEK WELL WEST WHAT WHEN WIDE WIFE WILD WILL WIRE WISE WISH WITH WOLF WOOD WORK WORM YARD YARN YEAR YELL ZERO ZONE ZOOM".split(" ");
+const W5="PLANT CRANE STONE BRAIN CLOUD FLAME GRAPE HOUSE LIGHT MONEY NIGHT OCEAN PAINT QUIET RIVER SMILE TABLE WATER YOUNG ANGEL BEACH CHAIR DREAM EARTH FIELD GLASS HEART JUICE KNIFE LEMON MUSIC NORTH PIANO QUEEN ROUND SUGAR TRAIN UNDER VOICE WORLD BREAD CANDY DANCE EAGLE FRUIT GHOST HONEY LUNCH MOUNT PEACH SHEEP TIGER WHEAT ZEBRA STORM BLEND CRISP DRIFT FROST GRAIN SPARK SWEET APPLE HAPPY GRASS SMALL SPEED GREEN WHEEL STEEL FLOOR CROSS DRESS ACORN ADULT AGENT ALARM ALBUM ALIEN ALIKE ALONE AMBER ANKLE ARENA ARISE ARROW ATTIC AUDIO AWARD AWARE BACON BADGE BAKER BASIC BASIN BATCH BEARD BENCH BERRY BLADE BLAME BLANK BLAST BLAZE BLIND BLOCK BLOOD BLOOM BOARD BOAST BONUS BOOST BOOTH BRAKE BRAND BRAVE BREAK BRICK BRIDE BRIEF BRING BROAD BROOK BROOM BRUSH BUILD BUNCH BURST CABIN CABLE CAMEL CANAL CARGO CARRY CATCH CAUSE CHALK CHARM CHART CHASE CHEAP CHECK CHEEK CHEER CHESS CHEST CHIEF CHILD CHILL CHIRP CIVIC CLAIM CLASS CLEAN CLEAR CLERK CLICK CLIFF CLIMB CLOCK CLOSE CLOTH CLOWN COACH COAST COCOA COLOR COUCH COUNT COURT COVER CRACK CRAFT CRASH CRAWL CRAZY CREAM CREEK CREST CRIME CROWD CROWN CRUMB CRUSH CURVE CYCLE DAILY DAIRY DAISY DEPTH DIARY DIRTY DITCH DIZZY DOUBT DOUGH DRAFT DRAIN DRAMA DRINK DRIVE EAGER EARLY EIGHT ELBOW EMPTY ENEMY ENJOY ENTER ENTRY EQUAL ERROR EVENT EXACT EXTRA FABLE FAINT FAIRY FANCY FEAST FENCE FERRY FEVER FIBER FIFTH FIGHT FINAL FIRST FLASH FLEET FLESH FLOAT FLOCK FLOUR FLUTE FOCUS FORCE FORGE FORTH FOUND FRAME FRESH FRONT FROZE FUNNY GAUZE GIANT GIVEN GLARE GLORY GLOVE GOOSE GRACE GRADE GRAND GRANT GRAPH GRASP GRAVE GREAT GREET GRILL GROUP GROVE GUARD GUESS GUEST GUIDE HABIT HANDY HARSH HASTE HATCH HAVEN HEAVY HEDGE HELLO HINGE HOBBY HOTEL HUMAN HUMOR HURRY IDEAL IMAGE INDEX INNER IVORY JELLY JEWEL JOINT JOLLY JUDGE KAYAK KNEEL LABEL LARGE LASER LATER LAUGH LAYER LEARN LEASE LEAVE LEGAL LEVEL LEVER LIMIT LINEN LLAMA LOCAL LODGE LOGIC LOOSE LOYAL LUCKY MAGIC MAJOR MAKER MANOR MAPLE MARCH MARRY MATCH MAYOR MEDAL MELON MERCY MERIT METAL METER MIGHT MINOR MIXER MODEL MOIST MONTH MORAL MOTOR MOUSE MOUTH MOVIE MUDDY NAIVE NERVE NEVER NOBLE NOISE NURSE OLIVE ONION OPERA ORBIT ORDER OTHER OTTER OUTER PANEL PANIC PAPER PARTY PASTA PATCH PAUSE PEARL PEDAL PENNY PHONE PHOTO PILOT PITCH PIZZA PLACE PLAIN PLATE PLAZA POINT POLAR PORCH POUND POWER PRESS PRICE PRIDE PRIME PRINT PRIZE PROOF PROUD PULSE PUNCH PUPIL PURSE QUACK QUEST QUICK QUILT QUOTE RADAR RADIO RAISE RALLY RANCH RANGE RAPID RATIO REACH READY REALM REBEL RELAX REPLY RIDGE RIFLE RIGHT RIGID RINSE RIVAL ROAST ROBIN ROBOT ROCKY ROUGH ROUTE ROYAL RULER RURAL SADLY SAINT SALAD SALON SAUCE SCALE SCARF SCENE SCENT SCOUT SCREW SEIZE SENSE SERVE SEVEN SHADE SHAKE SHAPE SHARE SHARK SHARP SHAWL SHEET SHELF SHELL SHINE SHIRT SHOCK SHOOT SHORE SHORT SHOUT SIGHT SKIRT SKULL SLEEP SLICE SLIDE SLOPE SMART SMELL SMOKE SNAIL SNAKE SOLID SOLVE SORRY SOUND SOUTH SPACE SPARE SPEAK SPELL SPEND SPICE SPINE SPOON SPORT SQUAD STAFF STAGE STAIR STAKE STAMP STAND START STATE STEAM STICK STILL STING STOCK STOOL STORE STORY STOVE STRAW STRIP STUDY STUFF STYLE SUITE SUNNY SUPER SWAMP SWEAR SWEEP SWIFT SWING SWORD TASTE TEACH TEMPO THANK THEME THICK THIEF THING THINK THREE THROW THUMB TIGHT TIMER TIRED TITLE TOAST TOOTH TOPIC TORCH TOTAL TOUCH TOUGH TOWEL TOWER TRACE TRACK TRADE TRAIL TREAT TREND TRIAL TRIBE TRICK TRUCK TRULY TRUNK TRUST TRUTH TULIP TWIST UNCLE UNION UNITY UPPER URBAN USUAL VALID VALUE VAPOR VAULT VIDEO VIGOR VINYL VIRUS VISIT VITAL VIVID VOCAL WAGON WASTE WATCH WEARY WEAVE WEDGE WEIGH WHALE WHILE WHITE WHOLE WIDOW WIDTH WOMAN WORRY WORSE WORTH WOUND WRIST WRITE WRONG YACHT YEARN YIELD YOUTH TEETH".split(" ");
+const W6="GARDEN SILVER BRIDGE CASTLE FLOWER FOREST ISLAND JUNGLE LADDER MARKET NATURE ORANGE PLANET RABBIT SUMMER WINTER YELLOW BASKET CANDLE DINNER FRIEND GUITAR HAMMER INSECT JACKET KITTEN MIRROR NEEDLE PENCIL POCKET SCHOOL SPIRIT TICKET VALLEY WINDOW BUTTER CIRCLE DOCTOR ENGINE FINGER GOLDEN LISTEN MOMENT ACCESS COFFEE GOSSIP BUTTON LETTER MIDDLE BATTLE BOTTLE PUZZLE ABROAD ACTION ACTIVE ACTUAL ADVICE AFFORD AGENCY ALMOST AMOUNT ANCHOR ANIMAL ANSWER ANYONE APPEAR ARCHER ARTIST ASLEEP ATTACK AUTUMN AVENUE BAKERY BALLET BANANA BANNER BARBER BARREL BEAUTY BEFORE BEHAVE BEHIND BELONG BESIDE BETTER BEYOND BISHOP BORDER BORROW BOTTOM BRANCH BREATH BREEZE BRIGHT BROKEN BUCKET BUDGET BUNDLE BURDEN CACTUS CAMERA CANNON CANVAS CARPET CARROT CATTLE CENTER CEREAL CHANCE CHANGE CHEESE CHERRY CHOICE CHOOSE CHURCH CINEMA CLEVER CLOSET COLUMN COMEDY COMMON COPPER CORNER COTTON COUSIN CRADLE CREDIT DANGER DEBATE DECADE DECIDE DEFEND DEGREE DESERT DESIGN DETAIL DIRECT DOLLAR DONKEY DRAGON DRIVER EASILY EFFECT EFFORT ENERGY ESCAPE EXPECT EXPERT FABRIC FAMILY FAMOUS FARMER FELLOW FIGURE FLIGHT FORGET FROZEN FUTURE GALLON GARAGE GARLIC GENTLE GINGER GLOBAL GROUND GROWTH HANDLE HAPPEN HARBOR HEALTH HEAVEN HEIGHT HELMET HIDDEN HOLDER HONEST HUNGRY KERNEL KETTLE KIDNEY LAUNCH LAWYER LEADER LENGTH LESSON LIQUID LITTLE LOCKER LOVELY MAGNET MARBLE MASTER MEADOW MEMBER MEMORY MINUTE MOBILE MODERN MONKEY MOTHER MOTION MUFFIN MUSEUM MUSCLE NARROW NATION NEARBY NOODLE NUMBER OBJECT OBTAIN OFFICE ORIGIN OUTPUT OXYGEN PACKET PADDLE PALACE PARADE PARCEL PARENT PEBBLE PEPPER PERIOD PERSON PICNIC PIGEON PILLOW PLENTY POETRY POLICE POLITE POTATO POWDER PRAISE PRINCE RACKET RADISH RAISIN RANDOM REASON RECIPE REMOTE REPAIR REPORT RESCUE RESULT RETURN REVIEW REWARD RIBBON RIPPLE ROCKET RUBBER SADDLE SAFETY SAILOR SALMON SAMPLE SCREEN SEASON SECOND SECRET SELECT SENIOR SHADOW SHIELD SHOWER SIGNAL SILENT SIMPLE SISTER SKETCH SLEEVE SMOOTH SOCCER SPIDER SPLASH SPREAD SPRING SQUARE STABLE STREAM STREET STRIPE STRONG SUDDEN SUNSET SUPPER SWITCH SYMBOL TALENT TEMPLE TENNIS THIRTY THREAD THRONE TIMBER TOMATO TONGUE TUNNEL TURKEY TURTLE UNIQUE VELVET VESSEL VOLUME WALLET WIZARD WONDER WOODEN ZIPPER ADVERB ALMOND ANTLER AROUND ARRIVE ARTERY ASSIST ATTEND AUTHOR BADGER BAKING BAMBOO BARELY BATTER BEAGLE BEETLE BELLOW BLONDE BLOUSE BOILED BONNET BOUNCE BOXING BRAINY BRONZE BUBBLE BUCKLE BUNKER CALMLY CANDID CANOPY CARBON CARTON CASINO CASUAL CELERY CEMENT CHALET CHOSEN CLENCH CLINIC CLUTCH COBWEB COCOON COLLAR COMBAT COMMIT CORRAL COSTLY COUPLE COUPON COWARD CRAYON CREATE CREEPY CRISIS CUDDLE CURFEW CUSTOM DAMAGE DANCER DAZZLE DEBTOR DECENT DEFEAT DEMAND DENTAL DEPART DEPUTY DESIRE DEVICE DEVOUR DIAPER DIGEST DIVIDE DOUBLE DRAWER DREAMY DRIVEN DRYING DURING EASTER EDITOR EIGHTH ELEVEN EMPIRE ENCORE ENDING ENGAGE ENOUGH ENTIRE ESTATE EVENLY EXCUSE EXOTIC EXPAND EXPORT EXTEND FACING FAIRLY FALCON FAMINE FASTEN FAUCET FEMALE FERRET FIDDLE FILTER FINISH FIRMLY FISHER FLAVOR FLEECE FLORAL FOLDER FOLLOW FOSSIL FREEZE FRINGE FROSTY FUNNEL GADGET GALAXY GAMBLE GATHER GENIUS GIGGLE GLANCE GLIDER GLOOMY GOBLET GRAVEL GROOVE GROUCH GRUDGE GUILTY HAMLET HANGER HARDLY HASSLE HEALER HEARTY HECTIC HELPER HERMIT HOCKEY HOLLOW HORROR HUDDLE HUMBLE HUNTER HURDLE IMPACT IMPORT INCOME INFANT INJURY INSIDE INVENT INVITE ITSELF JESTER JIGSAW JINGLE JOCKEY JOKING JOYFUL JUNIOR KENNEL KNIGHT LAGOON LEGEND LESSEN LIKELY LIQUOR LIVELY LIZARD LOCATE LOVING LUMBER MAKING MANNER MAROON MASCOT MATTER MEDIUM MELLOW MELODY MENTAL METHOD MIDDAY MINING MINNOW MISTER MODEST MORALE MOSAIC MUTTON MYSELF NAPKIN NEPHEW NICKEL NIMBLE NOBODY NORMAL NOTICE NOVICE NUGGET OBLONG ODDITY OFFEND OPENER OPPOSE ORCHID OUTFIT OUTING OUTLET OYSTER PAMPER PARROT PASTRY PEANUT PEDDLE PERMIT PICKLE PIRATE PLAYER PLEASE PLUNGE POLISH POLLEN POSTER POUNCE PRAYER PREFER PRETTY PRISON PROFIT PROPER PUBLIC PUDDLE PURPLE PURSUE QUARTZ QUIVER RAFTER RAGING RANSOM RARELY RATHER RECENT RECORD REFUND REGION REGRET RELIEF REMAIN REMIND RENTAL REPEAT REPLAY RESIST RETAIN REVEAL REVOLT RIDDLE RINGER RISING RUNNER SACRED SAFARI SALARY SAUCER SAVING SCARCE SCHEME SCRAPE SCREAM SEARCH SELDOM SHRIMP SINGER SKATER SLEEPY SLIGHT SLOWLY SMOKER SNEEZE SOCKET SOLELY SPEECH SPIRAL SPONGE SPOOKY SPRAIN SPRINT SQUASH SQUEAK STAPLE STARCH STATUE STITCH STOLEN STRAIN STRAND STRICT STRIKE STRING STROLL STUDIO STUPID SUBMIT SUBWAY SUGARY SUNDAY SUPPLY SURELY SURVEY TAILOR TAKING TALKER TANGLE TARGET TEAPOT TEMPER TENANT THIRST THRILL THRIVE TICKLE TIMELY TOPPLE TOWARD TRAVEL TREATY TREMOR TRIBAL TRIPLE TROPHY TUMBLE TWELVE TWENTY TYPING UNLOCK UNREAL UPDATE UPLOAD UPSIDE URGENT USEFUL UTMOST VACUUM VANISH VIOLIN VIRTUE VISION VISUAL VOYAGE WAITER WALNUT WANDER WARMTH WASHER WEALTH WEAPON WEEKLY WEIGHT WICKED WINNER WISDOM WITHIN WORKER WRITER YEARLY YOGURT PEOPLE".split(" ");
+const BYLEN={3:W3,4:W4,5:W5,6:W6};
+const $=i=>document.getElementById(i);
+const isV=ch=>"AEIOU".includes(ch);
+const tile=(ch,extra="")=>`<div class="tile ${isV(ch)?"v":"c"} ${extra}">${ch}</div>`;
+const sym=(a,b)=>a===b?"=":(a>b?">":"<");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+$("abc").innerHTML=["ABCDEFGHIJKLM","NOPQRSTUVWXYZ"].map(r=>`<div class="row">${[...r].map(c=>tile(c)).join("")}</div>`).join("");
+let secret,locked,tries,over,n,hue=-1;
+let typed=[],wrongAt=[],round=0,busy=false;
+function draw(){
+  const a=document.activeElement,keep=a&&a.dataset&&a.dataset.i!==undefined?+a.dataset.i:-1;
+  let h="";
+  for(let i=0;i<n;i++){
+    h+=locked[i]?tile(locked[i],"right"):`<input class="tile ${isV(secret[i])?"v":"c"}" data-i="${i}" maxlength="1" value="${typed[i]||""}" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Letter ${i+1}"${over?" disabled":""}>`;
+    if(i<n-1)h+=`<div class="sym">${sym(secret[i],secret[i+1])}</div>`;
+  }
+  $("board").innerHTML=h;
+  document.querySelectorAll("#board input").forEach(el=>{el.oninput=onIn;el.onkeydown=onKey;el.onfocus=()=>el.select()});
+  if(!over){const t=document.querySelector(`#board input[data-i="${keep}"]`);if(t)t.focus()}
+}
+const opens=()=>[...document.querySelectorAll("#board input")];
+function onIn(e){
+  const el=e.target,i=+el.dataset.i;
+  const v=el.value.toUpperCase().replace(/[^A-Z]/g,"").slice(-1);
+  if(v&&(wrongAt[i].has(v)||isV(v)!==isV(secret[i]))){
+    el.value="";typed[i]="";
+    el.classList.remove("no");void el.offsetWidth;el.classList.add("no");
+    flash("Word does not fit the tiles.");return;
+  }
+  el.value=v;typed[i]=v;
+  if(v){const nx=opens().find(x=>+x.dataset.i>i&&!x.value)||opens().find(x=>!x.value);if(nx)nx.focus()}
+  trySubmit();
+}
+let flashT;
+function flash(t){const m=$("msg");if(over)return;m.textContent=t;clearTimeout(flashT);flashT=setTimeout(()=>{if(!over)m.textContent=""},1800)}
+function onKey(e){
+  const el=e.target,i=+e.target.dataset.i;
+  if(e.key==="Backspace"&&!el.value){const pv=opens().filter(x=>+x.dataset.i<i).pop();if(pv){pv.value="";typed[+pv.dataset.i]="";pv.focus();e.preventDefault()}}
+  else if(e.key==="ArrowLeft"){const pv=opens().filter(x=>+x.dataset.i<i).pop();if(pv)pv.focus()}
+  else if(e.key==="ArrowRight"){const nx=opens().find(x=>+x.dataset.i>i);if(nx)nx.focus()}
+  else if(e.key==="Enter")trySubmit();
+}
+async function trySubmit(){
+  if(over||busy)return;
+  const ins=opens();
+  if(!ins.length||ins.some(x=>!x.value))return;
+  const w=Array.from({length:n},(_,i)=>locked[i]||typed[i]).join("");
+  busy=true;const r=round;
+  const res=await guess(w,"",true);
+  busy=false;
+  if(r!==round||over)return;
+  if(res==="ok"){typed=Array(n).fill("");draw();const f=opens()[0];if(f)f.focus()}
+  else{
+    opens().forEach(x=>{x.classList.remove("no");void x.offsetWidth;x.classList.add("no")});
+    flash(res==="invalid"?"Not a valid word.":"Word does not fit the tiles.");
+    const l=opens().pop();if(l)l.focus();
+  }
+}
+function start(){
+  round++;busy=false;
+  const HUES=[0,15,205,225,245,265,285,305,330,345];
+  let h;do{h=HUES[Math.floor(Math.random()*HUES.length)]}while(h===hue);
+  hue=h;document.documentElement.style.setProperty("--h",h);
+  n=3+Math.floor(Math.random()*4);
+  const list=BYLEN[n];
+  secret=list[Math.floor(Math.random()*list.length)];
+  locked=Array(n).fill(null);typed=Array(n).fill("");wrongAt=Array.from({length:n},()=>new Set());tries=0;over=false;
+  $("hist").innerHTML="";$("msg").textContent="";
+  $("giveup").disabled=false;
+  draw();
+}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+  const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+  const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let t=0;
+  (function f(){
+    x.clearRect(0,0,c.width,c.height);t++;
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(t<160)requestAnimationFrame(f);else c.remove();
+  })();
+}
+function popup(name,word){
+  const d=document.createElement("div");d.className="win";
+  const l=document.createElement("div");l.className="wl";l.textContent=`${name} won with '${word}'`;d.appendChild(l);
+  const m=$("msg");m.textContent="";m.appendChild(d);
+  const r=secret;setTimeout(()=>{if(over&&secret===r)start()},6000);
+}
+function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
+const KNOWN=new Set([...W3,...W4,...W5,...W6]),CACHE=new Map();
+const isPlural=w=>/S$/.test(w)&&!/(SS|US|IS)$/.test(w);
+async function ask(url){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),4000);
+  try{return await fetch(url,{signal:c.signal})}finally{clearTimeout(t)}
+}
+async function validWord(w){
+  if(KNOWN.has(w))return true;
+  if(isPlural(w))return false;
+  if(CACHE.has(w))return CACHE.get(w);
+  const lw=w.toLowerCase();
+  let ok=false,sure=false;
+  try{
+    const r=await ask(`https://api.dictionaryapi.dev/api/v2/entries/en/${lw}`);
+    if(r.status===200){ok=true;sure=true}
+    else if(r.status===404){ok=false;sure=true}
+    else throw new Error("busy");
+  }catch(e){
+    try{
+      const d=await ask(`https://api.datamuse.com/words?sp=${lw}&max=5`);
+      if(d.ok){const j=await d.json();ok=Array.isArray(j)&&j.some(x=>String(x.word).toLowerCase()===lw)}
+    }catch(e2){ok=false}
+  }
+  if(sure)CACHE.set(w,ok);
+  return ok;
+}
+const fits=w=>{for(let i=0;i<n;i++){if(isV(w[i])!==isV(secret[i])||(locked[i]?w[i]!==locked[i]:wrongAt[i].has(w[i])))return false}return true};
+async function guess(word,name,local){
+  if(over)return"over";
+  const w=String(word||"").trim().toUpperCase();
+  if(!new RegExp(`^[A-Z]{${n}}$`).test(w))return"bad";
+  if(!fits(w))return"nofit";
+  const r=round;
+  if(!(await validWord(w)))return"invalid";
+  if(over||r!==round||!fits(w))return"nofit";
+  tries++;
+  const who=nameOf(String(name||"").trim().slice(0,30));
+  let row="";
+  for(let i=0;i<n;i++){
+    const ok=w[i]===secret[i];
+    if(ok)locked[i]=w[i];else wrongAt[i].add(w[i]);
+    row+=tile(w[i],ok?"right":"wrong");
+  }
+  $("hist").insertAdjacentHTML("afterbegin",`<div class="row hist"><div class="tiles">${row}</div>${local?"":`<span class="who">${esc(who)}</span>`}</div>`);
+  if(w===secret){over=true;$("giveup").disabled=true;draw();popup(who,w);confetti()}
+  else draw();
+  return"ok";
+}
+window.submitGuess=guess;
+window.addEventListener("message",e=>{const d=e.data;if(d&&d.type==="guess")guess(d.word,d.name)});
+const LIVE=/[?&]live=1/.test(location.search)||location.protocol==="file:";
+function tikfinity(){let ws;try{ws=new WebSocket("ws://127.0.0.1:21213/")}catch(e){return}
+ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data||m;if(!/chat|comment/i.test(String(m.event||m.type||"")))return;const u=d.user||{};guess(d.comment||d.text||d.message,d.nickname||d.uniqueId||u.nickname||u.uniqueId)}catch(e){}};
+ws.onclose=()=>setTimeout(tikfinity,3000);ws.onerror=()=>ws.close()}
+if(LIVE)tikfinity();
+$("new").onclick=start;
+$("giveup").onclick=()=>{
+  if(over)return;
+  over=true;locked=secret.split("");
+  $("giveup").disabled=true;
+  $("msg").textContent=`You gave up. The word was ${secret}.`;
+  draw();
+  const r=secret;setTimeout(()=>{if(over&&secret===r)start()},6000);
+};
+start();
+</script>
+<script src="../back-to-menu.js"></script></body>
+</html>
