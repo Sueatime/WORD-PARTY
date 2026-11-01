@@ -11,6 +11,9 @@
     window.onLiveComment = function (user, text) { ...your game's code... };
 */
 (function () {
+  if (window.__liveCommentsLoaded) return;
+  window.__liveCommentsLoaded = true;
+
   var RELAY = 'wss://tiktok-relay-7iss.onrender.com';
   var ws = null;
   var wait = 2000;
@@ -96,6 +99,12 @@
     // Games with their own handler
     if (typeof window.onLiveComment === 'function') {
       window.onLiveComment(user, text);
+      return;
+    }
+
+    // Your games already define submitGuess(word, name): use it
+    if (typeof window.submitGuess === 'function') {
+      window.submitGuess(text, user);
       return;
     }
 
