@@ -106,7 +106,7 @@ var g=$("grid");g.innerHTML="";
 rows.forEach(function(w){var f=fb(w),r=document.createElement("div");r.className="row";w.split("").forEach(function(c,i){r.appendChild(tile(f[i],c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<T.length;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}
 }
-function newGame(){clearTimeout(winT);
+function newGame(){clearTimeout(winT);scored={};
 var L=3+Math.floor(Math.random()*6),all=WORDS[L],pool=all.filter(function(x){return seen.indexOf(x)<0}),w;
 if(!pool.length){seen=[];pool=all}
 w=pool[Math.floor(Math.random()*pool.length)];seen.push(w);
@@ -122,7 +122,9 @@ var g=cur.join("");
 if(rows.indexOf(g)>=0){reject(g,"You already tried that word.");return}
 if(!fits(g)){reject(g,"The word does not fit the tiles.");return}
 rows.push(g);cur=[];$("msg").textContent="";
-if(g===T){over=true;render();popup();confetti();return}
+  window.playerName=liveGuesser||"";
+if(g===T){over=true;render();popup();confetti();if(liveGuesser)sendScore(liveGuesser,"Word Shift",5);return}
+if(liveGuesser&&!scored[liveGuesser]){scored[liveGuesser]=true;sendScore(liveGuesser,"Word Shift",2)}
 render()}
 function popup(){var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+T+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);clearTimeout(winT);winT=setTimeout(newGame,6000)}
@@ -153,8 +155,16 @@ window.addEventListener("focus",fk);
 $("new").onclick=newGame;$("give").onclick=giveUp;
 $("help").onclick=function(){$("how").classList.add("on")};
 $("x").onclick=function(){$("how").classList.remove("on");fk()};
-newGame();fk();
+var scored={},liveGuesser=null;
+window.onLiveComment=function(user,text){
+  if(over||!/^[A-Za-z]+$/.test(text)||text.length!==T.length)return;
+  var w=text.toUpperCase();
+  if(WORDS[T.length].indexOf(w)<0)return;
+  liveGuesser=user;cur=w.split("");check();liveGuesser=null;
+};
+  newGame();fk();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script>
+</body>
 </html>
