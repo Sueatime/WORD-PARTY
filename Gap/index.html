@@ -105,7 +105,7 @@ var g=$("grid");g.innerHTML="";
 rows.forEach(function(w){var r=document.createElement("div");r.className="row";var s=score(w);w.split("").forEach(function(c,i){r.appendChild(tile("c"+s[i],c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<N;i++)r.appendChild(tile(i===cur.length?"cur":"",cur[i]||""));g.appendChild(r)}
 }
-function newGame(){
+function newGame(){window.newRound&&window.newRound();
 N=3+Math.floor(Math.random()*5);
 var pool=W.filter(function(w){return w.length===N});
 target=pool[Math.floor(Math.random()*pool.length)];
@@ -119,6 +119,7 @@ var w=cur.join("");
 if(!SET[w]){$("msg").textContent=w+" isn't in my word list.";return}
 if(!fits(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 rows.push(w);cur=[];$("msg").textContent="";
+  window.scoreGuess&&window.scoreGuess(winner,"Word Gap",w===target);
 if(w===target){over=true;render();popup();confetti();return}
 render()}
 var winner="";
@@ -164,5 +165,5 @@ kb.value="~";document.body.tabIndex=-1;window.focus();
 newGame();fk();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
