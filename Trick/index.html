@@ -89,7 +89,7 @@ function grade(g,s){const r=Array(n).fill('x'),u=s.split('');
  for(let i=0;i<n;i++)if(r[i]==='x'){const j=u.indexOf(g[i]);if(j>-1){r[i]='y';u[j]=null}}
  return r}
 function show(t,g){const p=()=>Math.random()<.5;return t.map((c,i)=>c==='g'?(p()?'y':'x'):c==='y'?(p()?'g':'x'):(p()?'y':'g'))}
-function start(){n=want||3+Math.floor(Math.random()*5);const a=L[n].split(" ");secret=a[Math.floor(Math.random()*a.length)];
+function start(){window.newRound&&window.newRound();n=want||3+Math.floor(Math.random()*5);const a=L[n].split(" ");secret=a[Math.floor(Math.random()*a.length)];
  rows=[];cur="";over=false;marks={};winner='';const g0=document.getElementById('g');g0.value="";g0.maxLength=n;g0.disabled=false;g0.focus({preventScroll:true});ab();document.getElementById('give').disabled=false;
  msg("A "+n+"-letter word. Type your guess, then press Enter.");draw()}
 function msg(t){document.getElementById('msg').textContent=t}
@@ -112,6 +112,7 @@ function submit(){if(over)return;if(cur.length<n){msg("Need "+n+" letters.");ret
  if(!OK.has(cur)){msg(cur.toUpperCase()+" is not a valid word.");return}
  const why=fits(cur);if(why){msg(cur.toUpperCase()+" does not fit the tiles.");return}
  rows.push({w:cur,s:show(grade(cur,secret),cur)});used();
+                  window.scoreGuess&&window.scoreGuess(winner,"Word Trick",cur===secret);
  if(cur===secret){over=true;document.getElementById('give').disabled=true;document.getElementById('g').disabled=true;msg("");popup();confetti()}
  else msg("");document.getElementById('g').value="";
  cur="";draw()}
@@ -153,4 +154,4 @@ function confetti(){
 start();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body></html>
+<script src="../live-comments.js"></script></body></html>
