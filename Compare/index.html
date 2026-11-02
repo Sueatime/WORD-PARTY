@@ -144,7 +144,7 @@ async function trySubmit(){
     const l=opens().pop();if(l)l.focus();
   }
 }
-function start(){
+function start(){window.newRound&&window.newRound();
   round++;busy=false;
   const HUES=[0,15,205,225,245,265,285,305,330,345];
   let h;do{h=HUES[Math.floor(Math.random()*HUES.length)]}while(h===hue);
@@ -212,6 +212,7 @@ async function guess(word,name,local){
   if(!(await validWord(w)))return"invalid";
   if(over||r!==round||!fits(w))return"nofit";
   tries++;
+  window.scoreGuess&&window.scoreGuess(String(name||"").trim().slice(0,30),"Word Compare",w===secret);
   const who=nameOf(String(name||"").trim().slice(0,30));
   let row="";
   for(let i=0;i<n;i++){
@@ -243,5 +244,5 @@ $("giveup").onclick=()=>{
 start();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
