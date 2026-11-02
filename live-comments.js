@@ -154,5 +154,19 @@
       ws.send(JSON.stringify({ type: 'score', user: user, game: game, points: points }));
     }
   };
+  // ---- scoring: 5 for the first correct viewer, 2 (once per viewer) for a guess that fits ----
+  var scoredIn = {};
+  var roundWon = false;
+  window.newRound = function () { scoredIn = {}; roundWon = false; };
+  window.scoreGuess = function (user, game, isWin) {
+    user = String(user || '').trim();
+    if (!user) return;
+    if (isWin) {
+      if (!roundWon) { roundWon = true; window.sendScore(user, game, 5); }
+    } else if (!scoredIn[user]) {
+      scoredIn[user] = true;
+      window.sendScore(user, game, 2);
+    }
+  };
   connect();
 })();
