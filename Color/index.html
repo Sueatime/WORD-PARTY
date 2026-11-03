@@ -80,7 +80,15 @@ function $(i){return document.getElementById(i)}
 GR.forEach(function(){});
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function regroup(){var L=shuf(A),o=shuf([0,1,2,3]),sz=[7,7,6,6],n=0;M={};sz.forEach(function(z,i){for(var k=0;k<z;k++)M[L[n++]]=o[i]})}
-function buildAbc(){$("abc").innerHTML="";A.forEach(function(l){var b=document.createElement("button"),c=GR[gi(l)];b.className="k";b.textContent=l;b.style.background=c[1];b.style.color=c[2];b.setAttribute("aria-label","Letter "+l);b.onclick=function(){add(l)};$("abc").appendChild(b)})}
+function buildAbc(){
+$("abc").innerHTML="";
+var ord=[0,1,3,2],G=ord.map(function(c){return shuf(A.filter(function(l){return gi(l)===c}))});
+var take=G.map(function(a){return Math.floor(a.length/2)});
+var left=13-take.reduce(function(x,y){return x+y},0);
+var odd=shuf(G.map(function(a,i){return i}).filter(function(i){return G[i].length%2}));
+for(var k=0;k<left&&k<odd.length;k++)take[odd[k]]++;
+var r1=[],r2=[];G.forEach(function(a,i){r1=r1.concat(a.slice(0,take[i]));r2=r2.concat(a.slice(take[i]))});
+r1.concat(r2).forEach(function(l){var b=document.createElement("button"),c=GR[gi(l)];b.className="k";b.textContent=l;b.style.background=c[1];b.style.color=c[2];b.setAttribute("aria-label","Letter "+l);b.onclick=function(){add(l)};$("abc").appendChild(b)})}
 function tile(d,i){d.className="tile";d.style.background=GR[i][1];d.style.borderColor=GR[i][1];d.style.color=GR[i][2]}
 var done=false,gaveUp=false,streak=0,target="",hist=[];
 function hrow(w){var r=document.createElement("div");r.className="row";
