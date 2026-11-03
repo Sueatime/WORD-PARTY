@@ -2,9 +2,11 @@
 // 1) Adds a home-icon button in the top-left corner.
 // 2) Stops the page from zooming in / opening the keyboard by itself when a game loads.
 (function () {
+  // The menu is the folder that holds this script, so the button works from any page
+  var menuUrl = new URL("./", document.currentScript.src).href;
   // ---- 1) Menu button ----
   var a = document.createElement("a");
-  a.href = "../";
+  a.href = menuUrl;
   a.innerHTML = "\uD83C\uDFE0";
   a.setAttribute("aria-label", "Back to Word Party menu");
   a.style.cssText =
