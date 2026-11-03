@@ -97,7 +97,7 @@ h1{font-size:66px;margin-bottom:12px}
 </style></head><body>
 <main>
 <h1>Word Between</h1>
-<p class="sub">Type a word that sits alphabetically between the two words.</p>
+<p class="sub">Guess a word. It goes above or below the secret word. Close the gap and find it!</p>
 <div id="ab" aria-label="Alphabet notes"></div>
 <div id="msg" role="status"></div>
 <div id="stack"></div>
@@ -116,13 +116,12 @@ const OK=new Set(Object.values(V).flatMap(s=>s.split(' ')));Object.values(L).for
 let secret,n,lo,hi,cur,over,winner='',usedL=new Set();
 const $=id=>document.getElementById(id),pick=a=>a[Math.floor(Math.random()*a.length)];
 function start(){document.documentElement.style.setProperty('--h',Math.floor(Math.random()*360));n=3+Math.floor(Math.random()*5);const a=L[n].split(" ");secret=pick(a);
- const b=a.filter(w=>w<secret),u=a.filter(w=>w>secret);
- lo=b.length?pick(b):"a".repeat(n);hi=u.length?pick(u):"z".repeat(n);
+ lo=null;hi=null;
  cur="";over=false;winner='';usedL=new Set();
  const g=$('g');g.value="";g.maxLength=n;g.disabled=false;g.focus({preventScroll:true});$('give').disabled=false;
  ab();msg("");draw()}
 function msg(t){$('msg').textContent=t}
-function wr(w,cls){return `<div class="wr ${cls}">${[...w.toUpperCase()].map(c=>`<div class="tile">${c}</div>`).join("")}</div>`}
+function wr(w,cls){return `<div class="wr ${cls}">${(w?[...w.toUpperCase()]:Array(n).fill("?")).map(c=>`<div class="tile">${c}</div>`).join("")}</div>`}
 function draw(){
  const k=Math.min(cur.length,n-1);
  let sec="";for(let c=0;c<n;c++){const ch=over?secret[c].toUpperCase():(cur[c]?cur[c].toUpperCase():"");sec+=`<div class="tile${!over&&cur[c]?" has":""}${!over&&c===k?" cur":""}">${ch}</div>`}
@@ -132,7 +131,7 @@ let winnerOK=false;
 function submit(){if(over)return;if(cur.length<n){msg("Need "+n+" letters.");return}
  if(!OK.has(cur)){msg(cur.toUpperCase()+" is not a valid word.");return}
  if(cur===secret){over=true;winnerOK=true;$('give').disabled=true;$('g').disabled=true;msg("");draw();popup();confetti();return}
- if(!(cur>lo&&cur<hi)){msg(cur.toUpperCase()+" is not between the two words.");return}
+ if(!((lo===null||cur>lo)&&(hi===null||cur<hi))){msg(cur.toUpperCase()+" is not between the two words.");return}
  for(const c of cur)usedL.add(c);used();
  if(cur<secret)lo=cur;else hi=cur;
  msg("");$('g').value="";cur="";draw()}
@@ -141,7 +140,7 @@ gi.addEventListener('input',()=>{if(over)return;gi.value=gi.value.replace(/[^a-z
 gi.addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
 $('stack').addEventListener('click',()=>{if(!over)gi.focus()});
 document.addEventListener('keydown',e=>{if(!over&&document.activeElement.tagName!=='INPUT'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key.length===1||e.key==='Enter'||e.key==='Backspace'))gi.focus()});
-function abColor(){document.querySelectorAll('#ab button').forEach(b=>{const c=b.textContent,i=c>=lo[0]&&c<=hi[0];b.classList.toggle('in',i);b.classList.toggle('out',!i)})}
+function abColor(){document.querySelectorAll('#ab button').forEach(b=>{const c=b.textContent,i=c>=(lo?lo[0]:'a')&&c<=(hi?hi[0]:'z');b.classList.toggle('in',i);b.classList.toggle('out',!i)})}
 function used(){abColor()}
 function ab(){const a=$('ab');a.innerHTML="";for(const ch of "abcdefghijklmnopqrstuvwxyz"){const b=document.createElement('button');b.textContent=ch;a.appendChild(b)}}
 $('nb').onclick=()=>{winnerOK=false;start()};
