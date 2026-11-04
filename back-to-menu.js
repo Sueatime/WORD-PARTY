@@ -67,3 +67,11 @@
   release();
   window.addEventListener("load", function () { setTimeout(release, 0); });
 })();
+
+(function () {
+  var cs = document.currentScript;
+  if (!cs || !cs.src) return;
+  var s = document.createElement('script');
+  s.src = cs.src.replace('back-to-menu.js', 'live-comments.js');
+  document.head.appendChild(s);
+})();
