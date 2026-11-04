@@ -149,9 +149,9 @@
     };
   }
 // ---- send points to the relay (saved to the leaderboard) ----
-  window.sendScore = function (user, game, points) {
+  window.sendScore = function (user, game, points, win) {
     if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: 'score', user: user, game: game, points: points }));
+      ws.send(JSON.stringify({ type: 'score', user: user, game: game, points: points, win: win === true }));
     }
   };
   // ---- scoring: 5 for the first correct viewer, 2 (once per viewer) for a guess that fits ----
@@ -162,7 +162,7 @@
     user = String(user || '').trim();
     if (!user) return;
     if (isWin) {
-      if (!roundWon) { roundWon = true; window.sendScore(user, game, 5); }
+      if (!roundWon) { roundWon = true; window.sendScore(user, game, 5, true); }
     } else if (!scoredIn[user]) {
       scoredIn[user] = true;
       window.sendScore(user, game, 2);
