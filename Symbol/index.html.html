@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Symbols</title>
+<meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 32% 10%);--panel:hsl(var(--h) 26% 16%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 22% 70%);--tile:hsl(var(--h) 42% 44%);--pur:hsl(var(--h) 72% 62%);--gre:#22c55e;--yel:#eab308;--gry:#6b7280;--n:5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 16px;color:var(--muted);font-size:18px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+.abc{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;width:100%;margin:0 auto 14px}
+.abc span{height:36px;display:grid;place-items:center;font-weight:600;border-radius:8px;background:var(--panel);color:var(--ink)}
+.abc span.used{background:hsl(var(--h) 20% 42%)}
+.t,.tile{--ts:max(28px,min(52px,calc((min(100vw,480px) - 32px - (var(--n,6) - 1)*6px)/var(--n,6))))}
+.slots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:0}
+.tile{width:var(--ts);height:var(--ts);border-radius:8px;display:grid;place-items:center;font-size:min(22px,calc(var(--ts)*.5));font-weight:700;background:var(--tile);color:#fff;text-transform:uppercase}
+.cell{position:relative}
+.cell input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;font-size:16px;text-transform:uppercase;letter-spacing:0;cursor:text}
+.cell:focus-within .tile.cur{outline:2px solid var(--pur);outline-offset:1px}
+.slots.shown .tile{background:var(--pur);color:#fff;font-weight:800}
+.slots.wrong{animation:shake .4s}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.slots.wrong{animation:none}}
+.notes{margin:0 auto 12px;max-width:360px}
+.notes p{margin:0 0 8px;font-size:15px;color:var(--muted);line-height:1.4}
+.notes button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:70px;flex:0 0 auto;background:var(--panel);border:2px solid var(--muted);color:var(--ink);padding:4px 8px}
+.notes button b{font-size:22px;line-height:1;font-weight:400;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.notes button small{font-size:11px;color:var(--muted);font-weight:400}
+.notes button.n1{border-color:var(--gre)}.notes button.n2{border-color:var(--yel)}.notes button.n3{border-color:var(--gry)}
+.hist{background:var(--panel);border-radius:12px;padding:8px;margin-top:12px;min-height:20px}
+.g{display:flex;flex-direction:column;align-items:center;gap:0;margin:10px 0}
+.symrow,.tilerow{display:flex;gap:6px;justify-content:center}
+.symc,.g .tile{width:var(--ts)}
+.symc{--ts:max(28px,min(52px,calc((min(100vw,480px) - 32px - (var(--n,6) - 1)*6px)/var(--n,6))));height:calc(var(--ts)*.7);display:grid;place-items:center;font-size:min(21px,calc(var(--ts)*.48));line-height:1;background:transparent;border:0;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.symc.n1{background:var(--gre);border-color:var(--gre)}.symc.n2{background:var(--yel);border-color:var(--yel)}.symc.n3{background:var(--gry);border-color:var(--gry)}
+.g .tile{height:var(--ts);background:transparent;border:1px solid var(--muted)}
+button{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:2px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer}
+.end{margin-top:20px;display:flex;gap:10px;justify-content:center}
+.end button{flex:0 0 auto;padding:8px 20px}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.msg{min-height:26px;font-weight:600;margin:12px 0 4px}
+.msg:empty{min-height:0;margin:0}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.wh{font-size:.75em;opacity:.85;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase}
+.wl{margin-top:2px}
+#wb .win{margin-bottom:18px}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+@media (min-width:800px){
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.t,.tile,.symc{--ts:max(34px,min(68px,calc((min(100vw,820px) - 32px - (var(--n,6) - 1)*6px)/var(--n,6))))}
+.tile{font-size:min(30px,calc(var(--ts)*.5))}
+.symc{font-size:min(28px,calc(var(--ts)*.48))}
+.abc{gap:6px}.abc span{height:54px}
+.notes{max-width:520px}.notes p{font-size:21px}.notes button b{font-size:28px}.notes button small{font-size:14px}
+.msg{min-height:40px}
+.end button{padding:10px 28px}
+.win{font-size:30px;max-width:620px}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Word Symbols</h1>
+  <p class="sub">Each symbol sits over a letter of the secret word, not your guess. Work out what the symbols mean to find the word.</p>
+  <div class="abc" id="abc" aria-label="Alphabet"></div>
+  <div id="wb"></div>
+  <div class="cell"><div class="slots" id="slots" aria-label="Type your guess"></div><input id="g" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Type your guess"></div>
+  <div class="msg" id="msg" role="status"></div>
+  <div class="hist" id="hist"></div>
+  <div class="end"><button id="new">New game</button><button id="give">Give up</button></div>
+</main>
+<script>
+const WORDS={},VALID=new Set();
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+function prep(a,g){for(let n=3;n<=7;n++)WORDS[n]=[];
+ a.forEach(w=>{if(w.length>=3&&w.length<=7)WORDS[w.length].push(w)});
+ g.forEach(w=>{if(w.length>=3&&w.length<=7)VALID.add(w)});for(const k in WORDS)WORDS[k].forEach(w=>VALID.add(w))}
+const POOL=["❤️","🚗","🐱","🍰","🍓","🍩","⭐","☀️","💎","🌳","🍇","🌸","🦋"];
+const NOTE=["?","in guess, right spot","in guess, wrong spot","not in guess"];
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let typ="",secret,n,over,round=0,rows,symFor,notes,legend;
+function renderAbc(){
+  const used=new Set(rows.flatMap(r=>[...r.w]));
+  $("abc").innerHTML=[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].map(c=>`<span class="${used.has(c)?"used":""}">${c}</span>`).join("");
+}
+function renderHist(){
+  $("hist").innerHTML=rows.map(r=>`<div class="g"><div class="symrow">${r.fb.map(k=>{const s=symFor[k];return `<div class="symc n${notes[s]}">${s}</div>`}).join("")}</div><div class="tilerow">${[...r.w].map(c=>`<div class="tile">${c}</div>`).join("")}</div></div>`).join("");
+  $("hist").style.display=rows.length?"":"none";
+}
+function drawSlots(){
+  $("slots").className="slots"+(over?" shown":"");
+  $("slots").innerHTML=[...secret].map((c,i)=>over?`<div class="tile">${c}</div>`:`<div class="tile${i===typ.length?" cur":""}">${typ[i]||""}</div>`).join("");
+}
+function feedback(w){
+  // Symble rule: each symbol sits over a letter of the SECRET word, not your guess
+  // g = guess has this letter in the same spot; y = guess has it elsewhere (counted once per copy); x = not in guess
+  const left={};
+  [...secret].forEach((a,i)=>{if(w[i]!==a)left[w[i]]=(left[w[i]]||0)+1});
+  return [...secret].map((a,i)=>{
+    if(w[i]===a)return "g";
+    if(left[a]>0){left[a]--;return "y"}
+    return "x"});
+}
+function start(){
+  round++;
+  n=3+Math.floor(Math.random()*5);
+  document.documentElement.style.setProperty("--n",n);
+  const list=WORDS[n];secret=list[Math.floor(Math.random()*list.length)];
+  const pick=shuffle(POOL).slice(0,3),kinds=shuffle(["g","y","x"]);
+  symFor={};kinds.forEach((k,i)=>symFor[k]=pick[i]);
+  legend=pick;notes={};pick.forEach(s=>notes[s]=0);
+  rows=[];over=false;typ="";
+  $("wb").textContent="";
+  $("msg").textContent="";$("g").value="";$("g").maxLength=n;$("g").readOnly=false;$("give").disabled=false;
+  drawSlots();renderAbc();renderHist();$("g").focus();
+}
+function addGuess(w,who){
+  rows.unshift({w,fb:feedback(w)});
+  renderHist();renderAbc();
+  if(w===secret){
+    end();drawSlots();popup(nameOf(who),w);confetti();
+  }
+}
+function end(){over=true;$("g").readOnly=true;$("give").disabled=true}
+$("g").addEventListener("input",e=>{if(over)return;
+typ=e.target.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,n);e.target.value=typ;
+$("slots").classList.remove("wrong");
+if(typ.length===n){const w=typ;
+  if(!VALID.has(w)){const t=$("slots");void t.offsetWidth;t.classList.add("wrong");$("msg").textContent=`"${w}" isn't a word. Try again!`}
+  else{$("msg").textContent="";typ="";e.target.value="";addGuess(w)}}
+else if($("msg").textContent)$("msg").textContent="";
+if(!over)drawSlots()});
+document.addEventListener("keydown",e=>{if(!over&&document.activeElement!==$("g")&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(/^[a-z]$/i.test(e.key)||e.key==="Backspace"))$("g").focus()});
+function giveUp(){
+  if(over)return;
+  end();
+  $("msg").textContent=`You gave up. The word was ${secret}.`;drawSlots();
+}
+function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
+function popup(name,w){
+const d=document.createElement("div");d.className="win";
+const l=document.createElement("div");l.className="wl";l.textContent=name+" won with '"+w+"'";d.appendChild(l);
+const m=$("wb");m.textContent="";m.appendChild(d);$("msg").textContent="";
+const r=round;setTimeout(()=>{if(over&&round===r)start()},6000)}
+function remote(word,name){if(over)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==n||!VALID.has(word))return;
+addGuess(word,String(name||"").trim().slice(0,30))}
+window.submitGuess=remote;
+window.addEventListener("message",e=>{const d=e.data;if(d&&d.type==="guess")remote(d.word,d.name)});
+const LIVE=/[?&]live=1/.test(location.search)||location.protocol==="file:";
+function tikfinity(){let ws;try{ws=new WebSocket("ws://127.0.0.1:21213/")}catch(e){return}
+ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data||m;if(!/chat|comment/i.test(String(m.event||m.type||"")))return;const u=d.user||{};remote(d.comment||d.text||d.message,d.nickname||d.uniqueId||u.nickname||u.uniqueId)}catch(e){}};
+ws.onclose=()=>setTimeout(tikfinity,3000);ws.onerror=()=>ws.close()}
+if(LIVE)tikfinity();
+function confetti(){
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const c=document.createElement("canvas");c.style.cssText="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+let t=0;
+(function f(){
+x.clearRect(0,0,c.width,c.height);t++;
+ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+if(t<160)requestAnimationFrame(f);else c.remove();
+})();
+}
+$("give").onclick=giveUp;
+$("new").onclick=start;
+$("msg").textContent="Loading words...";
+Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){$("msg").textContent="Could not load the word lists."});
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script></body>
+</html>

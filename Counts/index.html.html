@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Counts</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--n:5;--cap:44px;--h:260;--bg:hsl(var(--h) 32% 10%);--panel:hsl(var(--h) 26% 16%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 22% 70%);--tile:hsl(var(--h) 42% 44%);--pur:hsl(var(--h) 72% 62%);--gre:#22c55e;--yel:#eab308;--red:#ef4444;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;line-height:1.1;font-size:clamp(30px,9.5vw,44px);font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;letter-spacing:1px}
+.sub{margin:0 0 12px;color:var(--muted);font-size:18px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+.abc{display:flex;flex-direction:column;gap:4px;margin:0 0 10px}
+.abc .line{display:grid;grid-template-columns:repeat(13,1fr);gap:4px}
+.abc .tile{width:100%;height:36px;font-size:inherit;border-radius:8px;background:var(--panel);border:2px solid transparent;color:var(--ink);cursor:pointer;font-weight:600;padding:0}
+.abc .tile.used{background:hsl(var(--h) 20% 42%);border-color:hsl(var(--h) 20% 42%)}
+.abc .tile.m1{background:var(--red);border-color:var(--red);color:#fff}
+.abc .tile.m2{background:var(--yel);border-color:var(--yel);color:#1b1b1b}
+.abc .tile.m3{background:var(--gre);border-color:var(--gre);color:#06260f}
+.slots{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.tile{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;font-size:22px;font-weight:700;background:var(--tile);color:#fff;user-select:none}
+.slots .tile{--s:min(var(--cap),calc((100vw - 48px - (var(--n) - 1) * 5px) / var(--n)));width:var(--s);height:var(--s);font-size:calc(var(--s) * .5);background:var(--tile);color:#fff}
+.slots .tile.on{background:hsl(var(--h) 42% 54%)}
+.slotwrap{position:relative;display:inline-block;margin-bottom:14px}
+.slotwrap .slots{margin-bottom:0}
+#g{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;font-size:16px;cursor:pointer}
+#win{min-height:0;margin:0 0 10px}
+#win:empty{display:none}
+#win:not(:empty)+#msg:empty{display:none}
+.slots.shown .tile{background:var(--pur);border:0;color:#fff;font-weight:800;outline:3px solid var(--ink);outline-offset:-3px}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:15.5px;margin:0 0 12px;text-align:center;color:var(--muted);background:var(--panel);padding:10px;border-radius:12px;line-height:1.3}
+.lg div{border-top:4px solid;padding-top:6px}
+.lg b{display:block;color:var(--ink);font-size:17px}
+@media (min-width:800px){.lg{font-size:21px;padding:14px;gap:14px}.lg b{font-size:24px}}
+.hist{background:var(--panel);border-radius:12px;padding:8px;margin-bottom:16px}
+.hist:empty{display:none}
+.g{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px;margin:8px 0}
+.g .tiles{display:flex;gap:5px}
+.g .tile{background:transparent;border:2px solid var(--muted);--s:min(var(--cap),calc((100vw - 48px - (var(--n) - 1) * 5px) / var(--n)));cursor:pointer;width:var(--s);height:var(--s);font-size:calc(var(--s) * .5)}
+.g .tile.m1{background:var(--red);border-color:var(--red)}
+.g .tile.m2{background:var(--yel);border-color:var(--yel);color:#1b1b1b}
+.g .tile.m3{background:var(--gre);border-color:var(--gre);color:#06260f}
+.badges{display:flex;gap:4px}
+.b{min-width:36px;height:36px;border-radius:18px;display:grid;place-items:center;font-weight:800;font-size:20px;color:#fff;padding:0 6px}
+.b.gre{background:var(--gre);color:#06260f}.b.yel{background:var(--yel);color:#1b1b1b}.b.red{background:var(--red)}
+button{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:0;background:var(--pur);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--muted)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+#msg{min-height:26px;font-weight:600;margin:6px 0 10px}
+.acts{display:flex;gap:10px;justify-content:center}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+@media (min-width:800px){
+:root{--cap:70px}
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.win{font-size:30px;max-width:620px}
+#msg{min-height:40px}
+.abc .tile{height:54px}
+.abc .line,.abc{gap:6px}
+.b{min-width:50px;height:50px;border-radius:25px;font-size:28px}
+button{padding:14px 30px}
+}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
+</style>
+</head>
+<body>
+<main>
+  <h1>Word Counts</h1>
+  <p class="sub">Each guess tells you how many letters are right, but not which ones.</p>
+  <div class="lg"><div style="border-color:var(--gre)"><b>Green</b>right letter, right spot</div><div style="border-color:var(--yel)"><b>Yellow</b>right letter, wrong spot</div><div style="border-color:var(--red)"><b>Red</b>not in the word</div></div>
+  <div class="abc" id="abc" aria-label="Alphabet notes"></div>
+  <div id="win" role="status"></div>
+  <div id="msg" role="status"></div>
+  <div class="slotwrap"><div class="slots" id="slots" aria-label="Secret word"></div><input id="g" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Type your guess here"></div>
+  <div class="hist" id="hist"></div>
+  <div class="acts" style="margin-bottom:16px"><button class="ghost" id="new">New game</button><button class="ghost" id="give">Give up</button></div>
+</main>
+<script>
+const WORDS={},VALID={};
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+function prep(a,g){for(let n=3;n<=6;n++){WORDS[n]=[];VALID[n]=new Set()}
+ a.forEach(w=>{if(w.length>=3&&w.length<=6)WORDS[w.length].push(w)});
+ g.forEach(w=>{if(w.length>=3&&w.length<=6)VALID[w.length].add(w)});
+ for(const n in WORDS)WORDS[n].forEach(w=>VALID[n].add(w))}
+const $=id=>document.getElementById(id);
+let secret,n,tries,over,round=0,cur="",prev=[];
+function score(w,sec){
+  sec=sec||secret;
+  let gre=0;const sc={},gc={};
+  for(let i=0;i<n;i++){
+    if(w[i]===sec[i])gre++;
+    else{sc[sec[i]]=(sc[sec[i]]||0)+1;gc[w[i]]=(gc[w[i]]||0)+1}
+  }
+  let yel=0;for(const c in gc)yel+=Math.min(gc[c],sc[c]||0);
+  return {gre,yel,red:n-gre-yel};
+}
+function drawSlots(){
+  $("slots").className="slots"+(over?" shown":"");
+  $("slots").innerHTML=[...secret].map((c,i)=>`<div class="tile${!over&&i===cur.length?" on":""}">${over?c:(cur[i]||"")}</div>`).join("");
+}
+function start(){
+  round++;
+  n=3+Math.floor(Math.random()*4);
+  const list=WORDS[n];secret=list[Math.floor(Math.random()*list.length)];
+  tries=0;over=false;
+  $("hist").innerHTML="";$("msg").textContent="";$("win").innerHTML="";cur="";prev=[];
+  document.querySelectorAll("#abc .tile").forEach(t=>{t.dataset.m=0;delete t.dataset.u;t.className="tile"});
+  $("g").value="";$("g").maxLength=n;$("g").disabled=false;
+  document.documentElement.style.setProperty("--n",n);drawSlots();$("g").focus();
+}
+function fitsMarks(w){
+  const need=new Set(),red=new Set(),fixed={},notAt=[];
+  document.querySelectorAll("#abc .tile").forEach(t=>{
+    const m=+t.dataset.m,l=t.dataset.l;
+    if(m===1)red.add(l);else if(m>=2)need.add(l);
+  });
+  document.querySelectorAll("#hist .g .tiles").forEach(row=>{
+    row.querySelectorAll(".tile").forEach((t,i)=>{
+      const m=+t.dataset.m,c=t.textContent;
+      if(m===1)red.add(c);
+      else if(m===2){need.add(c);notAt.push([i,c])}
+      else if(m===3){need.add(c);fixed[i]=c}
+    });
+  });
+  for(const c of red)if(!need.has(c)&&w.includes(c))return false;
+  for(const c of need)if(!w.includes(c))return false;
+  for(const i in fixed)if(w[i]!==fixed[i])return false;
+  for(const [i,c] of notAt)if(w[i]===c)return false;
+  return true;
+}
+function fitsCounts(w){
+  for(const p of prev){const t=score(p.w,w);if(t.gre!==p.s.gre||t.yel!==p.s.yel||t.red!==p.s.red)return false}
+  return true;
+}
+function guess(){
+  if(over)return;
+  const w=cur;
+  if(!new RegExp(`^[A-Z]{${n}}$`).test(w)){$("msg").textContent=`Type exactly ${n} letters.`;return}
+  if(!VALID[n].has(w)){$("msg").textContent="Not a valid word.";return}
+  if(!fitsMarks(w)||!fitsCounts(w)){$("msg").textContent="The word does not fit the answer.";return}
+  tries++;
+  const s=score(w);prev.push({w,s});
+  $("hist").insertAdjacentHTML("afterbegin",`<div class="g"><div class="tiles">${[...w].map(c=>`<div class="tile" data-m="0">${c}</div>`).join("")}</div><div class="badges"><div class="b gre">${s.gre}</div><div class="b yel">${s.yel}</div><div class="b red">${s.red}</div></div></div>`);
+  for(const c of w){const t=document.querySelector(`#abc .tile[data-l="${c}"]`);if(t){t.dataset.u="1";t.classList.add("used")}}
+  $("g").value="";cur="";
+  if(w===secret){
+    over=true;$("g").disabled=true;$("msg").textContent="";
+    popup();
+    drawSlots();confetti();
+  }else{$("msg").textContent="";drawSlots();$("g").focus()}
+}
+function popup(){
+  let nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+  const d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+secret+"\u2019";
+  $("win").innerHTML="";$("win").appendChild(d);
+}
+function giveUp(){
+  if(over)return;
+  over=true;$("g").disabled=true;
+  $("msg").textContent=`You gave up. The word was ${secret}.`;drawSlots();
+}
+function cycle(e){
+  const t=e.target.closest(".tile");if(!t)return;
+  const m=((+t.dataset.m)+1)%4;t.dataset.m=m;t.className="tile"+(m?" m"+m:"")+(t.dataset.u?" used":"");
+}
+$("hist").addEventListener("click",cycle);
+$("abc").innerHTML=["ABCDEFGHIJKLM","NOPQRSTUVWXYZ"].map(l=>`<div class="line">${[...l].map(c=>`<div class="tile" data-m="0" data-l="${c}">${c}</div>`).join("")}</div>`).join("");
+$("abc").addEventListener("click",cycle);
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+  const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+  const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let t=0;
+  (function f(){
+    x.clearRect(0,0,c.width,c.height);t++;
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(t<160)requestAnimationFrame(f);else c.remove();
+  })();
+}
+$("g").oninput=()=>{const v=$("g").value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,n);$("g").value=v;cur=v;drawSlots()};
+$("g").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();guess()}};
+document.addEventListener("keydown",e=>{if(over||e.ctrlKey||e.metaKey||e.altKey)return;if(document.activeElement===$("g"))return;const a=document.activeElement;if(a&&a.tagName==="BUTTON")return;if(/^[a-zA-Z]$/.test(e.key)||e.key==="Backspace")$("g").focus()});
+$("give").onclick=giveUp;
+$("new").onclick=start;
+$("msg").textContent="Loading words...";
+Promise.all([getList('../answers.txt'),getList('../guesses.txt')]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){$("msg").textContent=('Could not load the word lists.')});
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script></body>
+</html>

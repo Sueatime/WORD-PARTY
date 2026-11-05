@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Border</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--mute:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);--g:#22c55e;--y:#eab308;--x:hsl(var(--h) 14% 42%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center;display:flex;flex-direction:column;min-height:100vh}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 12px;color:var(--mute);font-size:18px;text-align:center}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:15.5px;margin:0 0 10px;text-align:center;color:var(--mute);background:var(--panel);padding:10px;border-radius:12px;line-height:1.3}
+.lg div{border-top:4px solid;padding-top:6px}
+.lg b{display:block;color:var(--ink);font-size:17px}
+.panel{width:100%;margin:0 auto 12px}
+.abc{display:grid;grid-template-columns:repeat(13,1fr);gap:4px}
+.k{border:2px solid var(--mute);border-radius:8px;height:36px;font:inherit;font-weight:700;color:var(--ink);background:var(--panel);cursor:pointer;padding:0}
+.k:active{transform:scale(.92)}
+.k.gr{background:var(--g);border-color:var(--g);color:#052e16}
+.k.ye{background:var(--y);border-color:var(--y);color:#2a1f00}
+.k.mm{background:var(--x);border-color:var(--x);color:#fff}
+.info{margin:0 0 10px;color:var(--mute);font-size:18px}
+.row{display:flex;gap:5px;justify-content:center;margin-bottom:5px;align-items:center}
+.tile{--s:min(var(--cap,44px),calc((100vw - 48px - (var(--n) - 1) * 5px) / var(--n)));width:var(--s);height:var(--s);border:2px solid var(--mute);display:flex;align-items:center;justify-content:center;font-size:calc(var(--s) * .5);font-weight:700;text-transform:uppercase;color:var(--ink);background:var(--panel);padding:0;border-radius:8px}
+.tile.sh{border-color:var(--panel)}
+.tile.sh{font-size:calc(var(--s) * .6)}
+.tile.sh svg{width:72%;height:72%}
+.tile.cur{border-color:var(--pur)}
+.tile.gr{background:var(--g);border-color:var(--g);color:#052e16}
+.tile.ye{background:var(--y);border-color:var(--y);color:#2a1f00}
+.tile.mm{background:var(--x);border-color:var(--x);color:#fff}
+#winbox{margin:0 0 10px}
+#winbox:empty,#msg:empty{display:none}
+#clue{margin-bottom:12px}
+.hist{display:flex;flex-direction:column;gap:5px;margin:5px 0 0}
+#msg{min-height:0;font-weight:600;margin:0 0 8px}
+.acts{margin:12px 0 0}
+button{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:2px solid var(--mute);background:transparent;color:var(--ink);cursor:pointer}
+button.k{padding:0;font-weight:700}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+#kbd{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+@media (min-width:800px){
+:root{--cap:70px}
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub,.info{font-size:25px}
+.lg{font-size:21px;padding:14px;gap:14px}
+.lg b{font-size:24px}
+.abc{gap:6px}
+.k{height:54px}
+.row,.hist{gap:8px}
+.hist{margin-top:8px}
+.tile{--s:min(var(--cap,44px),calc((100vw - 48px - (var(--n) - 1) * 8px) / var(--n)))}
+.win{font-size:30px;max-width:620px}
+#msg{min-height:0}
+button{padding:14px 30px}
+button.k{padding:0}
+}
+#inp{width:100%;max-width:420px;height:56px;margin:4px auto 14px;display:block;border:2px solid var(--pur);border-radius:30px;background:var(--panel);color:var(--ink);font:inherit;font-weight:700;font-size:24px;letter-spacing:2px;text-align:center;text-transform:uppercase;outline:none}
+#inp::placeholder{text-transform:none;letter-spacing:0;font-weight:400;color:var(--mute)}
+.hrow{display:flex;align-items:stretch;justify-content:center;gap:10px;max-width:520px;width:100%;margin:0 auto}
+.bar{flex:1;background:var(--mute);color:var(--bg);font-weight:700;font-size:22px;padding:10px;border-radius:10px;letter-spacing:1px}
+.bar.top{background:var(--g);color:#052e16}
+.sc{min-width:52px;display:flex;align-items:center;justify-content:center;padding:6px 8px;border-radius:8px;background:var(--panel);border:2px solid var(--mute);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>Word Border</h1>
+<p class="sub">Match the edges of the hidden word.<br>The answer is 3 to 15 letters long.</p>
+<input id="inp" type="text" maxlength="20" enterkeyhint="go" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Type a word" aria-label="Type your word">
+<div id="winbox"></div>
+<div id="msg" role="status" aria-live="polite"></div>
+<div class="hist" id="hist"></div>
+<div class="row acts"><button id="new">New game</button><button id="giveup">Give up</button></div>
+</main>
+<script>
+var W=[],LG=[],SET={};
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+function fix(){var KP={};"NEWS SERIES SPECIES PHYSICS MATHEMATICS ECONOMICS POLITICS ETHICS LINGUISTICS STATISTICS GENETICS ELECTRONICS ATHLETICS GYMNASTICS ACOUSTICS AEROBICS ROBOTICS MECHANICS OPTICS PHONETICS ANALYTICS MEASLES MUMPS DIABETES RABIES HERPES SCISSORS PANTS JEANS TROUSERS SHORTS PAJAMAS CLOTHES THANKS HEADQUARTERS CROSSROADS BARRACKS INNINGS BILLIARDS DARTS CHECKERS CHESS MORES ODDS SUDS GOODS WAGES SAVINGS EARNINGS SURROUNDINGS LOOKS ARMS AMENDS REGARDS".split(" ").forEach(function(w){KP[w]=1});var PL=[];Object.keys(SET).forEach(function(w){if(!KP[w]&&w.length>=4&&w.charAt(w.length-1)==="S"&&!/SS$/.test(w)){var p=SET[w.slice(0,-1)]||(/ES$/.test(w)&&SET[w.slice(0,-2)])||(/IES$/.test(w)&&SET[w.slice(0,-3)+"Y"]);if(p)PL.push(w)}});Object.keys(SET).forEach(function(w){if(!KP[w]&&w.length>=5&&/VES$/.test(w)){var t=w.slice(0,-3);if(SET[t+"F"]||SET[t+"FE"])PL.push(w)}});var CM={};"".split(" ").forEach(function(w){CM[w]=1});Object.keys(SET).forEach(function(w){if(CM[w]||w.length<5)return;if(/AE$/.test(w)&&SET[w.slice(0,-2)+"A"])PL.push(w);else if(/(SES|XES)$/.test(w)&&(SET[w.slice(0,-2)+"IS"]||SET[w.slice(0,-3)+"IS"]))PL.push(w)});var OK={};"ALUMNI CACTI FUNGI NUCLEI STIMULI RADII MEDIA BACTERIA CRITERIA PHENOMENA CURRICULA SPECTRA STRATA MILLENNIA MEMORANDA CHILDREN OXEN FEET TEETH GEESE MICE LICE ALGAE".split(" ").forEach(function(w){OK[w]=1});Object.keys(SET).forEach(function(w){if(KP[w]||OK[w]||w.length<5)return;if(/I$/.test(w)&&SET[w.slice(0,-1)+"US"])PL.push(w);else if(/A$/.test(w)&&w!=="DATA"&&SET[w.slice(0,-1)+"UM"])PL.push(w)});"BRETHREN AUTOMATA".split(" ").forEach(function(w){PL.push(w)});PL.forEach(function(w){delete SET[w]});Object.keys(OK).forEach(function(w){SET[w]=1});Object.keys(CM).forEach(function(w){SET[w]=1});Object.keys(KP).forEach(function(w){SET[w]=1});LG=LG.filter(function(w){return SET[w]});if(W.indexOf("ALGAE")<0)W.push("ALGAE");W=W.filter(function(w){return SET[w]})}
+function prep(a,lg,g){var U={};a.forEach(function(w){U[w]=1});
+ W=Object.keys(U).filter(function(w){return w.length>=3&&w.length<=8&&!/S$/.test(w)});LG=lg;
+ g.forEach(function(w){SET[w]=1});W.forEach(function(w){SET[w]=1});
+ Object.keys(SET).forEach(function(w){if(w.length>=5&&/ATE$/.test(w)&&SET[w.slice(0,-1)+"ION"])SET[w.slice(0,-1)+"OR"]=1});
+ fix()}
+var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+function $(i){return document.getElementById(i)}
+
+var done=false,gaveUp=false,target="",hist=[],winner="";
+var inp=$("inp");
+function pre(w){var p=0;while(p<w.length&&p<target.length&&w[p]===target[p])p++;return p}
+function suf(w){var s=0;while(s<w.length&&s<target.length&&w[w.length-1-s]===target[target.length-1-s])s++;return s}
+function hrow(h){var wrap=document.createElement("div");wrap.className="hrow";
+var b=document.createElement("div");b.className="bar"+(h.sc>=target.length*2?" top":"");b.textContent=h.w;
+var s=document.createElement("div");s.className="sc";s.textContent=h.sc;wrap.appendChild(b);wrap.appendChild(s);return wrap}
+function draw(){
+$("hist").innerHTML="";hist.slice().sort(function(a,b){return b.sc-a.sc||a.n-b.n}).forEach(function(h){$("hist").appendChild(hrow(h))});
+inp.style.display=done?"none":"block"}
+function load(){
+target=Math.random()<.75?W[Math.floor(Math.random()*W.length)]:LG[Math.floor(Math.random()*LG.length)];hist=[];done=false;gaveUp=false;inp.value="";
+$("msg").textContent="";$("winbox").innerHTML="";draw();try{inp.focus({preventScroll:true})}catch(e){}}
+function submit(){if(done)return;var w=inp.value.toUpperCase().replace(/[^A-Z]/g,"");
+if(w.length<2){$("msg").textContent="Type at least 2 letters.";return}
+if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
+if(hist.some(function(h){return h.w===w})){$("msg").textContent="Already guessed.";return}
+var p=pre(w),s=suf(w);hist.push({w:w,sc:p+s,n:hist.length});inp.value="";
+if(w===target){done=true;draw();popup();confetti();return}
+draw();$("msg").textContent=""}
+function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target+"\u2019";$("msg").textContent="";var m=$("winbox");m.innerHTML="";m.appendChild(d);
+var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
+function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]{2,20}$/.test(word))return;inp.value=word;winner=String(name||"").trim().slice(0,30);submit();winner=""}
+window.submitGuess=remote;
+window.addEventListener("message",function(e){var d=e.data;if(d&&d.type==="guess")remote(d.word,d.name)});
+function giveUp(){if(done)return;done=true;gaveUp=true;hist.push({w:target,sc:target.length*2,n:hist.length});draw();
+$("msg").textContent="Gave up. The answer was "+target+"."}
+function confetti(){
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+let t=0;
+(function f(){x.clearRect(0,0,c.width,c.height);t++;
+ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+if(t<160)requestAnimationFrame(f);else c.remove()})();
+}
+$("new").onclick=load;$("giveup").onclick=giveUp;
+inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submit()}});
+inp.addEventListener("input",function(){inp.value=inp.value.toUpperCase().replace(/[^A-Z]/g,"");$("msg").textContent=""});
+document.addEventListener("pointerdown",function(e){if(!e.target.closest("button")&&!done)try{inp.focus({preventScroll:true})}catch(x){}});
+$("msg").textContent="Loading words...";
+Promise.all([getList("../answers.txt"),getList("../answers-long.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1],r[2]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script>
+</body>
+</html>

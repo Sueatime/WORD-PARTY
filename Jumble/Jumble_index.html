@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Jumble</title>
+<meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--a:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--mute:hsl(var(--h) 20% 68%);--pur:hsl(var(--a) 70% 68%);--key:hsl(var(--h) 14% 30%);--lite:hsl(var(--a) 95% 66%);--dark:hsl(var(--a) 60% 10%);--con:hsl(var(--a) 55% 45%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 16px;color:var(--mute);font-size:18px}
+.q{background:var(--panel);border:2px solid var(--pur);border-radius:12px;padding:14px 16px;margin:0 0 18px}
+.q b{display:block;font-size:20px;font-weight:600}
+.q span{display:block;margin-top:4px;color:var(--mute);font-size:15px;line-height:1.4}
+.rack,.tiles{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.rack{margin:0 0 22px}
+.rack.pin .t{animation:pin .6s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--k)*.07s)}
+.rack.pin .t:nth-child(odd){--dx:-140px}
+.rack.pin .t:nth-child(even){--dx:140px}
+@keyframes pin{from{opacity:0;transform:translateX(var(--dx)) scale(.5)}to{opacity:1;transform:none}}
+.rack.jig .t{animation:jig .35s ease-in-out infinite alternate;animation-delay:calc(var(--k)*-.11s)}
+.rack.bnc .t{animation:bnc .6s ease-in-out infinite alternate;animation-delay:calc(var(--k)*-.15s)}
+@keyframes jig{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes bnc{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.rack .t{animation:none!important}}
+.t{--ts:max(28px,min(52px,calc((min(100vw,480px) - 32px - (var(--n,6) - 1)*6px)/var(--n,6))));width:var(--ts);height:var(--ts);border-radius:8px;display:grid;place-items:center;font-size:min(22px,calc(var(--ts)*.5));font-weight:700;text-transform:uppercase}
+.t.c{background:var(--con);color:#fff}
+.t.v{background:var(--lite);color:var(--dark)}
+.t.e{background:var(--key)}
+.t.h{background:var(--lite);color:var(--dark);opacity:.55;font-weight:400}
+.t.used{opacity:.3}
+.t.good{background:var(--lite);color:var(--dark);font-weight:800}
+.t.rev{background:hsl(var(--a) 25% 38%);color:var(--ink)}
+.cell{position:relative}
+.cell input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;font-size:16px;text-transform:uppercase;cursor:text}
+.cell:focus-within .t.cur{outline:2px solid var(--pur);outline-offset:1px}
+.tiles.wrong{animation:shake .4s}
+.tiles.wrong .t{box-shadow:inset 0 0 0 2px hsl(0 85% 66%)}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.tiles.wrong{animation:none}}
+.msg{min-height:26px;font-weight:600;margin:14px 0 10px}
+.end{margin-top:16px;display:flex;gap:10px}
+button{flex:1;font:inherit;font-weight:600;padding:10px 8px;border-radius:8px;border:2px solid var(--mute);background:transparent;color:var(--ink);cursor:pointer}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.wh{font-size:.75em;opacity:.85;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase}
+.wl{margin-top:2px}
+#wb .win{margin-bottom:18px}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+@media (min-width:800px){
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.q b{font-size:28px}
+.q span{font-size:21px}
+.t{--ts:max(34px,min(68px,calc((min(100vw,820px) - 32px - (var(--n,6) - 1)*6px)/var(--n,6))));font-size:min(30px,calc(var(--ts)*.5))}
+#msg{min-height:40px}
+.end button{padding:14px 30px}
+.win{font-size:30px;max-width:620px}
+}
+</style></head><body><main>
+<h1>Word Jumble</h1>
+<p class="sub">Rearrange the jumbled letters to spell a word.</p>
+<div class="q"><b id="bt"></b></div>
+<div id="wb"></div>
+<div class="rack" id="rack" aria-label="Jumbled letters"></div>
+<div class="cell"><div class="tiles" id="ans" aria-label="Your answer"></div><input id="g" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Type your answer"></div>
+<div class="msg" id="msg" role="status"></div>
+<div class="end"><button id="new">New game</button><button id="hint">Hint</button><button id="give">Give up</button></div>
+</main>
+<script>
+const C={"Animals": "HORSE SHEEP EAGLE SNAKE WHALE SHARK TIGER ZEBRA MOUSE PANDA KOALA OTTER CAMEL MONKEY RABBIT TURTLE PARROT SPIDER DOLPHIN PENGUIN GIRAFFE CHICKEN ELEPHANT KANGAROO BUTTERFLY CROCODILE HEDGEHOG SQUIRREL CATERPILLAR RHINOCEROS CHIMPANZEE FLAMINGO OCTOPUS PORCUPINE GRASSHOPPER ALLIGATOR HIPPOPOTAMUS GORILLA LEOPARD CHEETAH BUFFALO PELICAN OSTRICH SCORPION TORTOISE JELLYFISH STARFISH DRAGONFLY LADYBUG CHAMELEON ORANGUTAN PLATYPUS ARMADILLO SEAHORSE COCKROACH MOSQUITO BUMBLEBEE WOODPECKER HUMMINGBIRD PEACOCK VULTURE GAZELLE HAMSTER LOBSTER SEAGULL", "Food": "BREAD PIZZA SALAD HONEY SUGAR CANDY TOAST LUNCH PASTA BUTTER CHEESE COFFEE NOODLE COOKIE DINNER MUFFIN CEREAL WAFFLE YOGURT BISCUIT SANDWICH PANCAKE SPAGHETTI CHOCOLATE HAMBURGER MARSHMALLOW DUMPLING OMELETTE CROISSANT PORRIDGE LASAGNA BREAKFAST SAUSAGE PRETZEL PUDDING BURRITO POPCORN CUPCAKE MEATBALL CINNAMON MACARONI BROWNIE LEMONADE MILKSHAKE CHEESECAKE GINGERBREAD BARBECUE TORTILLA CARAMEL", "Fruits & Veggies": "APPLE GRAPE LEMON BERRY MANGO PEACH MELON OLIVE ONION ORANGE BANANA CHERRY CARROT POTATO TOMATO GARLIC PEPPER CELERY RADISH TURNIP PAPAYA LETTUCE CABBAGE PINEAPPLE STRAWBERRY BLUEBERRY WATERMELON CUCUMBER BROCCOLI CAULIFLOWER AVOCADO CRANBERRY RASPBERRY PUMPKIN SPINACH COCONUT MUSHROOM EGGPLANT APRICOT POMEGRANATE TANGERINE ASPARAGUS ARTICHOKE BEETROOT CAPSICUM GRAPEFRUIT BLACKBERRY DRAGONFRUIT PERSIMMON KUMQUAT NECTARINE CLEMENTINE ZUCCHINI PARSNIP SWEETCORN RHUBARB CURRANT PASSIONFRUIT", "Nature": "CLOUD RIVER STONE BEACH OCEAN STORM FIELD FLAME SMOKE PLANT LIGHT FOREST JUNGLE DESERT ISLAND VALLEY PLANET FLOWER MEADOW CANYON LAGOON GEYSER THUNDER RAINBOW VOLCANO MOUNTAIN WATERFALL LIGHTNING HURRICANE EARTHQUAKE SUNSHINE SNOWFLAKE CONTINENT WILDERNESS PENINSULA ATMOSPHERE HORIZON GLACIER SUNLIGHT MOONLIGHT STARLIGHT TORNADO BLIZZARD THUNDERSTORM WHIRLPOOL RAINFOREST COASTLINE ARCHIPELAGO LANDSLIDE AVALANCHE SANDSTORM SEASHORE WILDFLOWER TWILIGHT HILLSIDE RIVERBANK TIDEPOOL", "Home & Objects": "TABLE CHAIR CLOCK BRUSH PAPER PHONE GLASS WINDOW PENCIL MIRROR BASKET CANDLE BOTTLE TICKET NEEDLE HAMMER JACKET POCKET PILLOW BLANKET PICTURE MACHINE UMBRELLA FURNITURE REFRIGERATOR TELEVISION WARDROBE BOOKSHELF MATTRESS SCISSORS TOOTHBRUSH CALENDAR SUITCASE FLASHLIGHT NOTEBOOK SCREWDRIVER CURTAIN BLENDER TOASTER MICROWAVE DISHWASHER CHANDELIER BATHTUB BOOKCASE CUPBOARD DOORBELL KEYCHAIN HAIRBRUSH TOOTHPASTE SHOELACE WALLPAPER STAIRCASE FIREPLACE LAMPSHADE DOORMAT MAILBOX NIGHTSTAND CALCULATOR THERMOSTAT", "Places": "HOUSE WORLD TOWER SCHOOL MARKET CASTLE BRIDGE GARDEN MUSEUM STREET CHURCH TEMPLE BAKERY LIBRARY KITCHEN VILLAGE STATION AIRPORT APARTMENT UNIVERSITY RESTAURANT SUPERMARKET PLAYGROUND HOSPITAL LIGHTHOUSE SKYSCRAPER BOOKSTORE WAREHOUSE AQUARIUM STADIUM THEATRE BEDROOM BATHROOM CLASSROOM BASEMENT BALCONY HALLWAY GREENHOUSE CAMPSITE LAUNDROMAT PHARMACY BARBERSHOP SCHOOLYARD FOUNTAIN PLAYROOM MONASTERY FORTRESS HARBOUR VINEYARD ORCHARD RAILWAY HIGHWAY COTTAGE MANSION", "Body": "BRAIN HEART CHEEK THUMB TOOTH MOUTH WRIST ANKLE CHEST ELBOW FINGER ARMPIT THROAT EYELID MUSCLE SHOULDER STOMACH EYEBROW FOREHEAD KNUCKLE EYELASH FINGERNAIL BACKBONE HEARTBEAT HAMSTRING EYEBALL EARDRUM KNEECAP FINGERTIP FOREARM NOSTRIL EYESIGHT BLOODSTREAM EARLOBE COLLARBONE TOENAIL CHEEKBONE JAWLINE", "Colors": "GREEN BROWN BLACK WHITE YELLOW PURPLE SILVER VIOLET INDIGO MAROON CRIMSON SCARLET TURQUOISE MAGENTA BURGUNDY CHARCOAL EMERALD VERMILION CERULEAN AMETHYST CHARTREUSE PERIWINKLE AQUAMARINE FUCHSIA MAHOGANY SAPPHIRE", "Fun & Music": "MUSIC PIANO DANCE PAINT CHESS MOVIE PUZZLE GUITAR VIOLIN FLUTE MELODY CHORUS BALLAD JIGSAW PICNIC TRUMPET BALLOON ORCHESTRA SAXOPHONE HARMONICA TRAMPOLINE CROSSWORD SKATEBOARD KARAOKE CARNIVAL FIREWORKS SYMPHONY CONCERT HARMONY GUITARIST DRUMMER PIANIST VIOLINIST CLARINET TAMBOURINE ACCORDION XYLOPHONE CARTOON COMEDIAN MAGICIAN BIRTHDAY FESTIVAL AMUSEMENT", "Transport": "TRAIN PLANE TRUCK ROCKET CANOE WAGON FERRY SUBWAY BICYCLE TRACTOR HELICOPTER MOTORCYCLE SUBMARINE AIRPLANE AMBULANCE SCOOTER LOCOMOTIVE SPACESHIP PARACHUTE HOVERCRAFT TRICYCLE AIRLINER STEAMBOAT SAILBOAT LIFEBOAT BULLDOZER FIRETRUCK MINIVAN CARAVAN GONDOLA SPEEDBOAT MONORAIL TROLLEY CRUISER TAXICAB SEAPLANE HOVERBOARD", "People & Jobs": "QUEEN ACTOR JUDGE NURSE PILOT BAKER FRIEND FAMILY DOCTOR FARMER ARTIST SINGER DRIVER WRITER SAILOR LAWYER COUSIN TEACHER CAPTAIN DENTIST PAINTER ENGINEER ASTRONAUT FIREFIGHTER ELECTRICIAN CARPENTER JOURNALIST ARCHITECT PHOTOGRAPHER PLUMBER MECHANIC SCIENTIST DETECTIVE GRANDMOTHER SHEPHERD PRESIDENT BUTCHER GARDENER PROFESSOR SURGEON PHARMACIST CARTOONIST LIBRARIAN BARTENDER SECRETARY ACCOUNTANT SHOPKEEPER HAIRDRESSER VETERINARIAN COMPOSER DESIGNER INSTRUCTOR BABYSITTER PASSENGER", "Fantasy": "ROBOT GHOST ANGEL DRAGON WIZARD PIRATE PRINCE FAIRY GIANT GOBLIN MONSTER UNICORN VAMPIRE WEREWOLF MERMAID DINOSAUR LEPRECHAUN SORCERER SUPERHERO SKELETON CENTAUR PHOENIX WARRIOR DUNGEON TREASURE SPELLBOOK SORCERY MAGICAL ENCHANTED MYTHICAL GARGOYLE MINOTAUR LEGENDARY WIZARDRY TELEPORT CYCLOPS PEGASUS", "Time & Seasons": "SUMMER WINTER SPRING AUTUMN NIGHT MONDAY FRIDAY SUNDAY TODAY MONTH DECADE MINUTE SUNSET MORNING HOLIDAY WEDNESDAY SATURDAY THURSDAY TUESDAY SEPTEMBER NOVEMBER DECEMBER YESTERDAY MIDNIGHT AFTERNOON SUNRISE TOMORROW CENTURY JANUARY FEBRUARY OCTOBER EVENING WEEKEND DAYTIME NIGHTTIME SUNDOWN MOONRISE ANNIVERSARY MILLENNIUM SPRINGTIME SUMMERTIME WINTERTIME HOURGLASS TIMETABLE DAYBREAK DAYLIGHT", "Actions": "LAUGH SMILE DREAM SLEEP WATCH WRITE LEARN THINK CLIMB SHOUT TRAVEL LISTEN JOURNEY WHISPER CELEBRATE REMEMBER IMAGINE DISCOVER EXPLORE WHISTLE ADVENTURE CHALLENGE WRESTLE SQUEEZE STUMBLE SPRINKLE SOMERSAULT CARTWHEEL DAYDREAM HITCHHIKE UNDERSTAND PRACTICE PERFORM COMPETE IMPROVE CONCENTRATE COMMUNICATE APPRECIATE ENTERTAIN COLLECT DECORATE EXERCISE STRETCH", "Technology": "EMAIL VIDEO AUDIO PIXEL MODEM CABLE DRONE LAPTOP TABLET SCREEN MOBILE ONLINE SERVER CAMERA ROUTER SENSOR WEBCAM WEBSITE BROWSER PRINTER SPEAKER BATTERY KEYBOARD SOFTWARE INTERNET PASSWORD DOWNLOAD SMARTPHONE COMPUTER MICROPHONE ALGORITHM DATABASE BLUETOOTH PROGRAMMER HARDWARE TOUCHSCREEN MONITOR PROCESSOR FIREWALL ANTIVIRUS SPREADSHEET SMARTWATCH CHARGER ADAPTER CONNECTION NETWORK HOTSPOT HASHTAG EMOTICON USERNAME SCREENSHOT VIRTUAL ANDROID GRAPHICS ENCRYPTION TECHNOLOGY INTERFACE KEYSTROKE", "Science": "FORCE LASER ORBIT COMET VIRUS MAGNET PLASMA OXYGEN CARBON NEURON PROTON ENERGY GALAXY FOSSIL ENZYME NEBULA COSMOS PHOTON GRAVITY NEUTRON CRYSTAL MINERAL VACCINE MOLECULE ELECTRON EVOLUTION MICROSCOPE TELESCOPE EXPERIMENT LABORATORY BACTERIA RADIATION THERMOMETER HYPOTHESIS ASTEROID ECOSYSTEM CHROMOSOME SATELLITE CATALYST SPECTRUM PROTEIN NUCLEUS PLANKTON MAGNETIC VOLTAGE CIRCUIT PRESSURE FRICTION MOMENTUM VELOCITY DENSITY FORMULA ELEMENT COMPOUND CHEMICAL REACTION BIOSPHERE EXTINCTION GENETICS ORGANISM PREDATOR HERBIVORE CARNIVORE SUPERNOVA METEORITE ECLIPSE", "School Subjects": "DRAMA LATIN DESIGN ESSAY LESSON ENGLISH HISTORY SCIENCE PHYSICS BIOLOGY GEOLOGY ALGEBRA GRAMMAR READING WRITING GEOGRAPHY CHEMISTRY MATHEMATICS LITERATURE ECONOMICS PSYCHOLOGY SOCIOLOGY GEOMETRY CALCULUS ASTRONOMY PHILOSOPHY ARITHMETIC TRIGONOMETRY STATISTICS ANTHROPOLOGY SPELLING HOMEWORK ALPHABET VOCABULARY SENTENCE PARAGRAPH EQUATION FRACTION DECIMAL MULTIPLY DIVISION ADDITION SCHOLAR TEXTBOOK STUDENT PRINCIPAL EXAMINATION HANDWRITING", "Countries": "ITALY INDIA CHINA JAPAN SPAIN KENYA NEPAL EGYPT HAITI GHANA SUDAN SYRIA NIGER CHILE TONGA FRANCE BRAZIL CANADA MEXICO RUSSIA TURKEY GREECE POLAND NORWAY SWEDEN JORDAN CYPRUS MALTA UGANDA ZAMBIA PANAMA SERBIA LATVIA BHUTAN KUWAIT QATAR YEMEN LIBYA GERMANY ENGLAND IRELAND AUSTRIA MOROCCO SOMALIA NIGERIA AUSTRALIA ARGENTINA INDONESIA MALAYSIA SINGAPORE PHILIPPINES SWITZERLAND NETHERLANDS PORTUGAL DENMARK FINLAND ICELAND BELGIUM UKRAINE VENEZUELA COLOMBIA ETHIOPIA TANZANIA THAILAND VIETNAM PAKISTAN AFGHANISTAN KAZAKHSTAN BANGLADESH MADAGASCAR SLOVAKIA SLOVENIA CROATIA HUNGARY ROMANIA BULGARIA LITHUANIA ESTONIA NICARAGUA HONDURAS ECUADOR PARAGUAY URUGUAY BOLIVIA GUATEMALA JAMAICA BAHAMAS MONGOLIA CAMBODIA MYANMAR UZBEKISTAN TAJIKISTAN AZERBAIJAN TURKMENISTAN MOZAMBIQUE ZIMBABWE BOTSWANA NAMIBIA ALGERIA TUNISIA SENEGAL CAMEROON LEBANON BAHRAIN VANUATU LUXEMBOURG MONTENEGRO MACEDONIA", "Capital Cities": "PARIS CAIRO TOKYO DELHI SEOUL HANOI QUITO SOFIA MADRID LONDON BERLIN VIENNA ATHENS LISBON PRAGUE MOSCOW OTTAWA HAVANA MANILA TEHRAN ANKARA WARSAW DUBLIN ZAGREB BOGOTA MUSCAT RIYADH KABUL MINSK AMMAN BEIRUT HARARE LUSAKA MAPUTO BEIJING BAGHDAD BANGKOK NAIROBI WASHINGTON BUDAPEST HELSINKI COPENHAGEN AMSTERDAM BRUSSELS STOCKHOLM BUCHAREST ISLAMABAD KATHMANDU JAKARTA CANBERRA WELLINGTON BRASILIA MONTEVIDEO BELGRADE SARAJEVO BRATISLAVA LJUBLJANA TALLINN VILNIUS REYKJAVIK VALLETTA NICOSIA TBILISI YEREVAN TASHKENT COLOMBO DAMASCUS KINGSTON CARACAS SANTIAGO ASUNCION WINDHOEK KAMPALA MOGADISHU KHARTOUM", "Sports": "RUGBY SQUASH TENNIS HOCKEY SOCCER BOXING ROWING SKIING KARATE DIVING RACING CRICKET SURFING CYCLING ARCHERY BOWLING BASKETBALL VOLLEYBALL BADMINTON GYMNASTICS WRESTLING SWIMMING FOOTBALL BASEBALL SOFTBALL MARATHON SNOWBOARD FENCING ATHLETICS TRIATHLON HANDBALL CURLING BOBSLED CLIMBING SAILING SKATING KAYAKING CANOEING DECATHLON PENTATHLON WATERPOLO LACROSSE BIATHLON SPRINTING JAVELIN DODGEBALL KICKBOXING TAEKWONDO PINGPONG BILLIARDS CHAMPION", "Flowers": "LOTUS TULIP DAISY PEONY POPPY ASTER PANSY LILAC ORCHID CROCUS DAHLIA CLOVER ZINNIA AZALEA JASMINE PETUNIA BEGONIA SUNFLOWER DAFFODIL CARNATION LAVENDER MARIGOLD HYDRANGEA SNOWDROP BLUEBELL BUTTERCUP MAGNOLIA HIBISCUS GERANIUM GARDENIA PRIMROSE SNAPDRAGON ROSEBUD BLOSSOM BOUQUET CAMELLIA FREESIA GLADIOLUS HYACINTH LARKSPUR NARCISSUS OLEANDER HONEYSUCKLE WISTERIA ANEMONE DANDELION EDELWEISS"};
+const EXTRA="FLEA RATS ARTS PALM GRIN OWNS THING NOTES TONES ONSET BLEAT SLIME LIMES MILES CANOE PEST PETS STUD LEAK KALE BARE FLOW FOWL LUMP BANE REED MILE SORE REAP SNEAK EARTH HATER FILED CHEAP SHRUB WROTE DANGER GANDER RESTED FINDER FOWLER SIGN LOIN RIFE ICON ONES DARE DEAR BRAKE BREAK RESIGN SIGNER TOGA SALE MART ANGLE GLEAN SOUTH SILENT TINSEL ENLIST GENRE SLIVER MAIL PURE PAINS PANEL PENAL REIGN PAIRS MORE SOLO HASTEN ANIMAL COED LIFE BATTLE MOAT HATE SIGNED SINGED FLOG LOOP POOL CARING ARCING ORES RATES STARE TEARS MOAN TANGO";
+const CAT={},ALL=[];for(const k in C)for(const w of C[k].split(" ")){CAT[w]=k;ALL.push(w)}
+const VALID=new Set(ALL.concat(EXTRA.split(" ")));
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+getList("../guesses.txt").then(function(g){g.forEach(function(w){VALID.add(w)})}).catch(function(){});
+const HUES=[0,20,35,45,95,125,150,205,225,245,260,280,300,320,340];
+const $=i=>document.getElementById(i);
+const shuf=a=>a.sort(()=>Math.random()-.5);
+const isV=c=>"AEIOU".includes(c);
+let deck=[],wd,tl,kn,typ,shown,gave,hints,order,pos,over,rid=0,last="",hue=-1,tid,MODE="slide";
+const free=()=>wd.length-Object.keys(kn).length;
+function layout(){let j=0,a=[];for(let i=0;i<wd.length;i++)a.push(kn[i]!==undefined?kn[i]:(j<typ.length?typ[j++]:"_"));return a}
+function paint(){
+const a=layout(),left={};a.forEach(c=>{if(c!=="_")left[c]=(left[c]||0)+1});
+$("rack").innerHTML=tl.map((c,k)=>{const u=left[c]>0;if(u)left[c]--;return `<div class="t ${isV(c)?"v":"c"} ${u?"used":""}" data-id="${tid[k]}" style="--k:${k}">${c}</div>`}).join("");
+const ci=a.indexOf("_");
+$("ans").innerHTML=shown?[...shown].map(c=>`<div class="t ${gave?"rev":"good"}">${c}</div>`).join(""):
+a.map((c,i)=>{const cu=i===ci?" cur":"";
+if(c!=="_")return `<div class="t ${isV(c)?"v":"c"}">${c}</div>`;
+return pos&&isV(wd[i])?`<div class="t h${cu}">?</div>`:`<div class="t e${cu}"></div>`}).join("")}
+function start(){
+rid++;over=false;gave=false;shown="";
+let h;do{h=HUES[Math.random()*HUES.length|0]}while(h===hue);hue=h;
+document.documentElement.style.setProperty("--a",h);
+if(!deck.length)deck=shuf(ALL.slice());
+wd=deck.pop();if(wd===last&&deck.length)wd=deck.pop();last=wd;
+document.documentElement.style.setProperty("--n",wd.length);
+kn={};typ="";hints=0;pos=false;
+order=shuf([...wd].map((c,i)=>i).filter(i=>isV(wd[i])));
+let l;do{l=shuf(wd.split(""))}while(l.join("")===wd||VALID.has(l.join("")));
+tl=l;tid=l.map((_,i)=>i);
+$("bt").textContent="Category: "+CAT[wd];
+$("wb").textContent="";$("msg").textContent="";$("msg").style.color="";
+$("hint").disabled=false;$("give").disabled=false;
+const g=$("g");g.value="";g.readOnly=false;g.maxLength=wd.length;
+$("ans").classList.remove("wrong");setMode(choose());paint();g.focus()}
+function end(){over=true;$("rack").classList.remove("jig","bnc","wav","pin");$("hint").disabled=true;$("give").disabled=true;$("g").readOnly=true}
+function isWord(f){return f.length===wd.length&&[...f].sort().join("")===[...wd].sort().join("")&&VALID.has(f)}
+$("g").addEventListener("input",e=>{if(over)return;
+typ=e.target.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,free());
+e.target.value=typ;$("ans").classList.remove("wrong");paint();check()});
+function check(){if(over||typ.length!==free())return;
+const f=layout().join("");
+if(isWord(f))solve(f);
+else{const t=$("ans");void t.offsetWidth;t.classList.add("wrong");
+$("msg").textContent=[...f].sort().join("")!==[...wd].sort().join("")?"Use exactly the letters shown above.":`"${f}" isn't a word. Try again!`}}
+function solve(f,who){shown=f;end();paint();popup(nameOf(who),f);confetti()}
+$("hint").onclick=()=>{if(over)return;const m=$("msg");
+if(!pos){pos=true;m.textContent='Hint: the light "?" tiles show where the vowels are.';paint();$("g").focus();return}
+if(hints>=order.length){m.textContent="No more vowels to reveal.";return}
+const i=order[hints++];kn[i]=wd[i];typ=typ.slice(0,free());$("g").value=typ;
+$("ans").classList.remove("wrong");m.textContent="Hint: a vowel is revealed.";paint();$("g").focus();check()};
+$("give").onclick=()=>{if(over)return;end();gave=true;shown=wd;paint();$("msg").textContent="You gave up. The word was "+wd+"."};
+$("new").onclick=start;
+function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
+function popup(name,w){
+const d=document.createElement("div");d.className="win";
+const h=document.createElement("div");h.className="wh";h.textContent="Winner";d.appendChild(h);
+const l=document.createElement("div");l.className="wl";l.textContent=name+" won with '"+w+"'";d.appendChild(l);
+const m=$("wb");m.textContent="";m.appendChild(d);$("msg").textContent="";
+const r=rid;setTimeout(()=>{if(over&&rid===r)start()},6000)}
+function remote(word,name){if(over)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word))return;
+if(isWord(word))solve(word,String(name||"").trim().slice(0,30))}
+window.submitGuess=remote;
+window.addEventListener("message",e=>{const d=e.data;if(d&&d.type==="guess")remote(d.word,d.name)});
+document.addEventListener("keydown",e=>{if(!over&&document.activeElement!==$("g")&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(/^[a-z]$/i.test(e.key)||e.key==="Backspace"))$("g").focus()});
+const LIVE=/[?&]live=1/.test(location.search)||location.protocol==="file:";
+function tikfinity(){let ws;try{ws=new WebSocket("ws://127.0.0.1:21213/")}catch(e){return}
+ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data||m;if(!/chat|comment/i.test(String(m.event||m.type||"")))return;const u=d.user||{};remote(d.comment||d.text||d.message,d.nickname||d.uniqueId||u.nickname||u.uniqueId)}catch(e){}};
+ws.onclose=()=>setTimeout(tikfinity,3000);ws.onerror=()=>ws.close()}
+if(LIVE)tikfinity();
+let pt;
+function choose(){return ["slide","jiggle","bounce","pop"][Math.random()*4|0]}
+function popIn(){const r=$("rack");r.classList.remove("pin");void r.offsetWidth;r.classList.add("pin");clearTimeout(pt);pt=setTimeout(()=>r.classList.remove("pin"),tl.length*70+800)}
+function setMode(m){MODE=m;const r=$("rack");r.classList.remove("pin");r.classList.toggle("jig",m==="jiggle");r.classList.toggle("bnc",m==="bounce");if(m==="pop")popIn()}
+function slide(){
+if(over||MODE!=="slide"||document.hidden)return;
+const old={};document.querySelectorAll("#rack .t").forEach(e=>old[e.dataset.id]=e.getBoundingClientRect());
+const ix=shuf(tl.map((_,i)=>i)),nt=ix.map(i=>tl[i]),ni=ix.map(i=>tid[i]),s=nt.join("");
+if(s===tl.join("")||s===wd||VALID.has(s))return;
+tl=nt;tid=ni;paint();
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const els=document.querySelectorAll("#rack .t");
+els.forEach(e=>{const o=old[e.dataset.id],n=e.getBoundingClientRect();e.style.transition="none";e.style.transform=`translate(${o.left-n.left}px,${o.top-n.top}px)`});
+void document.body.offsetWidth;
+els.forEach(e=>{e.style.transition="transform .7s ease-in-out";e.style.transform=""});
+}
+setInterval(slide,6000);
+function confetti(){
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const c=document.createElement("canvas");c.style.cssText="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+let t=0;
+(function f(){
+x.clearRect(0,0,c.width,c.height);t++;
+ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+if(t<160)requestAnimationFrame(f);else c.remove();
+})();
+}
+start();
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script></body></html>

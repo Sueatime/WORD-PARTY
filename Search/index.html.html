@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 45% 96%);--ink:hsl(var(--h) 50% 18%);--panel:hsl(var(--h) 45% 88%);--dark:hsl(var(--h) 40% 50%);--muted:hsl(var(--h) 20% 42%);--cell:hsl(var(--h) 45% 97%);--pop:hsl(var(--h) 42% 44%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:hsl(var(--h) 35% 12%);--ink:hsl(var(--h) 60% 95%);--panel:hsl(var(--h) 30% 19%);--dark:hsl(var(--h) 36% 46%);--muted:hsl(var(--h) 25% 70%);--cell:hsl(var(--h) 30% 26%);--pop:hsl(var(--h) 38% 46%)}}
+:root[data-theme="dark"]{--bg:hsl(var(--h) 35% 12%);--ink:hsl(var(--h) 60% 95%);--panel:hsl(var(--h) 30% 19%);--dark:hsl(var(--h) 36% 46%);--muted:hsl(var(--h) 25% 70%);--cell:hsl(var(--h) 30% 26%);--pop:hsl(var(--h) 38% 46%)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center;-webkit-tap-highlight-color:transparent}
+main{width:100%;max-width:560px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 16px;color:var(--muted);font-size:18px}
+.theme:empty{display:none}
+.theme{display:inline-block;background:var(--panel);border:2px solid var(--dark);border-radius:20px;padding:6px 16px;font-weight:700;font-size:20px;margin-bottom:12px}
+.stat{color:var(--muted);font-weight:600;margin-bottom:8px}
+.words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:36px;margin-bottom:12px}
+.w{border-radius:8px;padding:4px 12px;font-weight:700;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:#fff}
+#grid{position:relative;display:grid;gap:2px;margin:0 auto 16px;max-width:540px;background:var(--panel);padding:8px;border-radius:14px;touch-action:none;user-select:none;-webkit-user-select:none}
+.cell{position:relative;z-index:1;aspect-ratio:1;display:grid;place-items:center;border-radius:6px;background:var(--cell);color:var(--ink);font-size:clamp(12px,3.6vw,22px);font-weight:700;text-transform:uppercase;cursor:pointer}
+.cell.sel{background:var(--dark);color:#fff}
+.cap{position:absolute;z-index:2;pointer-events:none;transform-origin:0 50%}
+.capi{width:100%;height:100%;border-radius:999px;transform-origin:0 50%}
+.capi.new{animation:grow .45s ease-out}
+.w.new{animation:pop .5s ease-out}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.msg{min-height:26px;font-weight:600;margin:0 0 14px}
+.row{display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:16px}
+input{font:inherit;font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;width:clamp(160px,50vw,220px);height:clamp(44px,13vw,58px);padding:0;border-radius:8px;border:2px solid var(--dark);background:transparent;color:var(--ink);text-align:center;caret-color:currentColor}
+input:focus-visible,button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+input:disabled{opacity:.4}
+input.no{animation:shake .3s}
+button{font:inherit;font-weight:600;padding:6px 18px;border-radius:8px;border:2px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.end{margin-top:16px;display:flex;gap:10px;justify-content:center}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
+.win{background:var(--pop);color:#fff;border-radius:10px;padding:12px;max-height:50vh;overflow:auto;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win,input.no,.capi.new,.w.new{animation:none}}
+@media (min-width:800px){
+body{font-size:26px}
+main{max-width:1000px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.theme{font-size:28px}
+.w{font-size:24px;padding:5px 16px}
+#grid{max-width:860px;gap:4px;padding:12px}
+.cell{font-size:30px}
+input{font-size:34px;width:280px;height:76px;border-radius:10px}
+.msg{min-height:40px}
+.end button{padding:8px 26px}
+.win{font-size:30px;max-width:620px}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Word Search</h1>
+  <p class="sub">Find as many hidden words as you can.</p>
+  <div class="theme" id="theme"></div>
+  <div class="stat" id="stat"></div>
+  <div class="words" id="words"></div>
+  <div id="grid" role="group" aria-label="Letter grid"></div>
+  <div class="msg" id="msg" role="status"></div>
+  <div class="row"><input id="g" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" aria-label="Type a hidden word"></div>
+  <div class="end"><button id="new">New game</button><button id="giveup">Give up</button></div>
+</main>
+<script>
+const T={
+"Fruits":"APPLE MANGO GRAPE LEMON PEACH BERRY MELON CHERRY BANANA ORANGE PAPAYA GUAVA LIME PEAR PLUM KIWI STRAWBERRY BLUEBERRY PINEAPPLE WATERMELON COCONUT AVOCADO APRICOT TANGERINE RASPBERRY DURIAN RAMBUTAN",
+"Animals":"LION TIGER ZEBRA HORSE PANDA OTTER RABBIT MONKEY CAMEL SHEEP EAGLE SNAKE WHALE TURTLE DOLPHIN KOALA ELEPHANT GIRAFFE KANGAROO CHIMPANZEE CROCODILE LEOPARD BUFFALO ORANGUTAN SQUIRREL HEDGEHOG RHINOCEROS FLAMINGO TORTOISE",
+"Colors":"BLUE GREEN BLACK WHITE PURPLE ORANGE YELLOW PINK GOLD SILVER BROWN GREY VIOLET SCARLET TURQUOISE LAVENDER MAGENTA CRIMSON BURGUNDY CHARCOAL EMERALD INDIGO MAROON",
+"Breakfast":"TOAST BACON CEREAL PANCAKE WAFFLE OMELET MUFFIN BAGEL MILK JUICE PORRIDGE SAUSAGE OATMEAL YOGURT GRANOLA CROISSANT MARMALADE",
+"Sports":"SOCCER TENNIS GOLF RUGBY CRICKET HOCKEY BOXING SKATING ARCHERY BOWLING YOGA JUDO BADMINTON BASKETBALL VOLLEYBALL SWIMMING CYCLING GYMNASTICS WRESTLING SURFING SKIING KARATE ROWING FENCING",
+"Weather":"RAIN SNOW STORM CLOUD WIND SUNNY THUNDER HAIL MIST FROST BREEZE LIGHTNING TORNADO HURRICANE BLIZZARD DRIZZLE RAINBOW SUNSHINE FOGGY WINDY CLOUDY TYPHOON MONSOON",
+"Body parts":"HEAD HAND FOOT KNEE ELBOW ANKLE THUMB CHEST NECK WRIST FINGER HEART SHOULDER STOMACH EYEBROW FOREHEAD EYELASH KNUCKLE SPINE NOSTRIL THROAT LIVER KIDNEY",
+"Kitchen":"PLATE SPOON KNIFE FORK BOWL KETTLE OVEN TOASTER BLENDER SAUCEPAN COLANDER WHISK STRAINER CUTLERY TEAPOT TEASPOON FRIDGE FREEZER MICROWAVE DISHWASHER SPATULA LADLE GRATER APRON",
+"Transport":"TRAIN PLANE BOAT TAXI BIKE SHIP TRUCK SCOOTER FERRY METRO BICYCLE HELICOPTER MOTORBIKE SUBMARINE TRACTOR AMBULANCE ESCALATOR TRAM LORRY CARAVAN AIRPLANE SKATEBOARD ROCKET",
+"Jobs":"CHEF PILOT NURSE DOCTOR FARMER TEACHER BAKER JUDGE ARTIST DRIVER WRITER SAILOR ENGINEER DENTIST PLUMBER CARPENTER SCIENTIST ACCOUNTANT POLICE ACTOR PAINTER MECHANIC LAWYER CASHIER BARBER GARDENER SOLDIER",
+"Flowers":"ROSE TULIP DAISY LILY ORCHID LOTUS PEONY POPPY JASMINE VIOLET SUNFLOWER LAVENDER DAFFODIL MARIGOLD CARNATION HIBISCUS BLUEBELL LILAC CLOVER MAGNOLIA BEGONIA",
+"Space":"MOON STAR MARS EARTH COMET ORBIT PLANET GALAXY ROCKET VENUS SATURN ECLIPSE JUPITER NEPTUNE URANUS MERCURY ASTEROID TELESCOPE ASTRONAUT SATELLITE UNIVERSE METEOR NEBULA SUPERNOVA GRAVITY",
+"School":"DESK BOOK PENCIL ERASER RULER CHALK MARKER SCHOOL LESSON TEST HOMEWORK TEACHER STUDENT NOTEBOOK BACKPACK SCISSORS CALENDAR LIBRARY CLASSROOM PLAYGROUND SHARPENER STAPLER EXAM",
+"Countries":"CHINA INDIA JAPAN SPAIN ITALY EGYPT KENYA PERU CUBA IRAN BRAZIL FRANCE CANADA GERMANY MEXICO RUSSIA TURKEY NEPAL CHILE GHANA ARGENTINA AUSTRALIA THAILAND VIETNAM INDONESIA SINGAPORE MALAYSIA NORWAY SWEDEN FINLAND ICELAND PORTUGAL IRELAND ENGLAND COLOMBIA",
+"Vegetables":"CARROT ONION POTATO TOMATO BEAN CORN KALE LEEK BEET CELERY SPINACH CABBAGE RADISH TURNIP GARLIC CUCUMBER BROCCOLI PUMPKIN LETTUCE EGGPLANT ASPARAGUS MUSHROOM ZUCCHINI CAPSICUM PEPPER",
+"Drinks":"COFFEE JUICE MILK WATER SODA COLA WINE BEER COCOA LATTE MOCHA CIDER PUNCH SHAKE LEMONADE SMOOTHIE CAPPUCCINO ESPRESSO CHAMPAGNE MILKSHAKE KOMBUCHA COCKTAIL WHISKEY ORANGEADE",
+"Furniture":"SOFA CHAIR TABLE DESK SHELF STOOL BENCH LAMP DRAWER CABINET COUCH MIRROR CLOSET WARDROBE BOOKCASE ARMCHAIR BEDSIDE HAMMOCK CUPBOARD DRESSER OTTOMAN FUTON NIGHTSTAND RECLINER CHANDELIER",
+"Clothing":"SHIRT PANTS DRESS SKIRT SOCKS SHOES BOOTS COAT SCARF JACKET GLOVES SWEATER JEANS SHORTS TROUSERS UNDERWEAR SWIMSUIT PYJAMAS CARDIGAN RAINCOAT SNEAKERS SANDALS BLOUSE HOODIE LEGGINGS JUMPSUIT",
+"Instruments":"PIANO GUITAR DRUM FLUTE VIOLIN HARP TRUMPET CELLO BANJO TUBA OBOE BUGLE ORGAN SITAR LUTE CLARINET SAXOPHONE TROMBONE ACCORDION UKULELE HARMONICA TAMBOURINE XYLOPHONE BAGPIPES MARIMBA KEYBOARD TRIANGLE MANDOLIN",
+"Bugs":"WASP MOTH BEETLE CRICKET SPIDER LADYBUG CICADA TERMITE APHID LOCUST FLEA GNAT MANTIS BUTTERFLY DRAGONFLY MOSQUITO CENTIPEDE SCORPION COCKROACH FIREFLY HORNET BUMBLEBEE",
+"Birds":"EAGLE PARROT ROBIN SWAN DUCK GOOSE CROW HAWK DOVE FALCON PIGEON SPARROW PENGUIN STORK HERON FINCH OSTRICH FLAMINGO PEACOCK PELICAN WOODPECKER KINGFISHER SEAGULL CHICKEN VULTURE TOUCAN CANARY CORMORANT",
+"Sea life":"SHARK WHALE CRAB SQUID OCTOPUS DOLPHIN SEAL TUNA CORAL OYSTER LOBSTER SHRIMP TURTLE OTTER CLAM JELLYFISH STARFISH SEAHORSE STINGRAY SWORDFISH BARRACUDA PLANKTON ANEMONE SALMON WALRUS MANATEE",
+"Tools":"HAMMER DRILL WRENCH PLIERS CHISEL SHOVEL RAKE LADDER NAILS SCREW PLANE FILE VISE SANDPAPER TOOLBOX PAINTBRUSH SPANNER MALLET CROWBAR HACKSAW CLAMP TROWEL LEVEL",
+"Metals and gems":"GOLD SILVER IRON COPPER ZINC LEAD STEEL BRONZE RUBY PEARL JADE OPAL AMBER DIAMOND TOPAZ EMERALD SAPPHIRE TURQUOISE ALUMINIUM TITANIUM PLATINUM GRAPHITE CRYSTAL GARNET AMETHYST MERCURY",
+"Family":"MOTHER FATHER SISTER BROTHER UNCLE AUNT COUSIN NIECE NEPHEW BABY GRANDMA GRANDPA DAUGHTER PARENTS CHILDREN HUSBAND FAMILY TODDLER TWINS GRANDSON RELATIVES SIBLING STEPFATHER ANCESTOR",
+"Feelings":"HAPPY ANGRY CALM PROUD BRAVE LONELY JOYFUL EXCITED NERVOUS TIRED BORED SCARED HOPEFUL EAGER GRATEFUL CHEERFUL ANXIOUS CURIOUS CONFUSED DELIGHTED FRUSTRATED SURPRISED RELAXED JEALOUS OPTIMISTIC",
+"Calendar":"JUNE JULY MARCH APRIL AUGUST JANUARY OCTOBER MONDAY FRIDAY SUNDAY TUESDAY WEEKEND SEPTEMBER NOVEMBER DECEMBER FEBRUARY THURSDAY SATURDAY WEDNESDAY YESTERDAY TOMORROW MIDNIGHT MORNING EVENING",
+"Desserts":"CAKE COOKIE BROWNIE DONUT PUDDING CANDY FUDGE TART SUNDAE MUFFIN GELATO WAFFLE CUPCAKE JELLY PASTRY CHEESECAKE CUSTARD CARAMEL NOUGAT MERINGUE TIRAMISU MILKSHAKE LOLLIPOP CHOCOLATE STRUDEL",
+"Spices and herbs":"CUMIN GINGER CLOVE PEPPER SALT CHILI BASIL MINT SAGE DILL THYME CURRY SAFFRON PAPRIKA FENNEL CINNAMON OREGANO PARSLEY NUTMEG TURMERIC CORIANDER ROSEMARY CARDAMOM LEMONGRASS TARRAGON VANILLA MUSTARD",
+"Shapes":"CIRCLE SQUARE OVAL HEART DIAMOND CUBE CONE SPHERE LINE ARROW CROSS PRISM TRIANGLE RECTANGLE PENTAGON HEXAGON OCTAGON CYLINDER PYRAMID CRESCENT ELLIPSE POLYGON RHOMBUS TRAPEZOID SPIRAL STAR",
+"Garden":"GRASS SEED SOIL ROSE TREE HOSE SHOVEL RAKE PLANT FENCE BENCH POND WEEDS LEAF BRANCH FLOWERS FOUNTAIN GREENHOUSE SPRINKLER SCARECROW COMPOST HEDGE LAWNMOWER FLOWERBED TRELLIS GARDENER",
+"Gadgets":"MOUSE SCREEN LAPTOP TABLET CABLE CHARGER PRINTER MONITOR SPEAKER PHONE CAMERA ROUTER MODEM CHIP DISK KEYBOARD HEADPHONES SMARTPHONE MICROPHONE CONTROLLER PROJECTOR SMARTWATCH BATTERY TELEVISION BLUETOOTH FLASHDRIVE WEBCAM",
+"Malaysian cuisine":"LAKSA SATAY ROTI NASI LEMAK RENDANG SAMBAL CENDOL MURTABAK TEMPEH KUIH POPIA OTAK PANDAN ULAM TEHTARIK MAMAK CURRY CANAI ROJAK KANGKONG KARIPAP PULUT APAM SOTONG KERABU DURIAN SERUNDING NASILEMAK ROTICANAI",
+"World cuisine":"SUSHI PIZZA PASTA TACO CURRY RAMEN KEBAB PAELLA BURRITO DUMPLING LASAGNA FALAFEL SHAWARMA RISOTTO TEMPURA NACHOS CROISSANT PRETZEL SCHNITZEL GOULASH BIRYANI HUMMUS KIMCHI TZATZIKI FONDUE GNOCCHI POUTINE TERIYAKI BAKLAVA EMPANADA PIEROGI SASHIMI",
+"Farm animals":"HORSE SHEEP GOAT CHICKEN DUCK GOOSE TURKEY DONKEY PIGLET LAMB CALF ROOSTER BULL MULE PONY KITTEN PUPPY BUFFALO CATTLE RABBIT HEIFER STALLION FOAL BARNYARD",
+"Wild animals":"LION TIGER LEOPARD CHEETAH ELEPHANT GIRAFFE ZEBRA RHINO HIPPO GORILLA BABOON HYENA JAGUAR PANTHER ANTELOPE WARTHOG GAZELLE ORANGUTAN MEERKAT LEMUR COUGAR WOLF MOOSE BISON",
+"Pets":"PUPPY KITTEN HAMSTER RABBIT PARROT GOLDFISH TURTLE GERBIL BUDGIE FERRET LIZARD CANARY TERRIER POODLE BEAGLE COLLIE HUSKY SIAMESE PERSIAN COCKATIEL TORTOISE SPANIEL LABRADOR LEASH COLLAR AQUARIUM",
+"Tropical fruits":"MANGO PAPAYA GUAVA LYCHEE DURIAN RAMBUTAN PINEAPPLE COCONUT BANANA JACKFRUIT MANGOSTEEN STARFRUIT PASSION PLANTAIN TAMARIND LONGAN POMELO SOURSOP PERSIMMON AVOCADO",
+"Berries and citrus":"STRAWBERRY BLUEBERRY RASPBERRY BLACKBERRY CRANBERRY GOOSEBERRY MULBERRY CHERRY LEMON LIME ORANGE GRAPEFRUIT TANGERINE MANDARIN KUMQUAT CLEMENTINE CURRANT ELDERBERRY",
+"Leafy greens":"LETTUCE SPINACH KALE CABBAGE ROCKET ARUGULA CELERY CHARD CRESS ENDIVE SORREL BASIL PARSLEY CILANTRO BROCCOLI CUCUMBER RADISH CHIVES SPROUTS WATERCRESS MINT DILL",
+"Root vegetables":"CARROT POTATO TURNIP BEET RADISH PARSNIP ONION GARLIC GINGER CASSAVA YAM TARO SWEDE SHALLOT LEEK CELERIAC HORSERADISH TURMERIC JICAMA RUTABAGA SALSIFY",
+"School subjects":"MATHS SCIENCE HISTORY GEOGRAPHY ENGLISH MUSIC DRAMA BIOLOGY CHEMISTRY PHYSICS LATIN FRENCH SPANISH ALGEBRA GEOMETRY LITERATURE COMPUTING ECONOMICS READING WRITING SPELLING GRAMMAR CALCULUS ASTRONOMY PHONICS",
+"Household":"BROOM BUCKET VACUUM DUSTER SPONGE SOAP TOWEL BLANKET PILLOW CURTAIN CARPET CLOCK CANDLE LAMP KETTLE IRON HANGER BASKET MATTRESS LAUNDRY DETERGENT SWEEPER DUSTBIN PLUNGER BLEACH POLISH",
+"Bathroom":"SOAP TOWEL SHOWER BATHTUB TOILET SINK MIRROR SHAMPOO TOOTHPASTE TOOTHBRUSH RAZOR COMB BRUSH LOTION SPONGE FLANNEL TISSUE FAUCET DRAIN SCALE DEODORANT PERFUME",
+"Bedroom":"PILLOW BLANKET MATTRESS SHEET QUILT WARDROBE DRESSER MIRROR LAMP ALARM CURTAIN PYJAMAS SLIPPERS CLOSET NIGHTSTAND HANGER CARPET DUVET BEDSIDE COVERS CUSHION",
+"Tropical flowers":"HIBISCUS ORCHID JASMINE LOTUS PLUMERIA FRANGIPANI ANTHURIUM HELICONIA PROTEA MARIGOLD ALLAMANDA GINGER SUNFLOWER LAVENDER BLUEBELL MAGNOLIA BEGONIA",
+"Garden flowers":"TULIP DAISY PEONY POPPY PANSY PETUNIA ZINNIA DAHLIA LILAC IRIS ASTER CROCUS COSMOS LUPIN FREESIA BEGONIA GERANIUM FOXGLOVE HYDRANGEA CARNATION DAFFODIL SNOWDROP SUNFLOWER LAVENDER",
+"Dinosaurs":"RAPTOR FOSSIL JURASSIC TRIASSIC EXTINCT CARNIVORE HERBIVORE SAUROPOD DINOSAUR MAMMOTH CLAWS FEATHERS PTEROSAUR HORNS SKULL BONES AMBER ASTEROID DIGGING MUSEUM",
+"Pirates":"TREASURE PIRATE PARROT ANCHOR CANNON SWORD CAPTAIN PLANK COMPASS SAILOR ISLAND CUTLASS BARREL LANTERN SKULL MUTINY GALLEON BOUNTY HOOK",
+"Camping":"TENT CAMPFIRE LANTERN SLEEPING BACKPACK COMPASS FLASHLIGHT MARSHMALLOW HIKING TRAIL FOREST MOUNTAIN BINOCULARS CANTEEN HAMMOCK STOVE MATCHES WILDLIFE FISHING KAYAK",
+"At the beach":"WAVE SHELL SURF TOWEL UMBRELLA SUNSCREEN SEAGULL SANDCASTLE BUCKET SPADE SNORKEL SWIMSUIT LIFEGUARD DOLPHIN CORAL TIDE ISLAND COCONUT SUNSET HARBOR BOARDWALK PEBBLE",
+"Circus":"CLOWN TENT JUGGLER TRAPEZE ACROBAT MAGICIAN POPCORN LION TAMER BALLOON RINGMASTER UNICYCLE STILTS COSTUME SPOTLIGHT AUDIENCE TICKET CONFETTI ELEPHANT",
+"Halloween":"PUMPKIN GHOST WITCH SKELETON VAMPIRE ZOMBIE COSTUME CANDY SPIDER BROOMSTICK CAULDRON COBWEB LANTERN MUMMY GOBLIN HAUNTED MONSTER TRICK TREAT SPOOKY MIDNIGHT BATS",
+"Birthday party":"BALLOON CANDLE CAKE PRESENT GIFT PARTY CONFETTI STREAMER WISH SURPRISE GAMES MUSIC DANCE INVITATION CARD CLOWN SINGING PINATA HAPPY LOLLIPOP BANNER CELEBRATE",
+"Festivals":"CHRISTMAS DEEPAVALI RAMADAN DIWALI EASTER CARNIVAL LANTERN FIREWORKS PARADE HOLIDAY THAIPUSAM GAWAI HARVEST VESAK WESAK RAYA FESTIVAL CELEBRATE MERDEKA FEAST DRAGON ANGPAO",
+"Superheroes":"FLYING INVISIBLE STRENGTH SPEED TELEPATHY HEALING LASER CAPE MASK HERO VILLAIN SHIELD POWER FREEZE TELEPORT SHAPESHIFT MAGNET FIREBALL COSTUME SIDEKICK RESCUE",
+"Castle life":"CASTLE KNIGHT ARMOR SWORD DRAGON PRINCESS KING QUEEN TOWER MOAT DUNGEON ARCHER SHIELD THRONE CROWN BANNER LANCE JESTER WIZARD VILLAGE DRAWBRIDGE TOURNAMENT FEAST KINGDOM",
+"Fairy tales":"PRINCE PRINCESS WITCH DRAGON GIANT FAIRY WIZARD GOBLIN MERMAID UNICORN DWARF ENCHANTED WISH MAGIC SPELL CASTLE FOREST WOLF BEANSTALK SLIPPER CROWN TROLL PUMPKIN",
+"Playground":"SWING SLIDE SEESAW SANDBOX CLIMBING HOPSCOTCH SKIPPING ROPE BALL FRISBEE KITE TRAMPOLINE ROUNDABOUT BENCH FENCE SCOOTER MARBLES JUMP SPINNER",
+"Games":"CHESS DOMINO CHECKERS LUDO SCRABBLE MONOPOLY BACKGAMMON CARROM MAHJONG BINGO DARTS PUZZLE DICE CARDS RUMMY POKER BRIDGE TRIVIA CHARADES",
+"Snacks":"CHIPS POPCORN PRETZEL COOKIE CRACKER NUTS RAISINS CANDY CHOCOLATE GRANOLA JERKY PEANUTS POTATO BISCUIT WAFER CRISPS POPSICLE NACHOS CASHEWS ALMONDS CAKE",
+"Ice cream":"VANILLA CHOCOLATE STRAWBERRY MINT COOKIES CARAMEL PISTACHIO CONE SPRINKLES SUNDAE SORBET GELATO POPSICLE WAFER SYRUP COCONUT MANGO DURIAN TOFFEE FUDGE BANANA CHERRY",
+"Pizza toppings":"CHEESE MOZZARELLA PEPPERONI MUSHROOM ONION OLIVES PINEAPPLE HAM BACON SAUSAGE TOMATO BASIL GARLIC PEPPER CHICKEN SPINACH ANCHOVY BEEF CRUST OREGANO SALAMI TUNA CAPSICUM",
+"Hobbies":"READING PAINTING DRAWING COOKING BAKING KNITTING GARDENING FISHING CAMPING HIKING SINGING DANCING GAMING WRITING COLLECTING SEWING CRAFTS SKATING CYCLING POTTERY BIRDING",
+"Music genres":"JAZZ ROCK POP RAP BLUES COUNTRY REGGAE CLASSICAL FOLK METAL PUNK DISCO SOUL FUNK TECHNO HIPHOP OPERA GOSPEL SALSA SWING INDIE LATIN",
+"Dances":"BALLET SALSA TANGO WALTZ HIPHOP BREAKDANCE FLAMENCO SAMBA RUMBA POLKA CHACHA FOXTROT JIVE ZUMBA BELLY DISCO LIMBO MAMBO BOLLYWOOD ZAPIN JOGET",
+"Malaysia places":"JOHOR KEDAH KELANTAN MELAKA PAHANG PERAK PERLIS PENANG SABAH SARAWAK SELANGOR TERENGGANU LABUAN PUTRAJAYA IPOH KLANG KUCHING SEREMBAN LANGKAWI",
+"World capitals":"LONDON PARIS TOKYO ROME BERLIN MADRID CAIRO LIMA OTTAWA BANGKOK HANOI MANILA JAKARTA SEOUL DELHI MOSCOW OSLO ATHENS LISBON DUBLIN VIENNA WARSAW BEIJING CANBERRA NAIROBI",
+"Geography":"ASIA AFRICA EUROPE OCEANIA ARCTIC PACIFIC ATLANTIC DESERT ISLAND VOLCANO GLACIER CANYON PLATEAU VALLEY MOUNTAIN LAGOON PENINSULA JUNGLE EQUATOR TUNDRA",
+"Languages":"ENGLISH MALAY CHINESE TAMIL HINDI ARABIC FRENCH SPANISH GERMAN ITALIAN JAPANESE KOREAN THAI RUSSIAN PORTUGUESE DUTCH GREEK SWAHILI TURKISH URDU VIETNAMESE",
+"Desert":"CAMEL CACTUS OASIS SCORPION MIRAGE SANDSTORM LIZARD NOMAD CANYON COYOTE SAHARA PYRAMID VULTURE DUNES THIRST ROADRUNNER FENNEC",
+"Rainforest":"JUNGLE CANOPY TOUCAN JAGUAR ORCHID VINES MONKEY PARROT ANACONDA SLOTH TAPIR MACAW RAINFALL HUMID TROPICAL ORANGUTAN BAMBOO STREAM LEOPARD FERN MOSS WATERFALL",
+"Football":"GOAL STRIKER KEEPER DEFENDER MIDFIELD PENALTY REFEREE CORNER OFFSIDE TACKLE DRIBBLE HEADER STADIUM FOUL CAPTAIN WINGER LEAGUE SUBSTITUTE CROSSBAR PITCH FANS KICKOFF SCORE",
+"Sports gear":"RACKET SHUTTLECOCK HELMET GLOVES SKATES BASEBALL GOGGLES JERSEY WHISTLE TROPHY MEDAL CLEATS SNEAKERS DUMBBELL BARBELL SURFBOARD PADDLE SHINPADS BOXING STOPWATCH HOOP",
+"Olympics":"MEDAL GOLD SILVER BRONZE TORCH ATHLETE RELAY MARATHON SPRINT HURDLES JAVELIN DISCUS PODIUM STADIUM CHAMPION RECORD GYMNAST ARCHERY FLAG ANTHEM COACH VICTORY",
+"Ball sports":"TENNIS BADMINTON SQUASH GOLF CRICKET BASEBALL VOLLEYBALL HANDBALL NETBALL SOFTBALL RUGBY HOCKEY BASKETBALL FOOTBALL POLO BILLIARDS SNOOKER BOWLING PICKLEBALL",
+"Water sports":"SWIMMING DIVING SURFING KAYAKING ROWING SAILING SNORKEL RAFTING PADDLE WATERPOLO WAKEBOARD CANOEING FISHING JETSKI BODYBOARD SCUBA WINDSURF LIFEGUARD REGATTA",
+"Winter sports":"SKIING SNOWBOARD SKATING CURLING BOBSLED LUGE HOCKEY SLEDDING BIATHLON SLALOM AVALANCHE SKELETON GLACIER SNOWMAN MITTENS GOGGLES CHALET FROST ICICLE SNOWFALL",
+"Math words":"PLUS MINUS TOTAL DIVIDE MULTIPLY ADDITION SUBTRACT PRODUCT DIFFERENCE QUOTIENT REMAINDER FRACTION DECIMAL PERCENT NUMBER DIGIT AVERAGE MEDIAN MODE RANGE EQUATION ANSWER COUNT ROUND DIVISION",
+"Number words":"FOUR FIVE NINE SEVEN EIGHT THREE ELEVEN TWELVE THIRTEEN FIFTEEN SIXTEEN TWENTY THIRTY FORTY FIFTY SIXTY EIGHTY NINETY HUNDRED THOUSAND MILLION ZERO",
+"Geometry":"ANGLE RADIUS DIAMETER AREA PERIMETER VOLUME PARALLEL SYMMETRY VERTEX DEGREE PROTRACTOR COMPASS RULER SQUARE TRIANGLE POLYGON SURFACE CURVE SEGMENT OBTUSE ACUTE REFLEX ROTATION",
+"Algebra":"ALGEBRA VARIABLE EXPONENT FACTOR MULTIPLE PRIME ROOT FORMULA FUNCTION GRAPH SLOPE POLYNOMIAL EQUATION INTEGER NEGATIVE POSITIVE ZERO STATISTICS CALCULUS MATRIX VECTOR"};
+const EXTRA="WINDOW BRIDGE MARKET JOURNEY MIRROR PICTURE FOREST RIVER VILLAGE MORNING SUNRISE SUNSET MOUNTAIN VALLEY ISLAND OCEAN JUNGLE DESERT GARDEN KITCHEN BEDROOM COUNTRY CITY STREET HIGHWAY AIRPORT STATION HARBOR ROCKET PLANET COMET GALAXY ENGINE MOTOR WHEEL BRAKE HANDLE BUTTON SWITCH SIGNAL RADIO CAMERA SCREEN ZIPPER BUCKLE ANCHOR ARROW SHIELD CROWN JEWEL TREASURE MYSTERY SECRET RIDDLE PUZZLE STORY LEGEND HERO MAGIC DREAM WISH SMILE LAUGH WHISPER SHOUT SINGING DANCING JUMPING RUNNING SWIMMING CLIMBING SLEEPING THINKING LISTEN WONDER BRIGHT QUIET GENTLE GOLDEN SILVER COPPER SIMPLE FRIEND NEIGHBOR STRANGER VISITOR GUEST TRAVEL ADVENTURE EXPLORE DISCOVER BALANCE ENERGY POWER SPEED STRONG SWEET SOUR SPICY CRUNCHY SMOOTH ROUGH SOFT FLUFFY SHINY COLORFUL CHEERFUL HAPPY SUNNY RAINY WINDY STORMY CLOUDY FROSTY FUTURE PRESENT HISTORY MEMORY CULTURE FAMILY HOLIDAY WEEKEND BIRTHDAY MESSAGE LETTER POSTCARD PARCEL TICKET PASSPORT LUGGAGE SUITCASE UMBRELLA LANTERN CANDLE PILLOW BLANKET CUSHION BASKET BOTTLE PENCIL MARKER CRAYON EASEL CANVAS BRUSH PALETTE SKETCH ORCHARD MEADOW PASTURE HARVEST VINEYARD WINDMILL LIGHTHOUSE FOUNTAIN STATUE MUSEUM THEATER CINEMA LIBRARY BAKERY PHARMACY";
+const THEMES={};for(const k in T)THEMES[k]=T[k].split(" ").filter(w=>w.length>=4&&w.length<=10);
+const MATH="Math sums",MATH_CHANCE=0.2;  // about 2 in 10 puzzles are equations with one missing part; the answers are hidden as words
+const ONES=["ZERO","ONE","TWO","THREE","FOUR","FIVE","SIX","SEVEN","EIGHT","NINE","TEN","ELEVEN","TWELVE","THIRTEEN","FOURTEEN","FIFTEEN","SIXTEEN","SEVENTEEN","EIGHTEEN","NINETEEN"];
+const TENS=["","","TWENTY","THIRTY","FORTY","FIFTY","SIXTY","SEVENTY","EIGHTY","NINETY"];
+const numWord=n=>n<20?ONES[n]:TENS[Math.floor(n/10)]+(n%10?ONES[n%10]:"");
+const NUMVAL={};for(let n=3;n<=99;n++){const w=numWord(n);if(w.length>=4&&w.length<=10)NUMVAL[w]=n}
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const OPW={"+":"PLUS","−":"MINUS","×":"TIMES","÷":"DIVIDE"},OPS=Object.keys(OPW);
+const calc=(a,o,b)=>o==="+"?a+b:o==="−"?a-b:o==="×"?a*b:a/b;
+// one equation with a random missing part: first number, sign, second number, or the total
+function makeEq(){
+  for(let t=0;t<80;t++){
+    const o=OPS[rnd(0,3)];let a,b;
+    if(o==="+"){a=rnd(2,90);b=rnd(2,99-a)}
+    else if(o==="−"){a=rnd(5,99);b=rnd(1,a-2)}
+    else if(o==="×"){a=rnd(2,12);b=rnd(2,9);if(a*b>99)continue}
+    else{b=rnd(2,9);const c0=rnd(2,12);a=b*c0;if(a>99)continue}
+    const c=calc(a,o,b),slot=rnd(0,3);   // 0 first number, 1 sign, 2 second number, 3 total
+    let word;
+    if(slot===1){if(OPS.filter(x=>calc(a,x,b)===c).length!==1)continue;word=OPW[o]}
+    else{const v=[a,0,b,c][slot],w=numWord(v);if(NUMVAL[w]!==v)continue;word=w}
+    const q=`${slot===0?"?":a} ${slot===1?"?":o} ${slot===2?"?":b} = ${slot===3?"?":c}`;
+    return{word,q,f:`${a} ${o} ${b} = ${c}`};
+  }
+  return null;
+}
+function mathSet(k){
+  const ws=[],cl={};
+  for(let g=0;ws.length<k&&g<3000;g++){
+    const e=makeEq();if(!e)continue;
+    if(ws.some(x=>x.includes(e.word)||e.word.includes(x)))continue;
+    ws.push(e.word);cl[e.word]={q:e.q,f:e.f};
+  }
+  return{ws,cl};
+}
+const RANDOM="Random words",RANDOM_CHANCE=0.4;  // about 2 in 5 puzzles mixes words from every category
+const ALL=[...new Set([...Object.values(THEMES).flat(),...EXTRA.split(" ").filter(w=>w.length>=4&&w.length<=10)])];
+const DIRS=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+const HUES=[0,15,155,180,205,230,260,285,320];
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const SHOW_THEME=true; // set to false for a harder puzzle with no category shown
+const C=13,R=11;
+let clues=null,grid=[],words=[],where={},found=new Set(),colors={},sel=[],start=-1,over=false,hue=-1,theme="",round=0,flashT,finders={},fresh=null;
+function build(){
+  const rr=Math.random(),mode=rr<MATH_CHANCE?MATH:rr<MATH_CHANCE+RANDOM_CHANCE?RANDOM:null;  // chosen once so a rejected try is retried in the same mode
+  for(let tries=0;tries<200;tries++){
+    const name=mode||shuffle(Object.keys(THEMES)).filter(n=>n!==theme)[0];
+    const pool=name===MATH?Object.keys(NUMVAL):name===RANDOM?ALL:THEMES[name];
+    const k=Math.min(pool.length,10+Math.floor(Math.random()*5));
+    let cl=null,ws;if(name===MATH){const r=mathSet(k);ws=r.ws;cl=r.cl}else ws=shuffle(pool).slice(0,k);
+    if(ws.some(x=>ws.some(y=>x!==y&&y.includes(x))))continue;
+    const g=Array(C*R).fill(""),pos={};let ok=true;
+    const diag=new Set(shuffle(ws).slice(0,Math.ceil(k*0.45)));  // about half the words run diagonally
+    for(const w of [...ws].sort((a,b)=>b.length-a.length)){
+      let placed=false;
+      for(let a=0;a<300&&!placed;a++){
+        const dirs=diag.has(w)&&a<200?[2,3,6,7]:[0,1,2,3,4,5,6,7];const [dr,dc]=DIRS[dirs[Math.floor(Math.random()*dirs.length)]];
+        const r=Math.floor(Math.random()*R),c=Math.floor(Math.random()*C);
+        const er=r+dr*(w.length-1),ec=c+dc*(w.length-1);
+        if(er<0||er>=R||ec<0||ec>=C)continue;
+        const cells=[...w].map((_,i)=>(r+dr*i)*C+c+dc*i);
+        if(cells.every((ci,i)=>!g[ci]||g[ci]===w[i])){cells.forEach((ci,i)=>g[ci]=w[i]);pos[w]=cells;placed=true}
+      }
+      if(!placed){ok=false;break}
+    }
+    if(!ok)continue;
+    if(ws.filter(w=>{const p=pos[w];return Math.floor(p[1]/C)!==Math.floor(p[0]/C)&&p[1]%C!==p[0]%C}).length<4)continue;  // always at least 4 diagonal words
+    const letters=ws.join("").split("");
+    for(let i=0;i<g.length;i++)if(!g[i])g[i]=Math.random()<.5?letters[Math.floor(Math.random()*letters.length)]:String.fromCharCode(65+Math.floor(Math.random()*26));
+    theme=name;words=ws;where=pos;grid=g;clues=cl;return true;
+  }
+  return false;
+}
+function draw(){
+  $("theme").textContent=SHOW_THEME?"Theme: "+theme:"";
+  const got=words.filter(w=>found.has(w)).sort((a,b)=>a.length-b.length||a.localeCompare(b));
+  $("stat").textContent=clues?(over?"All answers":`Found ${got.length} of ${words.length}`):over&&got.length===words.length&&!gaveUp?`All ${words.length} words found`:over?"All words":`Found ${got.length} of ${words.length} hidden words`;
+  $("words").innerHTML=clues?words.map(w=>found.has(w)?`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${clues[w].f} · ${w}</span>`:`<span class="w" style="background:var(--panel);color:var(--ink)">${clues[w].q}</span>`).join(""):got.map(w=>`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${w}</span>`).join("");
+  const cc={};for(const w of words)if(found.has(w))where[w].forEach(i=>cc[i]=1);
+  $("grid").style.gridTemplateColumns=`repeat(${C},1fr)`;
+  $("grid").innerHTML=grid.map((ch,i)=>`<div class="cell${sel.includes(i)?" sel":""}" data-i="${i}">${ch}</div>`).join("");
+  // a long oval drawn over each found word, rotated to follow its direction
+  const gr=$("grid");
+  for(const w of words)if(found.has(w)){
+    const idx=where[w],a=gr.children[idx[0]],b=gr.children[idx[idx.length-1]];
+    const ax=a.offsetLeft+a.offsetWidth/2,ay=a.offsetTop+a.offsetHeight/2,bx=b.offsetLeft+b.offsetWidth/2,by=b.offsetTop+b.offsetHeight/2;
+    const cw=a.offsetWidth,dx=bx-ax,dy=by-ay,d=Math.hypot(dx,dy),ang=Math.atan2(dy,dx),th=cw*.82,len=d+cw*.9,ext=cw*.45;
+    const ux=d?dx/d:1,uy=d?dy/d:0;
+    const cap=document.createElement("div");cap.className="cap";
+    cap.style.cssText=`left:${ax-ux*ext}px;top:${ay-uy*ext-th/2}px;width:${len}px;height:${th}px;transform:rotate(${ang}rad)`;
+    const inner=document.createElement("div");inner.className="capi"+(w===fresh?" new":"");inner.style.cssText=`background:${colors[w]};background:color-mix(in srgb,${colors[w]} 42%,transparent);border:3px solid ${colors[w]}`;
+    cap.appendChild(inner);gr.appendChild(cap);
+  }
+  fresh=null;
+}
+let gaveUp=false;
+function begin(){
+  if(!build()){$("msg").textContent="Could not build a puzzle. Try again.";return}
+  let h;do{h=HUES[Math.floor(Math.random()*HUES.length)]}while(h===hue);
+  hue=h;document.documentElement.style.setProperty("--h",h);
+  found=new Set();finders={};sel=[];start=-1;over=false;gaveUp=false;round++;
+  colors={};words.forEach((w,i)=>colors[w]=`hsl(${(h+Math.round(i*360/words.length))%360} 55% 40%)`);
+  $("msg").textContent="";$("giveup").disabled=false;$("g").disabled=false;$("g").value="";
+  draw();
+}
+function newGame(){begin();$("g").focus()}
+function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
+function flash(t){const m=$("msg");if(over)return;m.textContent=t;clearTimeout(flashT);flashT=setTimeout(()=>{if(!over)m.textContent=""},1800)}
+function line(a,b){
+  const ra=Math.floor(a/C),ca=a%C,rb=Math.floor(b/C),cb=b%C,dr=rb-ra,dc=cb-ca;
+  if(!(dr===0||dc===0||Math.abs(dr)===Math.abs(dc)))return [a];
+  const n=Math.max(Math.abs(dr),Math.abs(dc)),sr=Math.sign(dr),sc=Math.sign(dc);
+  return Array.from({length:n+1},(_,i)=>(ra+sr*i)*C+ca+sc*i);
+}
+function cellAt(e){
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const c=el&&el.closest?el.closest(".cell"):null;
+  return c?+c.dataset.i:null;
+}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+  const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+  const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let t=0;
+  (function f(){
+    x.clearRect(0,0,c.width,c.height);t++;
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(t<160)requestAnimationFrame(f);else c.remove();
+  })();
+}
+function popup(){
+  const d=document.createElement("div");d.className="win";
+  Object.entries(finders).sort((a,b)=>b[1].length-a[1].length).forEach(([n,ws])=>{
+    const l=document.createElement("div");l.className="wl";l.textContent=`${n} won with '${ws.join(", ")}'`;d.appendChild(l);
+  });
+  const m=$("msg");m.textContent="";m.appendChild(d);
+  const r=round;setTimeout(()=>{if(over&&round===r)begin()},8000);
+}
+// word: text typed, dragged, or sent from live chat. local: true when typed or dragged on this page.
+function norm(word){
+  let w=String(word||"").trim().toUpperCase();
+  return w.replace(/[^A-Z]/g,"");
+}
+function guess(word,name,local){
+  if(over)return"over";
+  const w=norm(word);
+  if(!w)return"bad";
+  if(!words.includes(w)){if(local)flash("Not a hidden word.");return"bad"}
+  if(found.has(w)){if(local)flash(`${w} is already found.`);return"again"}
+  found.add(w);fresh=w;
+  const nm=nameOf(String(name||"").trim().slice(0,30));(finders[nm]=finders[nm]||[]).push(w);
+  if(found.size===words.length){
+    over=true;sel=[];start=-1;
+    $("giveup").disabled=true;$("g").disabled=true;$("g").value="";
+    draw();popup();confetti();
+  }else{
+    draw();flash(`Found ${w}!`);
+  }
+  return"ok";
+}
+function check(){
+  const text=sel.map(i=>grid[i]).join(""),rev=[...text].reverse().join("");
+  const w=words.find(x=>(x===text||x===rev)&&!found.has(x));
+  sel=[];
+  if(w)guess(w,"",true);
+  else{if(text.length>1)flash("Not a hidden word.");draw()}
+}
+$("grid").addEventListener("pointerdown",e=>{
+  if(over)return;const i=cellAt(e);if(i===null)return;
+  e.preventDefault();
+  if(start>=0){sel=line(start,i);start=-1;check();return}
+  start=i;sel=[i];draw();
+});
+$("grid").addEventListener("pointermove",e=>{
+  if(start<0||e.buttons===0&&e.pointerType==="mouse")return;
+  const i=cellAt(e);if(i===null)return;
+  const l=line(start,i);if(l.join()!==sel.join()){sel=l;draw()}
+});
+window.addEventListener("pointerup",e=>{
+  if(start<0)return;
+  const i=cellAt(e);
+  if(i!==null&&i!==start){sel=line(start,i);start=-1;check()}
+});
+function submitTyped(force){
+  if(over)return;
+  const inp=$("g"),v=inp.value;
+  if(!v)return;
+  if(words.includes(norm(v))&&!found.has(norm(v))){guess(v,"",true);inp.value="";if(!over)inp.focus();return}
+  if(force){
+    inp.classList.remove("no");void inp.offsetWidth;inp.classList.add("no");
+    guess(v,"",true);inp.value="";
+  }
+}
+$("g").oninput=()=>{$("g").value=$("g").value.toUpperCase().replace(/[^A-Z]/g,"");submitTyped(false)};
+$("g").onkeydown=e=>{if(e.key==="Enter")submitTyped(true)};
+window.addEventListener("resize",()=>draw());
+$("new").onclick=newGame;
+$("giveup").onclick=()=>{
+  if(over)return;
+  over=true;gaveUp=true;sel=[];start=-1;
+  $("giveup").disabled=true;$("g").disabled=true;
+  words.forEach(w=>found.add(w));
+  draw();
+  $("msg").textContent="You gave up. Here are all the words.";
+  const r=round;setTimeout(()=>{if(over&&round===r)begin()},8000);
+};
+window.submitGuess=guess;
+window.addEventListener("message",e=>{const d=e.data;if(d&&d.type==="guess")guess(d.word,d.name)});
+const LIVE=/[?&]live=1/.test(location.search)||location.protocol==="file:";
+function tikfinity(){let ws;try{ws=new WebSocket("ws://127.0.0.1:21213/")}catch(e){return}
+ws.onmessage=ev=>{try{const m=JSON.parse(ev.data),d=m.data||m;if(!/chat|comment/i.test(String(m.event||m.type||"")))return;const u=d.user||{};guess(d.comment||d.text||d.message,d.nickname||d.uniqueId||u.nickname||u.uniqueId)}catch(e){}};
+ws.onclose=()=>setTimeout(tikfinity,3000);ws.onerror=()=>ws.close()}
+if(LIVE)tikfinity();
+newGame();
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script></body>
+</html>

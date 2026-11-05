@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Blur</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);--g:#22c55e;--x:hsl(var(--h) 14% 42%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 12px;color:var(--muted);font-size:18px}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:15.5px;margin:0 0 10px;text-align:center;color:var(--muted);background:var(--panel);padding:10px;border-radius:12px;line-height:1.3}
+.lg div{border-top:4px solid;padding-top:6px}
+.lg b{display:block;color:var(--ink);font-size:17px}
+button{font:inherit;font-weight:600;cursor:pointer}
+#msg{min-height:26px;font-weight:600;margin:6px 0 10px}
+#grid{display:flex;flex-direction:column;gap:5px;align-items:center;margin:0 auto 12px}
+.row{display:flex;gap:5px;justify-content:center}
+.t{--s:min(var(--cap,44px),calc((100vw - 48px - (var(--n) - 1) * 5px) / var(--n)));width:var(--s);height:var(--s);border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:calc(var(--s) * .5);font-weight:700;text-transform:uppercase;color:var(--ink);background:var(--panel);padding:0;border-radius:8px;overflow:hidden}
+.t i{font-style:normal;display:block}
+.t.g{background:var(--g);border-color:var(--g);color:#052e16}
+.t.cur{border-color:var(--pur)}
+.hid{position:absolute;width:1px;height:1px;padding:0;margin:0;border:0;opacity:0;pointer-events:none}
+#ab{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;margin:0 0 10px}
+#ab div{height:36px;border-radius:8px;background:var(--panel);color:var(--ink);display:grid;place-items:center;font-weight:600}
+#ab div.used{background:hsl(var(--h) 20% 42%)}
+.acts{display:flex;gap:10px;justify-content:center}
+.acts button{padding:10px 18px;border-radius:8px;background:transparent;color:var(--ink);border:2px solid var(--muted)}
+.acts button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+@media (min-width:800px){
+:root{--cap:70px}
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub{font-size:25px}
+.lg{font-size:21px;padding:14px;gap:14px}
+.lg b{font-size:24px}
+.win{font-size:30px;max-width:620px}
+#msg{min-height:40px}
+#grid,.row{gap:8px}
+#ab{gap:6px}
+#ab div{height:54px}
+.acts button{padding:14px 30px}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Word Blur</h1>
+<p class="sub">Guess the secret word. Blurry letters are far away in the alphabet, clear letters are close.</p>
+<div class="lg"><div style="border-color:var(--g)"><b>Green</b>correct letter</div><div style="border-color:var(--pur)"><b>Clear</b>close in the alphabet</div><div style="border-color:var(--x)"><b>Blurry</b>far in the alphabet</div></div>
+<div id="ab" aria-label="Alphabet"></div>
+<div id="msg" role="status"></div>
+<div id="grid"></div>
+<input id="g" class="hid" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="go" aria-label="Type your guess">
+<div class="acts"><button id="nb">New game</button><button id="give">Give up</button></div>
+</main>
+<script>
+const WORDS={},VALID={};
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+function prep(a,g){for(let n=3;n<=6;n++){WORDS[n]=[];VALID[n]=new Set()}
+ a.forEach(w=>{if(w.length>=3&&w.length<=6)WORDS[w.length].push(w)});
+ g.forEach(w=>{if(w.length>=3&&w.length<=6)VALID[w.length].add(w)})}
+const $=id=>document.getElementById(id),gi=$('g'),A="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let ans,n,rows,cur,over,last='';
+$('ab').innerHTML=[...A].map(c=>`<div>${c}</div>`).join('');
+function msg(t){$('msg').textContent=t}
+function start(){
+  let w;do{n=3+Math.floor(Math.random()*4);const l=WORDS[n];w=l[Math.floor(Math.random()*l.length)]}while(w===last);
+  ans=last=w;rows=[];cur='';over=false;gi.value='';gi.maxLength=n;gi.disabled=false;gi.focus({preventScroll:true});$('give').disabled=false;
+  msg('');used();draw();
+}
+function draw(){
+  const g=$('grid');g.innerHTML='';
+  const total=rows.length+(over?0:1);
+  for(let r=0;r<total;r++){
+    const row=document.createElement('div');row.className='row';
+    for(let c=0;c<n;c++){
+      const b=document.createElement('div');b.className='t';b.style.setProperty('--n',n);
+      if(r<rows.length){
+        const ch=rows[r][c],d=Math.abs(A.indexOf(ch)-A.indexOf(ans[c]));
+        if(d)b.innerHTML=`<i style="filter:blur(${d*.35}px)">${ch}</i>`;else{b.classList.add('g');b.textContent=ch}
+      }else{if(c===Math.min(cur.length,n-1))b.classList.add('cur');b.textContent=cur[c]||''}
+      row.appendChild(b);
+    }
+    g.appendChild(row);
+  }
+  g.lastChild&&g.lastChild.scrollIntoView({block:'nearest'});
+}
+function used(){const u=new Set(rows.join('').split(''));document.querySelectorAll('#ab div').forEach(b=>b.classList.toggle('used',u.has(b.textContent)))}
+function submit(){
+  if(over)return;
+  if(cur.length<n){msg('Need '+n+' letters.');return}
+  if(!WORDS[n].includes(cur)&&!VALID[n].has(cur)){msg(cur+' is not a valid word.');return}
+  if(rows.some(r=>[...r].some((ch,i)=>ch===ans[i]?cur[i]!==ch:cur[i]===ch))){msg(cur+' does not fit the tiles.');return}
+  rows.push(cur);used();
+  if(cur===ans){over=true;$('give').disabled=true;gi.disabled=true;msg('');popup();confetti()}
+  else msg('');
+  gi.value='';cur='';draw();
+}
+gi.addEventListener('input',()=>{if(over)return;gi.value=gi.value.replace(/[^a-z]/gi,'').toUpperCase();cur=gi.value;draw()});
+gi.addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+$('grid').addEventListener('click',()=>{if(!over)gi.focus()});
+document.addEventListener('keydown',e=>{if(!over&&document.activeElement.tagName!=='INPUT'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key.length===1||e.key==='Enter'||e.key==='Backspace'))gi.focus()});
+function popup(){
+  const d=document.createElement('div');d.className='win';d.textContent='You won with \u2018'+ans+'\u2019';
+  const m=$('msg');m.textContent='';m.appendChild(d);
+  const r=rows;setTimeout(()=>{if(over&&rows===r)start()},6000);
+}
+$('nb').onclick=start;
+$('give').onclick=()=>{if(over)return;over=true;$('give').disabled=true;gi.disabled=true;cur='';msg('You gave up. The word was '+ans+'.');draw()};
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+  const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+  const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let t=0;
+  (function f(){
+    x.clearRect(0,0,c.width,c.height);t++;
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(t<160)requestAnimationFrame(f);else c.remove();
+  })();
+}
+msg('Loading words...');
+Promise.all([getList('../answers.txt'),getList('../guesses.txt')]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){msg('Could not load the word lists.')});
+</script>
+<script src="../back-to-menu.js"></script>
+<script src="live-comments.js"></script>
+</body>
+</html>
