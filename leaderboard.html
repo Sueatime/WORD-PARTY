@@ -11,7 +11,7 @@
 *{box-sizing:border-box}
 html{background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:22px;display:flex;justify-content:center}
-main{width:100%;max-width:560px;padding:56px 16px 40px;text-align:center}
+main{width:100%;max-width:560px;padding:96px 16px 40px;text-align:center}
 h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(36px,10vw,54px);line-height:1.1}
 .sub{color:var(--muted);margin:0 0 18px;font-size:20px}
 .sels{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
@@ -31,7 +31,6 @@ h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-seri
 .name small{display:block;color:var(--muted);font-weight:400;font-size:17px}
 .row .pv{font-size:26px}
 .empty{color:var(--muted);padding:24px}
-a.back{position:fixed;left:10px;top:10px;font:inherit;font-size:16px;font-weight:700;padding:6px 14px;border-radius:999px;background:hsl(var(--h) 30% 12%);color:var(--ink);border:1.5px solid var(--muted);text-decoration:none;z-index:5}
 @media (min-width:800px){
 body{font-size:26px}
 main{max-width:760px}
@@ -42,12 +41,10 @@ main{max-width:760px}
 .pv{font-size:34px}
 .name{font-size:26px}
 .row .pv{font-size:32px}
-a.back{font-size:19px}
 }
 </style>
 </head>
 <body>
-<a class="back" href="./">&larr; Menu</a>
 <main>
 <h1>Leaderboard</h1>
 <p class="sub" id="sub"></p>
@@ -127,5 +124,6 @@ api("leaderboard_months?select=month").then(function(rows){
 }).catch(function(){});
 show();
 </script>
+<script src="back-to-menu.js"></script>
 </body>
 </html>
