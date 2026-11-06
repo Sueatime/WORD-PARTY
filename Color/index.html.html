@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Color Spell</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
+<style>
+:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--mute:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center;display:flex;flex-direction:column;min-height:100vh}
+h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9.5vw,44px);letter-spacing:1px;line-height:1.1}
+.sub{margin:0 0 12px;color:var(--mute);font-size:18px;text-align:center}
+.panel{width:100%;margin:0 auto 12px}
+.abc{display:grid;grid-template-columns:repeat(13,1fr);gap:4px}
+.k{border:0;border-radius:8px;height:36px;font:inherit;font-weight:700;color:#1a1033;cursor:pointer;padding:0}
+.k:active{transform:scale(.92)}
+.info{margin:0 0 10px;color:var(--mute);font-size:18px}
+.row{display:flex;gap:5px;justify-content:center;margin-bottom:5px;align-items:center}
+.tile{--s:min(var(--cap,44px),calc((100vw - 48px - (var(--n) - 1) * 5px) / var(--n)));width:var(--s);height:var(--s);border:2px solid var(--mute);display:flex;align-items:center;justify-content:center;font-size:calc(var(--s) * .5);font-weight:700;text-transform:uppercase;color:#1a1033;background:var(--panel);padding:0;border-radius:8px}
+.tile.e{color:var(--ink)}
+.tile.cur{border-color:var(--pur)}
+.tile.gr{background:#2bff88;border-color:#2bff88;color:#06240f;font-weight:800}
+.tile.mm{background:#d4d7de;border-color:#d4d7de;color:#1d1b2e}
+.hist{display:flex;flex-direction:column;gap:5px;margin:5px 0 0}
+#msg{min-height:26px;font-weight:600;margin:6px 0 10px}
+.acts{margin:12px 0 0}
+button{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:2px solid var(--mute);background:transparent;color:var(--ink);cursor:pointer}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.win{background:var(--pur);color:#fff;border-radius:10px;padding:12px;font-size:22px;font-weight:800;max-width:420px;margin:0 auto;animation:pop .5s ease-out;word-break:break-word}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.win{animation:none}}
+.gs{cursor:pointer}
+#patwrap{position:relative}
+#kbd{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;font-size:16px;caret-color:transparent;z-index:2;background:transparent;color:transparent}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+@media (min-width:800px){
+:root{--cap:70px}
+body{font-size:26px}
+main{max-width:820px;padding-top:32px}
+h1{font-size:66px;margin-bottom:12px}
+.sub,.info{font-size:25px}
+.abc{gap:6px}
+.k{height:54px}
+.row,.hist{gap:8px}
+.hist{margin-top:8px}
+.tile{--s:min(var(--cap,44px),calc((100vw - 48px - (var(--n) - 1) * 8px) / var(--n)))}
+.win{font-size:30px;max-width:620px}
+#msg{min-height:40px}
+button{padding:14px 30px}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Color Spell</h1>
+<p class="sub">Letters have four colors that change each round. Guess a word that fits the colored tiles. Green means the right spot.</p>
+<div class="panel"><div class="abc" id="abc" aria-label="Alphabet in four colors"></div></div>
+<div id="msg" role="status" aria-live="polite"></div>
+<div id="patwrap"><div class="row" id="pat"></div><input id="kbd" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Type your word"></div>
+<div class="hist" id="hist"></div>
+<div class="row acts"><button id="new">New game</button><button id="giveup">Give up</button></div>
+</main>
+
+<script>
+var GR=[["AEIOUY","#ff7eb6","#2b2b2b"],["BCDFGHJ","#5ec4ff","#2b2b2b"],["KLMNPQR","#b68cff","#2b2b2b"],["STVWXZ","#ffe94d","#2b2b2b"]];
+var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+var M={};function gi(l){return M[l]}
+function pat(w){return w.split("").map(gi).join("")}
+var W=[],X=[],SET={};
+
+function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=7&&!/S$/.test(w)});g.forEach(function(w){if(w.length>=3&&w.length<=8)SET[w]=1});W.forEach(function(w){SET[w]=1})}
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean).map(function(w){return w.toUpperCase()})})}
+var kp,words,found,g,sc=0,rounds=0;
+function $(i){return document.getElementById(i)}
+GR.forEach(function(){});
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function regroup(){var L=shuf(A),o=shuf([0,1,2,3]),sz=[7,7,6,6],n=0;M={};sz.forEach(function(z,i){for(var k=0;k<z;k++)M[L[n++]]=o[i]})}
+function buildAbc(){
+$("abc").innerHTML="";
+var ord=[0,1,3,2],G=ord.map(function(c){return shuf(A.filter(function(l){return gi(l)===c}))});
+var take=G.map(function(a){return Math.floor(a.length/2)});
+var left=13-take.reduce(function(x,y){return x+y},0);
+var odd=shuf(G.map(function(a,i){return i}).filter(function(i){return G[i].length%2}));
+for(var k=0;k<left&&k<odd.length;k++)take[odd[k]]++;
+var r1=[],r2=[];G.forEach(function(a,i){r1=r1.concat(a.slice(0,take[i]));r2=r2.concat(a.slice(take[i]))});
+r1.concat(r2).forEach(function(l){var b=document.createElement("button"),c=GR[gi(l)];b.className="k";b.textContent=l;b.style.background=c[1];b.style.color=c[2];b.setAttribute("aria-label","Letter "+l);b.onclick=function(){add(l)};$("abc").appendChild(b)})}
+function tile(d,i){d.className="tile";d.style.background=GR[i][1];d.style.borderColor=GR[i][1];d.style.color=GR[i][2]}
+var done=false,gaveUp=false,streak=0,target="",hist=[];
+function hrow(w){var r=document.createElement("div");r.className="row";
+w.split("").forEach(function(l,i){var d=document.createElement("div"),c=GR[gi(l)];d.className="tile";d.textContent=l;
+if(l===target[i])d.className+=" gr";else{d.style.background=c[1];d.style.borderColor=c[1];d.style.color=c[2]}r.appendChild(d)});return r}
+function draw(){
+var p=$("pat");p.innerHTML="";
+for(var i=0;i<kp.length;i++){
+var d=document.createElement("div"),c=GR[+kp[i]],cu=!done&&i===g.length;
+d.className="tile"+(cu?" cur":"");
+d.style.background=c[1];d.style.borderColor=cu?"":c[1];d.style.color=c[2];d.textContent=g[i]||"";p.appendChild(d)}
+$("hist").innerHTML="";hist.forEach(function(w){$("hist").appendChild(hrow(w))})}
+function load(){
+for(var t=0;t<600;t++){regroup();var L0=3+Math.floor(Math.random()*5),pool=W.filter(function(x){return x.length===L0}),w0=pool[Math.floor(Math.random()*pool.length)],k0=pat(w0),m0=W.filter(function(x){return pat(x)===k0}),need=L0<=4?3:(L0==5?2:1);if(m0.length>=need||t===599){kp=k0;words=m0;target=w0;break}}
+document.documentElement.style.setProperty("--n",kp.length);buildAbc();found=[];hist=[];g=[];done=false;gaveUp=false;
+$("msg").textContent="";draw()}
+function add(l){if(done)return;if(g.length>=kp.length)g=[];g.push(l);$("msg").textContent="";draw();if(g.length===kp.length)check()}
+function del(){if(done)return;g.pop();draw()}
+function fits(w){for(var k=0;k<hist.length;k++){var p=hist[k];for(var i=0;i<p.length;i++){if((p[i]===w[i])!==(p[i]===target[i]))return false}}return true}
+function check(){
+var w=g.join("");
+if(pat(w)!==kp){$("msg").textContent=w+" does not fit the tiles.";return}
+if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
+if(!fits(w)){$("msg").textContent=w+" does not fit the tiles.";return}
+hist.push(w);g=[];
+if(w===target){done=true;streak++;draw();popup();confetti();return}
+draw();$("msg").textContent=""}
+var winner="";
+function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);
+var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
+function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==kp.length)return;g=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
+window.submitGuess=remote;
+window.addEventListener("message",function(e){var d=e.data;if(d&&d.type==="guess")remote(d.word,d.name)});
+var LIVE=/[?&]live=1/.test(location.search)||location.protocol==="file:";
+function tikfinity(){var ws;try{ws=new WebSocket("ws://127.0.0.1:21213/")}catch(e){return}
+ws.onmessage=function(ev){try{var m=JSON.parse(ev.data),d=m.data||m;if(!/chat|comment/i.test(String(m.event||m.type||"")))return;var u=d.user||{};remote(d.comment||d.text||d.message,d.nickname||d.uniqueId||u.nickname||u.uniqueId)}catch(e){}};
+ws.onclose=function(){setTimeout(tikfinity,3000)};ws.onerror=function(){ws.close()}}
+if(LIVE)tikfinity();
+function giveUp(){
+if(done)return;done=true;streak=0;g=[];hist.push(target);draw();
+$("msg").textContent="Gave up. The answer was "+target+"."}
+function confetti(){
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+let t=0;
+(function f(){
+x.clearRect(0,0,c.width,c.height);t++;
+ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+if(t<160)requestAnimationFrame(f);else c.remove();
+})();
+}
+$("new").onclick=load;$("giveup").onclick=giveUp;$("pat").onclick=del;
+var kb=$("kbd");
+function fk(){try{kb.focus({preventScroll:true})}catch(e){}}
+document.addEventListener("keydown",function(e){
+if(e.ctrlKey||e.metaKey||e.altKey)return;
+if(e.key==="Backspace"){e.preventDefault();del()}
+else if(/^[a-zA-Z]$/.test(e.key)){e.preventDefault();add(e.key.toUpperCase())}});
+kb.addEventListener("input",function(){var v=kb.value;if(v.length===0){del()}else{v.toUpperCase().replace(/[^A-Z]/g,"").split("").forEach(add)}kb.value="~"});
+document.addEventListener("pointerdown",function(e){window.focus();if(!e.target.closest("button"))fk()});
+window.addEventListener("focus",fk);
+fk();
+kb.value="~";document.body.tabIndex=-1;window.focus();fk();
+$("msg").textContent="Loading words...";
+Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
+</script>
+<script src="../back-to-menu.js"></script></body>
+</html>
