@@ -3,26 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
 <title>Word Party Leaderboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
 <style>
-:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--muted:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);--grn:#3ddc84;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:20px;display:flex;justify-content:center}
-main{width:100%;max-width:560px;padding:24px 16px 40px;text-align:center}
-h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(30px,9vw,48px)}
-.sub{color:var(--muted);margin:0 0 16px}
-.tabs{display:flex;gap:10px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
-button,a.back{font:inherit;font-weight:600;cursor:pointer;padding:8px 18px;border-radius:8px;background:transparent;color:var(--ink);border:2px solid var(--muted);text-decoration:none}
-button.on{background:var(--pur);border-color:var(--pur);color:#1a1033}
-.row{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:12px;padding:12px 16px;margin-bottom:8px;text-align:left}
-.rank{width:42px;font-weight:700;font-size:22px;text-align:center}
-.name{flex:1;font-weight:600;word-break:break-all}
-.name small{display:block;color:var(--muted);font-weight:400;font-size:15px}
-.pts{font-weight:700;color:var(--pur);font-size:22px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:22px;display:flex;justify-content:center}
+main{width:100%;max-width:560px;padding:56px 16px 40px;text-align:center}
+h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-serif;font-weight:400;font-size:clamp(36px,10vw,54px);line-height:1.1}
+.sub{color:var(--muted);margin:0 0 18px;font-size:20px}
+.sels{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.sels label{display:block;color:var(--muted);font-size:17px;margin:0 0 4px 4px;text-align:left}
+.sels select{font:inherit;font-size:20px;font-weight:600;padding:10px 14px;border-radius:12px;border:2px solid var(--muted);background:var(--panel);color:var(--ink);min-width:170px}
+.pod{display:flex;gap:10px;justify-content:center;align-items:flex-end;margin-bottom:14px}
+.pc{flex:1;max-width:190px;min-width:0;background:var(--panel);border:2px solid transparent;border-radius:16px;padding:14px 8px}
+.pc.first{border-color:var(--pur);padding-top:20px;padding-bottom:20px}
+.medal{font-size:40px;line-height:1.1}
+.pn{font-size:20px;font-weight:600;margin:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv{font-size:28px;font-weight:700}
+.pt{color:var(--pur)}
+.wn{color:var(--grn)}
+.row{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:14px;padding:14px 16px;margin-bottom:8px;text-align:left}
+.rank{width:36px;height:36px;border-radius:50%;background:hsl(var(--h) 20% 28%);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none}
+.name{flex:1;min-width:0;font-weight:600;font-size:22px;overflow:hidden;text-overflow:ellipsis}
+.name small{display:block;color:var(--muted);font-weight:400;font-size:17px}
+.row .pv{font-size:26px}
 .empty{color:var(--muted);padding:24px}
-a.back{position:fixed;left:10px;top:10px;font-size:15px;padding:6px 12px}
+a.back{position:fixed;left:10px;top:10px;font:inherit;font-size:16px;font-weight:700;padding:6px 14px;border-radius:999px;background:hsl(var(--h) 30% 12%);color:var(--ink);border:1.5px solid var(--muted);text-decoration:none;z-index:5}
+@media (min-width:800px){
+body{font-size:26px}
+main{max-width:760px}
+.sub{font-size:24px}
+.sels select{font-size:24px}
+.medal{font-size:52px}
+.pn{font-size:24px}
+.pv{font-size:34px}
+.name{font-size:26px}
+.row .pv{font-size:32px}
+a.back{font-size:19px}
+}
 </style>
 </head>
 <body>
@@ -30,55 +51,80 @@ a.back{position:fixed;left:10px;top:10px;font-size:15px;padding:6px 12px}
 <main>
 <h1>Leaderboard</h1>
 <p class="sub" id="sub"></p>
-<div class="tabs"><button id="pts" class="on">Points</button><button id="wns">Wins</button><button id="gms">By game</button></div>
-<div class="tabs"><button id="cur" class="on">This month</button><button id="prev">Last month</button></div>
+<div class="sels">
+<div><label for="kind">Champions</label><select id="kind"><option value="points">Points</option><option value="wins">Wins</option><option value="games">Top scorer by game</option></select></div>
+<div><label for="mon">Month</label><select id="mon"></select></div>
+</div>
+<div id="pod" class="pod"></div>
 <div id="list"></div>
 </main>
 <script>
 var URL_="https://igezympgwgxgqaqnuhqo.supabase.co";
 var KEY="sb_publishable_Vf0-TBuyjmtifEFAzF7row_HuK9PAnS";
-var kind="points",offset=0;
-function month(o){var d=new Date(Date.now()+8*3600000);d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+o);return d.toISOString().slice(0,7)}
+var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var MEDALS=["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"],TROPHY="\uD83C\uDFC6";
+function curMonth(){return new Date(Date.now()+8*3600000).toISOString().slice(0,7)}
+function label(m){var p=m.split("-");return MN[+p[1]-1]+" "+p[0]}
+var months=[curMonth()],selMonth=curMonth();
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function fillMonths(){
+  var s=document.getElementById("mon");s.innerHTML="";
+  months.sort().reverse().forEach(function(m){
+    var o=document.createElement("option");o.value=m;
+    o.textContent=label(m)+(m===curMonth()?" (this month)":"");s.appendChild(o);
+  });
+  s.value=selMonth;
+}
+function api(path){return fetch(URL_+"/rest/v1/"+path,{headers:{apikey:KEY}}).then(function(r){return r.json()})}
+function valEl(kind,v){
+  return kind==="wins"?el("div","pv wn",TROPHY+" "+v):el("div","pv pt",String(v));
+}
 function show(){
-  var m=month(offset),list=document.getElementById("list");
+  var kind=document.getElementById("kind").value,pod=document.getElementById("pod"),list=document.getElementById("list");
   var cfg={
     points:{view:"leaderboard",col:"total",q:"&order=total.desc&limit=10&select=viewer_name,total",title:"Top 10 points"},
     wins:{view:"leaderboard_wins",col:"wins",q:"&order=wins.desc&limit=10&select=viewer_name,wins",title:"Top 10 wins"},
     games:{view:"leaderboard_by_game",col:"total",q:"&order=game.asc&select=game,viewer_name,total",title:"Top scorer for each game"}
   }[kind];
-  document.getElementById("pts").className=kind==="points"?"on":"";
-  document.getElementById("wns").className=kind==="wins"?"on":"";
-  document.getElementById("gms").className=kind==="games"?"on":"";
-  document.getElementById("cur").className=offset===0?"on":"";
-  document.getElementById("prev").className=offset===0?"":"on";
-  document.getElementById("sub").textContent=cfg.title+" for "+m;
-  list.innerHTML='<div class="empty">Loading...</div>';
-  fetch(URL_+"/rest/v1/"+cfg.view+"?month=eq."+m+cfg.q,{headers:{apikey:KEY}})
-   .then(function(r){return r.json()})
-   .then(function(rows){
-     list.innerHTML="";
-     if(!Array.isArray(rows)||!rows.length){list.innerHTML='<div class="empty">No scores yet.</div>';return}
-     var medals=["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"];
-     rows.forEach(function(r,i){
-       var d=document.createElement("div");d.className="row";
-       var a=document.createElement("div");a.className="rank";
-       a.textContent=kind==="games"?"\uD83C\uDFC6":(medals[i]||String(i+1));
-       var b=document.createElement("div");b.className="name";
-       if(kind==="games"){
-         b.textContent=r.game;
-         var s=document.createElement("small");s.textContent=r.viewer_name;b.appendChild(s);
-       }else{b.textContent=r.viewer_name}
-       var c=document.createElement("div");c.className="pts";c.textContent=r[cfg.col];
-       d.appendChild(a);d.appendChild(b);d.appendChild(c);list.appendChild(d);
-     });
-   })
-   .catch(function(){list.innerHTML='<div class="empty">Could not load scores.</div>'});
+  document.getElementById("sub").textContent=cfg.title+" · "+label(selMonth);
+  pod.innerHTML="";list.innerHTML="";
+  list.appendChild(el("div","empty","Loading..."));
+  api(cfg.view+"?month=eq."+selMonth+cfg.q).then(function(rows){
+    list.innerHTML="";
+    if(!Array.isArray(rows)||!rows.length){list.appendChild(el("div","empty","No scores yet."));return}
+    if(kind==="games"){
+      rows.forEach(function(r){
+        var d=el("div","row");
+        d.appendChild(el("div","medal",TROPHY));
+        var n=el("div","name",r.game);n.appendChild(el("small","",r.viewer_name));d.appendChild(n);
+        d.appendChild(valEl("points",r.total));list.appendChild(d);
+      });
+      return;
+    }
+    [1,0,2].forEach(function(i){
+      if(i>=rows.length)return;
+      var c=el("div","pc"+(i===0?" first":""));
+      c.appendChild(el("div","medal",MEDALS[i]));
+      c.appendChild(el("div","pn",rows[i].viewer_name));
+      c.appendChild(valEl(kind,rows[i][cfg.col]));
+      pod.appendChild(c);
+    });
+    for(var i=3;i<rows.length;i++){
+      var d=el("div","row");
+      d.appendChild(el("div","rank",String(i+1)));
+      d.appendChild(el("div","name",rows[i].viewer_name));
+      d.appendChild(valEl(kind,rows[i][cfg.col]));
+      list.appendChild(d);
+    }
+  }).catch(function(){list.innerHTML="";list.appendChild(el("div","empty","Could not load scores."))});
 }
-document.getElementById("pts").onclick=function(){kind="points";show()};
-document.getElementById("wns").onclick=function(){kind="wins";show()};
-document.getElementById("gms").onclick=function(){kind="games";show()};
-document.getElementById("cur").onclick=function(){offset=0;show()};
-document.getElementById("prev").onclick=function(){offset=-1;show()};
+document.getElementById("kind").onchange=show;
+document.getElementById("mon").onchange=function(){selMonth=this.value;show()};
+fillMonths();
+api("leaderboard_months?select=month").then(function(rows){
+  if(Array.isArray(rows))rows.forEach(function(r){if(months.indexOf(r.month)<0)months.push(r.month)});
+  fillMonths();
+}).catch(function(){});
 show();
 </script>
 </body>
