@@ -21,6 +21,7 @@
     "@keyframes wcin{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}" +
     ".wc-tiles{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:0 0 14px}" +
     ".wc-tile{width:38px;height:44px;border-radius:8px;background:#3ddc84;color:#06240f;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}" +
+    ".wc-word{margin:0 0 14px;padding:10px 14px;border-radius:14px;background:#3ddc84;color:#06240f;font-weight:700;letter-spacing:2px;text-align:center;white-space:nowrap;overflow:hidden}" +
     ".wc-name{font-size:28px;font-weight:700;word-break:break-word}" +
     ".wc-sub{font-size:19px;color:#b9b3dc;margin:2px 0 16px}" +
     ".wc-chips{display:flex;gap:10px;justify-content:center}" +
@@ -74,11 +75,14 @@
 
   function screen1(card, o, name) {
     card.innerHTML = "";
-    var tiles = el("div", "wc-tiles");
-    String(o.word || "").toUpperCase().split("").forEach(function (c) {
-      tiles.appendChild(el("span", "wc-tile", c));
-    });
-    card.appendChild(tiles);
+    var word = el("div", "wc-word", String(o.word || "").toUpperCase());
+    card.appendChild(word);
+    var fs = window.innerWidth >= 800 ? 56 : 40;
+    word.style.fontSize = fs + "px";
+    while (word.scrollWidth > word.clientWidth && fs > 16) {
+      fs -= 2;
+      word.style.fontSize = fs + "px";
+    }
     card.appendChild(el("div", "wc-name", name + " solved it"));
     card.appendChild(el("div", "wc-sub", o.game));
     var chips = el("div", "wc-chips");
