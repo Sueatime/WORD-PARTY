@@ -75,3 +75,10 @@
   s.src = cs.src.replace('back-to-menu.js', 'live-comments.js');
   document.head.appendChild(s);
 })();
+
+(function () {
+  if (/leaderboard/i.test(location.pathname)) return;
+  var s = document.createElement("script");
+  s.src = new URL("top-bar.js", document.currentScript.src).href;
+  document.body.appendChild(s);
+})();
