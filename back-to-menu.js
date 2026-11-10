@@ -11,10 +11,10 @@
   a.setAttribute("aria-label", "Back to Word Party menu");
   a.style.cssText =
     "position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:9999;" +
-    "width:72px;height:72px;display:flex;align-items:center;justify-content:center;" +
+    "width:60px;height:60px;display:flex;align-items:center;justify-content:center;" +
     "border-radius:50%;background:rgba(20,18,43,.92);color:#fff;" +
-    "font-size:40px;line-height:1;" +
-    "text-decoration:none;border:3px solid rgba(255,255,255,.3);" +
+    "font-size:33px;line-height:1;" +
+    "text-decoration:none;border:2px solid rgba(255,255,255,.3);" +
     "-webkit-tap-highlight-color:transparent;";
   document.body.appendChild(a);
 
