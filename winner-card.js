@@ -21,11 +21,11 @@
     "@keyframes wcin{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}" +
     ".wc-tiles{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:0 0 14px}" +
     ".wc-tile{width:38px;height:44px;border-radius:8px;background:#3ddc84;color:#06240f;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}" +
-    ".wc-word{margin:0 0 14px;padding:10px 14px;border-radius:14px;background:#3ddc84;color:#06240f;font-weight:700;letter-spacing:2px;text-align:center;white-space:nowrap;overflow:hidden}" +
-    ".wc-name{font-size:28px;font-weight:700;word-break:break-word}" +
-    ".wc-sub{font-size:19px;color:#b9b3dc;margin:2px 0 16px}" +
+    ".wc-word{margin:0 0 14px;padding:10px 14px;border-radius:14px;background:#3ddc84;color:#06240f;font-weight:700;letter-spacing:1px;text-align:center;white-space:nowrap;overflow:hidden}" +
+    ".wc-name{font-size:24px;font-weight:700;word-break:break-word}" +
+    ".wc-sub{font-size:17px;color:#b9b3dc;margin:2px 0 16px}" +
     ".wc-chips{display:flex;gap:10px;justify-content:center}" +
-    ".wc-chip{flex:1;padding:10px 6px;border-radius:12px;background:rgba(155,114,240,.22);color:#b79cff;font-size:22px;font-weight:700;white-space:nowrap}" +
+    ".wc-chip{flex:1;padding:10px 6px;border-radius:12px;background:rgba(155,114,240,.22);color:#b79cff;font-size:20px;font-weight:700;white-space:nowrap}" +
     ".wc-chip.w{background:rgba(61,220,132,.18);color:#3ddc84}" +
     ".wc-dots{display:flex;gap:8px;justify-content:center;margin-top:16px}" +
     ".wc-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25)}" +
@@ -41,7 +41,7 @@
     ".wc-empty{color:#c9c3ee;padding:20px}" +
     "@media (prefers-reduced-motion:reduce){.wc-card{animation:none}}" +
     "@media (min-width:800px){.wc-card{width:min(92vw,500px)}.wc-tile{width:52px;height:60px;font-size:32px}" +
-    ".wc-name{font-size:36px}.wc-sub{font-size:24px}.wc-chip{font-size:28px}.wc-title{font-size:30px}" +
+    ".wc-name{font-size:30px}.wc-sub{font-size:21px}.wc-chip{font-size:24px}.wc-title{font-size:28px}" +
     ".wc-row{font-size:25px}.wc-m{font-size:28px}.wc-c{width:34px;height:34px;font-size:18px}}";
   var st = document.createElement("style");
   st.textContent = css;
@@ -77,7 +77,7 @@
     card.innerHTML = "";
     var word = el("div", "wc-word", String(o.word || "").toUpperCase());
     card.appendChild(word);
-    var fs = window.innerWidth >= 800 ? 56 : 40;
+    var fs = window.innerWidth >= 800 ? 44 : 32;
     word.style.fontSize = fs + "px";
     while (word.scrollWidth > word.clientWidth && fs > 16) {
       fs -= 2;
