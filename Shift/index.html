@@ -128,6 +128,7 @@ if(g===T){over=true;render();popup();confetti();if(liveGuesser)sendScore(liveGue
 if(liveGuesser&&!scored[liveGuesser]){scored[liveGuesser]=true;sendScore(liveGuesser,"Word Shift",2)}
 render()}
 function popup(){var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+if(window.WinnerCard&&WinnerCard.show({game:"Word Shift",name:nm,word:T,points:5})){clearTimeout(winT);winT=setTimeout(newGame,WinnerCard.total()+300);return}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+T+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);clearTimeout(winT);winT=setTimeout(newGame,6000)}
 function giveUp(){if(over)return;over=true;cur=[];render();$("msg").textContent="The word was "+T+"."}
 function confetti(){
