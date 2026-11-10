@@ -5,6 +5,7 @@
 (function () {
   var KEY = "sb_publishable_Vf0-TBuyjmtifEFAzF7row_HuK9PAnS"; // the sb_publishable_... key, never the secret key
   var URL_ = "https://igezympgwgxgqaqnuhqo.supabase.co";
+  window.WP_DB = { url: URL_, key: KEY };
   if (window.__wpTopBar || /leaderboard/i.test(location.pathname)) return;
   window.__wpTopBar = true;
 
@@ -119,4 +120,7 @@
   window.addEventListener("load", place);
   load();
   setInterval(load, 30000);
+  var wc = document.createElement("script");
+  wc.src = new URL("winner-card.js", document.currentScript.src).href;
+  document.body.appendChild(wc);
 })();
