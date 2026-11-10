@@ -125,7 +125,7 @@ rows.push(w);cur=[];$("msg").textContent="";
 if(w===target){over=true;render();popup();confetti();return}
 render()}
 var winner="";
-function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Gap",name:winner,word:target,points:5})){var r0=rows;setTimeout(function(){if(over&&rows===r0)newGame()},WinnerCard.total()+300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);
 var r=rows;setTimeout(function(){if(over&&rows===r)newGame()},6000)}
 function remote(word,name){if(over)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==N)return;cur=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
