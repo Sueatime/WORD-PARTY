@@ -175,7 +175,7 @@ function confetti(){
     if(t<160)requestAnimationFrame(f);else c.remove();
   })();
 }
-function popup(name,word){
+function popup(name,word){if(window.WinnerCard&&WinnerCard.show({game:"Word Compare",name:(name==="Player"?"":name),word:word,points:5})){const r0=secret;setTimeout(()=>{if(over&&secret===r0)start()},WinnerCard.total()+300);return}
   const d=document.createElement("div");d.className="win";
   const l=document.createElement("div");l.className="wl";l.textContent=`${name} won with '${word}'`;d.appendChild(l);
   const m=$("msg");m.textContent="";m.appendChild(d);
