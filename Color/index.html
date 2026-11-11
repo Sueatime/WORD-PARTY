@@ -101,7 +101,7 @@ var d=document.createElement("div"),c=GR[+kp[i]],cu=!done&&i===g.length;
 d.className="tile"+(cu?" cur":"");
 d.style.background=c[1];d.style.borderColor=cu?"":c[1];d.style.color=c[2];d.textContent=g[i]||"";p.appendChild(d)}
 $("hist").innerHTML="";hist.forEach(function(w){$("hist").appendChild(hrow(w))})}
-function load(){
+function load(){window.newRound&&window.newRound();
 for(var t=0;t<600;t++){regroup();var L0=3+Math.floor(Math.random()*5),pool=W.filter(function(x){return x.length===L0}),w0=pool[Math.floor(Math.random()*pool.length)],k0=pat(w0),m0=W.filter(function(x){return pat(x)===k0}),need=L0<=4?3:(L0==5?2:1);if(m0.length>=need||t===599){kp=k0;words=m0;target=w0;break}}
 document.documentElement.style.setProperty("--n",kp.length);buildAbc();found=[];hist=[];g=[];done=false;gaveUp=false;
 $("msg").textContent="";draw()}
@@ -114,10 +114,11 @@ if(pat(w)!==kp){$("msg").textContent=w+" does not fit the tiles.";return}
 if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
 if(!fits(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 hist.push(w);g=[];
+  window.scoreGuess&&window.scoreGuess(winner,"Color Spell",w===target);
 if(w===target){done=true;streak++;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
 var winner="";
-function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Color Spell",name:winner,word:target,points:5})){var r0=hist;setTimeout(function(){if(done&&hist===r0&&!gaveUp)load()},WinnerCard.total()+300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);
 var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
 function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==kp.length)return;g=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
@@ -158,5 +159,7 @@ kb.value="~";document.body.tabIndex=-1;window.focus();fk();
 $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
-<script src="../back-to-menu.js"></script></body>
+<script src="../back-to-menu.js"></script>
+<script src="../live-comments.js"></script>
+</body>
 </html>
