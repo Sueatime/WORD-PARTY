@@ -175,7 +175,21 @@ window.submitGuess=function(word,name){
   $("new").onclick=newGame;$("give").onclick=giveUp;
 $("help").onclick=function(){$("how").classList.add("on")};
 $("x").onclick=function(){$("how").classList.remove("on");fk()};
-newGame();fk();
+var SET={};
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean).map(function(w){return w.toUpperCase()})})}
+function useLists(a,g){
+  var u={};
+  W.forEach(function(w){u[w]=1});
+  a.forEach(function(w){if(w.length>=3&&w.length<=10&&!/S$/.test(w))u[w]=1});
+  W=Object.keys(u);
+  g.forEach(function(w){if(w.length>=3&&w.length<=10)SET[w]=1});
+  W.forEach(function(w){SET[w]=1});
+}
+$("msg").textContent="Loading words...";
+Promise.all([getList("../answers.txt"),getList("../guesses.txt")])
+  .then(function(r){useLists(r[0],r[1])})
+  .catch(function(){W.forEach(function(w){SET[w]=1})})
+  .then(function(){newGame();fk()});
 </script>
 <script src="../back-to-menu.js"></script>
 <script src="../live-comments.js"></script></body>
