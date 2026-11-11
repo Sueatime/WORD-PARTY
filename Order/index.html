@@ -127,6 +127,7 @@ function check(){
 if(over||cur.length<T.length)return;
 var g=cur.join("");
 if(code(g).join()!==code(T).join()){$("msg").textContent="That word does not fit the code.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},800);return}
+  if(!SET[g]){$("msg").textContent=g+" is not a valid word.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},800);return}
 if(!fits(g)){$("msg").textContent="That word does not fit the tiles.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},800);return}
 rows.push(g);cur=[];$("msg").textContent="";
   window.scoreGuess&&window.scoreGuess(winner,"Letter Order",g===T);
