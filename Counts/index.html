@@ -108,7 +108,7 @@ function drawSlots(){
   $("slots").className="slots"+(over?" shown":"");
   $("slots").innerHTML=[...secret].map((c,i)=>`<div class="tile${!over&&i===cur.length?" on":""}">${over?c:(cur[i]||"")}</div>`).join("");
 }
-function start(){
+function start(){window.newRound&&window.newRound();
   round++;
   n=3+Math.floor(Math.random()*4);
   const list=WORDS[n];secret=list[Math.floor(Math.random()*list.length)];
@@ -149,6 +149,7 @@ function guess(){
   if(!VALID[n].has(w)){$("msg").textContent="Not a valid word.";return}
   if(!fitsMarks(w)||!fitsCounts(w)){$("msg").textContent="The word does not fit the answer.";return}
   tries++;
+  window.scoreGuess&&window.scoreGuess(winner,"Word Counts",w===secret);
   const s=score(w);prev.push({w,s});
   $("hist").insertAdjacentHTML("afterbegin",`<div class="g"><div class="tiles">${[...w].map(c=>`<div class="tile" data-m="0">${c}</div>`).join("")}</div><div class="badges"><div class="b gre">${s.gre}</div><div class="b yel">${s.yel}</div><div class="b red">${s.red}</div></div></div>`);
   for(const c of w){const t=document.querySelector(`#abc .tile[data-l="${c}"]`);if(t){t.dataset.u="1";t.classList.add("used")}}
@@ -159,7 +160,7 @@ function guess(){
     drawSlots();confetti();
   }else{$("msg").textContent="";drawSlots();$("g").focus()}
 }
-function popup(){
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Counts",name:winner,word:secret,points:5})){const r0=round;setTimeout(function(){if(over&&round===r0)start()},WinnerCard.total()+300);return}
   let nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
   const d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+secret+"\u2019";
   $("win").innerHTML="";$("win").appendChild(d);
@@ -191,11 +192,21 @@ function confetti(){
 $("g").oninput=()=>{const v=$("g").value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,n);$("g").value=v;cur=v;drawSlots()};
 $("g").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();guess()}};
 document.addEventListener("keydown",e=>{if(over||e.ctrlKey||e.metaKey||e.altKey)return;if(document.activeElement===$("g"))return;const a=document.activeElement;if(a&&a.tagName==="BUTTON")return;if(/^[a-zA-Z]$/.test(e.key)||e.key==="Backspace")$("g").focus()});
-$("give").onclick=giveUp;
+let winner="";
+window.submitGuess=function(word,name){
+  if(over)return;
+  word=String(word||"").trim().toUpperCase();
+  if(!/^[A-Z]+$/.test(word)||word.length!==n)return;
+  cur=word;
+  winner=String(name||"").trim().slice(0,30);
+  guess();
+  winner="";
+};
+  $("give").onclick=giveUp;
 $("new").onclick=start;
 $("msg").textContent="Loading words...";
 Promise.all([getList('../answers.txt'),getList('../guesses.txt')]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){$("msg").textContent=('Could not load the word lists.')});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
