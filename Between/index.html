@@ -115,7 +115,7 @@ const V={3:"aah aba abb abl abr aby acc ace act add adj ado adv aft aga age ago 
 const OK=new Set(Object.values(V).flatMap(s=>s.split(' ')));Object.values(L).forEach(s=>s.split(' ').forEach(w=>OK.add(w)));
 let secret,n,lo,hi,cur,over,winner='',usedL=new Set();
 const $=id=>document.getElementById(id),pick=a=>a[Math.floor(Math.random()*a.length)];
-function start(){document.documentElement.style.setProperty('--h',Math.floor(Math.random()*360));n=3+Math.floor(Math.random()*5);const a=L[n].split(" ");secret=pick(a);
+function start(){window.newRound&&window.newRound();document.documentElement.style.setProperty('--h',Math.floor(Math.random()*360));n=3+Math.floor(Math.random()*5);const a=L[n].split(" ");secret=pick(a);
  lo=null;hi=null;
  cur="";over=false;winner='';usedL=new Set();
  const g=$('g');g.value="";g.maxLength=n;g.disabled=false;g.focus({preventScroll:true});$('give').disabled=false;
@@ -130,9 +130,9 @@ function draw(){
 let winnerOK=false;
 function submit(){if(over)return;if(cur.length<n){msg("Need "+n+" letters.");return}
  if(!OK.has(cur)){msg(cur.toUpperCase()+" is not a valid word.");return}
- if(cur===secret){over=true;winnerOK=true;$('give').disabled=true;$('g').disabled=true;msg("");draw();popup();confetti();return}
+ if(cur===secret){window.scoreGuess&&window.scoreGuess(winner,"Word Between",true);over=true;winnerOK=true;$('give').disabled=true;$('g').disabled=true;msg("");draw();popup();confetti();return}
  if(!((lo===null||cur>lo)&&(hi===null||cur<hi))){msg(cur.toUpperCase()+" is not between the two words.");return}
- for(const c of cur)usedL.add(c);used();
+ window.scoreGuess&&window.scoreGuess(winner,"Word Between",false);for(const c of cur)usedL.add(c);used();
  if(cur<secret)lo=cur;else hi=cur;
  msg("");$('g').value="";cur="";draw()}
 const gi=$('g');
@@ -145,7 +145,7 @@ function used(){abColor()}
 function ab(){const a=$('ab');a.innerHTML="";for(const ch of "abcdefghijklmnopqrstuvwxyz"){const b=document.createElement('button');b.textContent=ch;a.appendChild(b)}}
 $('nb').onclick=()=>{winnerOK=false;start()};
 $('give').onclick=()=>{if(over)return;over=true;winnerOK=false;$('give').disabled=true;$('g').disabled=true;cur="";msg("You gave up. The word was "+secret.toUpperCase()+".");draw()};
-function popup(){let nm=winner;try{nm=nm||(new URLSearchParams(location.search).get('name')||window.playerName||'').trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Between",name:winner,word:secret,points:5})){const r0=secret;setTimeout(()=>{if(over&&secret===r0){winnerOK=false;start()}},WinnerCard.total()+300);return}let nm=winner;try{nm=nm||(new URLSearchParams(location.search).get('name')||window.playerName||'').trim().slice(0,30)}catch(e){}
  const d=document.createElement('div');d.className='win';d.textContent=(nm||'Player')+" won with '"+secret.toUpperCase()+"'";const m=$('msg');m.textContent='';m.appendChild(d);
  const r=secret;setTimeout(()=>{if(over&&secret===r){winnerOK=false;start()}},6000)}
 function remote(word,name){if(over)return;word=String(word||'').trim().toLowerCase();if(!/^[a-z]+$/.test(word)||word.length!==n)return;cur=word;winner=String(name||'').trim().slice(0,30);submit();winner=''}
@@ -170,4 +170,5 @@ start();
 </script>
 <script src="../back-to-menu.js">
 </script>
+<script src="../live-comments.js"></script>
 </body></html>
