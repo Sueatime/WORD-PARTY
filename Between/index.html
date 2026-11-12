@@ -166,7 +166,20 @@ function confetti(){
     ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
     if(t<160)requestAnimationFrame(f);else c.remove();})();
 }
-start();
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean).map(function(w){return w.toLowerCase()})})}
+msg('Loading words...');
+Promise.all([getList('../answers.txt'),getList('../guesses.txt')]).then(function(r){
+  var a=r[0],g=r[1];
+  OK.clear();
+  g.forEach(function(w){if(w.length>=3&&w.length<=7)OK.add(w)});
+  a.forEach(function(w){if(w.length>=3&&w.length<=7)OK.add(w)});
+  for(var k=3;k<=7;k++){
+    var own=L[k].split(' '),seenW={};
+    own.forEach(function(w){seenW[w]=1;OK.add(w)});
+    var extra=a.filter(function(w){return w.length===k&&!/s$/.test(w)&&!seenW[w]&&/^[a-z]+$/.test(w)});
+    L[k]=own.concat(extra).join(' ');
+  }
+}).catch(function(){}).then(function(){msg('');start()});
 </script>
 <script src="../back-to-menu.js">
 </script>
