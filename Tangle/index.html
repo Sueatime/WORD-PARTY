@@ -104,7 +104,7 @@ d.className="tile"+(cu?" cur":"");d.textContent=g[i]||"";p.appendChild(d)}
 p.style.display=done?"none":"flex";
 $("hist").innerHTML="";hist.slice().reverse().forEach(function(h){$("hist").appendChild(hrow(h))});
 buildAbc();var kk=$("kbd");if(kk&&kk.value!==g.join(""))kk.value=g.join("")}
-function load(){var L=3+Math.floor(Math.random()*5),pool=BY[L];
+function load(){window.newRound&&window.newRound();var L=3+Math.floor(Math.random()*5),pool=BY[L];
 target=pool[Math.floor(Math.random()*pool.length)];
 document.documentElement.style.setProperty("--n",target.length);
 hist=[];g=[];used={};done=false;gaveUp=false;
@@ -116,11 +116,12 @@ var w=g.join("");
 if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
 if(!fits(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 hist.push({w:w,r:shown(tstate(w,target))});
+ window.scoreGuess&&window.scoreGuess(winner,"Word Tangle",w===target);
 w.split("").forEach(function(l){used[l]=1});g=[];
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
 var winner="";
-function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Tangle",name:winner,word:target,points:5})){var r0=hist;setTimeout(function(){if(done&&hist===r0&&!gaveUp)load()},WinnerCard.total()+300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";$("msg").textContent="";var m=$("winbox");m.innerHTML="";m.appendChild(d);
 var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
 function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==target.length)return;g=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
@@ -161,5 +162,5 @@ $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
