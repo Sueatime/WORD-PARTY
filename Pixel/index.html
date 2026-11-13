@@ -100,7 +100,7 @@ function guessRow(w){
   }).join("")}</div>`;
 }
 function marks(){document.querySelectorAll(".rl").forEach(e=>e.classList.toggle("used",usedL.has(e.dataset.l)))}
-function start(){
+function start(){window.newRound&&window.newRound();
   clearTimeout(nextT);
   n=3+Math.floor(Math.random()*5);document.documentElement.style.setProperty("--n",n);
   const list=WORDS[n];secret=list[Math.floor(Math.random()*list.length)];OK.add(secret.toLowerCase());
@@ -126,10 +126,11 @@ function submit(){
   [...w].forEach(ch=>usedL.add(ch));marks();
   for(let i=0;i<n;i++){if(w[i]===secret[i])solved[i]=true;else wrong[i].add(w[i])}
   cur="";gi.value="";
+  window.scoreGuess&&window.scoreGuess(winner,"Word Pixels",solved.every(Boolean));
   if(solved.every(Boolean)){over=true;gi.disabled=true;$("give").disabled=true;msg("");drawBoard();popup();confetti()}
   else{msg("");drawBoard()}
 }
-function popup(){let nm=winner;try{nm=nm||(new URLSearchParams(location.search).get('name')||window.playerName||'').trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Pixels",name:winner,word:secret,points:5})){nextT=setTimeout(start,WinnerCard.total()+300);return}let nm=winner;try{nm=nm||(new URLSearchParams(location.search).get('name')||window.playerName||'').trim().slice(0,30)}catch(e){}
   const d=document.createElement('div');d.className='win';d.textContent=(nm||'Player')+' won with \u2018'+secret+'\u2019';const m=$("msg");m.textContent='';m.appendChild(d);
   nextT=setTimeout(start,6000)}
 function remote(word,name){if(over)return;word=String(word||'').trim().toLowerCase();if(!/^[a-z]+$/.test(word)||word.length!==n)return;cur=word;winner=String(name||'').trim().slice(0,30);submit();winner=''}
@@ -162,4 +163,4 @@ msg("Loading words...");
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){msg("Could not load the word lists.")});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body></html>
+<script src="../live-comments.js"></script></body></html>
