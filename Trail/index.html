@@ -209,7 +209,7 @@ function draw(){
   g.innerHTML=html;
   $("cur").textContent=path.map(i=>letters[i]).join("");
 }
-function newPuzzle(){
+function newPuzzle(){window.newRound&&window.newRound();window.__lastWho="";
   if(!build()){$("msg").textContent="Could not build a puzzle. Try again.";return}
   round++;found=new Set();finders={};$("winners").innerHTML="";$("typed").value="";$("typed").disabled=false;path=[];over=false;$("give").disabled=false;
   let h;do{h=HUES[Math.floor(Math.random()*HUES.length)]}while(h===hue);
@@ -232,7 +232,7 @@ function submit(){
   if(over||!path.length)return;
   const text=path.map(i=>letters[i]).join("");
   if(words.includes(text)&&!found.has(text)){
-    found.add(text);finders[text]=nameOf();$("msg").textContent=`Found ${text}!`;
+    found.add(text);finders[text]=nameOf();window.__lastWho="";$("msg").textContent=`Found ${text}!`;
     if(found.size===words.length){
       over=true;$("give").disabled=true;$("typed").disabled=true;path=[];draw();popup();confetti();return;
     }
@@ -267,7 +267,7 @@ $("give").onclick=()=>{
   const r=round;setTimeout(()=>{if(over&&round===r)newPuzzle()},8000);
 };
 function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
-function popup(){
+function popup(){{const key=window.__lastWho||"Player",mine=Object.keys(finders).filter(w=>finders[w]===key);if(window.WinnerCard&&WinnerCard.show({game:"Word Trail",name:window.__lastWho||"",word:mine.join(" · "),points:3*mine.length,slow:true})){const r0=round;setTimeout(()=>{if(over&&round===r0)newPuzzle()},WinnerCard.total(true)+300);return}}
   const by={};
   Object.keys(finders).forEach(w=>(by[finders[w]]=by[finders[w]]||[]).push(w));
   const names=Object.keys(by).sort((x,y)=>by[y].length-by[x].length);
@@ -295,7 +295,7 @@ function guess(word,name){
   const w=String(word||"").trim().toUpperCase().replace(/[^A-Z]/g,"");
   if(!w||!words.includes(w))return"wrong";
   if(found.has(w))return"dup";
-  found.add(w);finders[w]=nameOf(String(name||"").trim().slice(0,30));
+  found.add(w);finders[w]=nameOf(String(name||"").trim().slice(0,30));{const rn=String(name||"").trim().slice(0,30);if(rn&&window.sendScore)window.sendScore(rn,"Word Trail",3,found.size===words.length);window.__lastWho=rn}
   $("msg").textContent=`${finders[w]} found ${w}!`;
   if(found.size===words.length){over=true;$("give").disabled=true;$("typed").disabled=true;path=[];draw();popup();confetti();return"ok"}
   draw();return"ok";
@@ -333,5 +333,5 @@ if(LIVE)tikfinity();
 newPuzzle();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
