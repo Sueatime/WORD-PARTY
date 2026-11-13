@@ -96,7 +96,7 @@ function pickPair(){
 }
 function tiles(el,arr){el.innerHTML=arr.map(c=>`<div class="l">${c}</div>`).join("")}
 
-function newGame(){
+function newGame(){window.newRound&&window.newRound();
   const [a,b,s]=pickPair();
   ans=Math.random()<.5?[a,b]:[b,a];found=[false,false];over=false;won=false;gid++;
   tiles($("zl"),s.left);tiles($("zm"),s.shared);tiles($("zr"),s.right);
@@ -145,7 +145,7 @@ function check(){
   if(k>=0){
     const tg=rows.find(x=>!x.solved&&x.len===w.length)||r;
     if(tg!==r)r.letters=Array(r.len).fill("");
-    found[k]=true;tg.solved=true;tg.word=w;tg.letters=w.split("");
+    if(winner&&window.sendScore)window.sendScore(winner,"Word Overlap",5,true);found[k]=true;tg.solved=true;tg.word=w;tg.letters=w.split("");
     if(found.every(Boolean)){over=true;won=true;render();popup();confetti();return}
     active=rows.findIndex(x=>!x.solved);
     msg("One down, one to go.");render();
@@ -168,7 +168,7 @@ function giveUp(){
   render();
   msg("You gave up. The words were "+ans.join(" and ")+".");
 }
-function popup(){
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Overlap",name:winner,word:rows.map(r=>r.word).join(" + "),points:5})){const id=gid;setTimeout(()=>{if(over&&won&&gid===id){newGame();inp.focus({preventScroll:true})}},WinnerCard.total()+300);return}
   let nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
   const d=document.createElement("div");d.className="win";
   d.textContent=(nm||"Player")+" won with '"+rows.map(r=>r.word).join("' and '")+"'";
@@ -191,6 +191,21 @@ document.addEventListener("keydown",e=>{
   if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase());
   else if(e.key==="Backspace")back();
 });
+  let winner="";
+window.submitGuess=function(word,name){
+  if(over)return;
+  word=String(word||"").trim().toUpperCase();
+  if(!/^[A-Z]+$/.test(word))return;
+  const k=ans.findIndex((a,j)=>!found[j]&&a.length===word.length&&key(a)===key(word)&&(word===a||D.has(word)));
+  if(k<0)return;
+  const r=rows.find(x=>!x.solved&&x.len===word.length);
+  if(!r)return;
+  active=rows.indexOf(r);
+  r.letters=word.split("");
+  winner=String(name||"").trim().slice(0,30);
+  check();
+  winner="";
+};
 $("newBtn").onclick=()=>{newGame();inp.focus({preventScroll:true})};
 $("giveBtn").onclick=giveUp;
 
@@ -207,4 +222,4 @@ function confetti(){
 newGame();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body></html>
+<script src="../live-comments.js"></script></body></html>
