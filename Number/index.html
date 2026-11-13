@@ -109,7 +109,7 @@ var q=document.createElement("div");q.className="row";target.split("").forEach(f
 rows.forEach(function(w){var r=document.createElement("div");r.className="row";w.split("").forEach(function(c,i){r.appendChild(tile(c===target[i]?"g":"x",c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<target.length;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}
 }
-function newGame(){clearTimeout(winT);
+function newGame(){clearTimeout(winT);window.newRound&&window.newRound();
 var L=3+Math.floor(Math.random()*8),pool=W.filter(function(x){return x.length===L&&seen.indexOf(x)<0}),w;
 if(!pool.length){seen=[];pool=W.filter(function(x){return x.length===L})}
 w=pool[Math.floor(Math.random()*pool.length)];seen.push(w);
@@ -131,9 +131,9 @@ function del(){if(over)return;cur.pop();render()}
 function check(){
 if(over||cur.length<target.length)return;
 var w=cur.join("");rows.push(w);cur=[];
-if(w===target){over=true;render();popup();confetti();return}
+if(w===target){if(winner&&window.sendScore)window.sendScore(winner,"Number Code",5,true);over=true;render();popup();confetti();return}
 render()}
-function popup(){var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Number Code",name:winner||"Player",word:target,points:5})){clearTimeout(winT);winT=setTimeout(newGame,WinnerCard.total()+300);return}var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);clearTimeout(winT);winT=setTimeout(newGame,6000)}
 function giveUp(){if(over)return;over=true;cur=[];render();$("msg").textContent="The word was "+target+"."}
 function confetti(){
@@ -163,11 +163,21 @@ if(v.length<cur.length){cur=v.split("");$("msg").textContent="";render();return}
 v.slice(cur.length).split("").forEach(add)});
 document.addEventListener("pointerdown",function(e){if(!e.target.closest("button"))fk()});
 window.addEventListener("focus",fk);
-$("new").onclick=newGame;$("give").onclick=giveUp;
+var winner="";
+window.submitGuess=function(word,name){
+  if(over)return;
+  word=String(word||"").trim().toUpperCase();
+  if(!/^[A-Z]+$/.test(word)||word.length!==target.length)return;
+  cur=word.split("");
+  winner=String(name||"").trim().slice(0,30);
+  check();
+  winner="";
+};
+  $("new").onclick=newGame;$("give").onclick=giveUp;
 $("help").onclick=function(){$("how").classList.add("on")};
 $("x").onclick=function(){$("how").classList.remove("on");fk()};
 newGame();fk();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
