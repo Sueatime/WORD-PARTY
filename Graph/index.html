@@ -111,7 +111,7 @@ chart();
 var g=$("grid");g.innerHTML="";
 rows.forEach(function(w){var r=document.createElement("div");r.className="row";w.split("").forEach(function(c,i){r.appendChild(tile(c===T[i]?"g":"n",c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<L;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}}
-function newGame(){clearTimeout(winT);L=3+Math.floor(Math.random()*6);
+function newGame(){clearTimeout(winT);window.newRound&&window.newRound();L=3+Math.floor(Math.random()*6);
 var all=ANS.filter(function(x){return x.length===L}),pool=all.filter(function(x){return seen.indexOf(x)<0});if(!pool.length){seen=seen.filter(function(x){return x.length!==L});pool=all}
 T=pool[Math.floor(Math.random()*pool.length)];seen.push(T);
 rows=[];cur=[];over=false;$("msg").textContent="";render()}
@@ -126,9 +126,10 @@ for(var j=0;j<L;j++)if(lk[j]&&g[j]!==lk[j]){$("msg").textContent="Word does not 
 var bad=false;rows.forEach(function(w){for(var j=0;j<L;j++)if(w[j]!==T[j]&&g[j]===w[j])bad=true});
 if(bad){$("msg").textContent="Word does not fit the tiles.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},1200);return}
 rows.push(g);cur=[];$("msg").textContent="";
+ window.scoreGuess&&window.scoreGuess(winner,"Word Graph",g===T);
 if(g===T){over=true;render();popup();confetti();return}
 render()}
-function popup(){var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Graph",name:winner,word:T,points:5})){clearTimeout(winT);winT=setTimeout(newGame,WinnerCard.total()+300);return}var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+T+"\u2019";var mm=$("msg");mm.textContent="";mm.appendChild(d);clearTimeout(winT);winT=setTimeout(newGame,6000)}
 function giveUp(){if(over)return;over=true;cur=[];render();$("msg").textContent="The word was "+T+"."}
 function confetti(){
@@ -152,12 +153,22 @@ kb.addEventListener("input",function(){var v=kb.value;kb.value="";v.toUpperCase(
 document.addEventListener("pointerdown",function(){setTimeout(fk,0)},true);
 document.addEventListener("pointermove",function(){if(document.activeElement!==kb)fk()},{once:true});
 window.addEventListener("focus",fk);
-$("new").onclick=newGame;$("give").onclick=giveUp;
+var winner="";
+window.submitGuess=function(word,name){
+  if(over)return;
+  word=String(word||"").trim().toUpperCase();
+  if(!/^[A-Z]+$/.test(word)||word.length!==L)return;
+  cur=word.split("");
+  winner=String(name||"").trim().slice(0,30);
+  check();
+  winner="";
+};
+ $("new").onclick=newGame;$("give").onclick=giveUp;
 $("help").onclick=function(){$("how").classList.add("on")};
 $("x").onclick=function(){$("how").classList.remove("on");fk()};
 $("msg").textContent="Loading words...";
 Promise.all([getList('../answers.txt'),getList('../guesses.txt')]).then(function(r){prep(r[0],r[1]);newGame();fk()}).catch(function(){$("msg").textContent=('Could not load the word lists.')});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
