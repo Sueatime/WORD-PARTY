@@ -115,7 +115,7 @@ function feedback(w){
     if(left[a]>0){left[a]--;return "y"}
     return "x"});
 }
-function start(){
+function start(){window.newRound&&window.newRound();
   round++;
   n=3+Math.floor(Math.random()*5);
   document.documentElement.style.setProperty("--n",n);
@@ -130,6 +130,7 @@ function start(){
 }
 function addGuess(w,who){
   rows.unshift({w,fb:feedback(w)});
+  window.scoreGuess&&window.scoreGuess(who,"Word Symbols",w===secret);
   renderHist();renderAbc();
   if(w===secret){
     end();drawSlots();popup(nameOf(who),w);confetti();
@@ -152,6 +153,7 @@ function giveUp(){
 }
 function nameOf(who){let nm=who||"";try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}return nm||"Player"}
 function popup(name,w){
+if(window.WinnerCard&&WinnerCard.show({game:"Word Symbols",name:name,word:w,points:5})){const r0=round;setTimeout(()=>{if(over&&round===r0)start()},WinnerCard.total()+300);return}
 const d=document.createElement("div");d.className="win";
 const l=document.createElement("div");l.className="wl";l.textContent=name+" won with '"+w+"'";d.appendChild(l);
 const m=$("wb");m.textContent="";m.appendChild(d);$("msg").textContent="";
@@ -183,5 +185,5 @@ $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);start()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
