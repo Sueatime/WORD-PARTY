@@ -269,7 +269,7 @@ const $=id=>document.getElementById(id);
 let cur,done;
 function msg(t,c){$("msg").textContent=t;$("msg").style.color=c||"var(--ink)"}
 let last,hl=0,wt=0,ty="",all=false,rnd=-1;
-function next(){
+function next(){window.newRound&&window.newRound();
  let q;
  do{
   if(Math.random()<.5){const f=F[Math.floor(Math.random()*F.length)];q={n:f[0],a:[f[0],...(AF[f[0]]||[])],f}}
@@ -281,7 +281,7 @@ function next(){
  msg("");hl=0;rnd=-1;$("hint").textContent="Hint (4)";draw();$("g").focus()}
 function finish(){done=true;["g","hint","skip"].forEach(i=>$(i).disabled=true);wt=Date.now()}
 function pname(){try{return(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){return""}}
-function popup(nm){const d=document.createElement("div");d.className="win";d.textContent=(nm||pname()||"Player")+" won with \u2018"+cur.n.toUpperCase()+"\u2019";const m=$("msg");m.style.color="";m.textContent="";m.appendChild(d);const q=cur;setTimeout(()=>{if(done&&cur===q)next()},6000)}
+function popup(nm){if(window.WinnerCard&&WinnerCard.show({game:"Guess the Country",name:nm,word:cur.n,points:5})){const q=cur;setTimeout(()=>{if(done&&cur===q)next()},WinnerCard.total()+300);return}const d=document.createElement("div");d.className="win";d.textContent=(nm||pname()||"Player")+" won with \u2018"+cur.n.toUpperCase()+"\u2019";const m=$("msg");m.style.color="";m.textContent="";m.appendChild(d);const q=cur;setTimeout(()=>{if(done&&cur===q)next()},6000)}
 const letters=n=>n.replace(/[^A-Za-z]/g,"");
 function draw(){
  const A=letters(cur.n).toUpperCase(),L=A.length,rv=new Set();
@@ -297,7 +297,7 @@ function draw(){
   else if(i===ty.length)c+=" c";
   return`<span class="${c}">${t}</span>`}).join("")}</span>`).join("")}
 function showAll(){all=true;draw()}
-function win(nm){finish();showAll();popup(nm);confetti()}
+function win(nm){if(nm&&window.sendScore)window.sendScore(nm,"Guess the Country",5,true);finish();showAll();popup(nm);confetti()}
 const ns=t=>norm(String(t||"")).replace(/ /g,"");
 function ok(t){const v=ns(t);return v&&cur.a.some(x=>ns(x)===v)}
 function guess(){
@@ -333,5 +333,7 @@ function confetti(){
   })();
 }
 next();
-</script><script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body></html>
+</script>
+ <script src="../back-to-menu.js"></script>
+ <script src="../live-comments.js"></script>
+</body></html>
