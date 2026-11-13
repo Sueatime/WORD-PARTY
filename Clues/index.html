@@ -93,7 +93,7 @@ function submit(){
   }
   msg("Not quite. Try again.");typed="";$("g").value="";draw();
 }
-function popup(name){if(window.WinnerCard&&WinnerCard.show({game:"Word Clues",name:name||"Player",word:answer.toUpperCase(),points:5})){const r0=answer;timer=setTimeout(()=>{if(over&&answer===r0)start()},WinnerCard.total()+300);return}
+function popup(name){if(window.WinnerCard&&WinnerCard.show({game:"Word Clues",name:name||"",word:answer.toUpperCase(),points:5})){const r0=answer;timer=setTimeout(()=>{if(over&&answer===r0)start()},WinnerCard.total()+300);return}
   const d=document.createElement("div");d.className="win";d.textContent=(name||"Player")+" won with '"+answer.toUpperCase()+"'";
   const m=$("msg");m.textContent="";m.appendChild(d);
   const r=answer;timer=setTimeout(()=>{if(over&&answer===r)start()},6000);
