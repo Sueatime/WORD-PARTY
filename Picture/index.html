@@ -169,11 +169,11 @@ function confetti(){
   })();
 }
 let auto=null;
-function schedule(){clearTimeout(auto);auto=setTimeout(()=>{cur++;if(cur>=order.length)reorder();build()},5000)}
+function schedule(ms){clearTimeout(auto);auto=setTimeout(()=>{cur++;if(cur>=order.length)reorder();build()},ms||5000)}
 function norm(s){return s.toLowerCase().replace(/[^a-z0-9]/g,'')}
 function place(){const w=S/N;pos.forEach((p,i)=>{B.children[i].style.transform=`translate(${(p%N)*w}px,${Math.floor(p/N)*w}px)`})}
 function shuffle(){for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]]}}
-function build(){clearTimeout(auto);S=Math.min(innerWidth-32,innerWidth>=800?620:448);B.style.width=B.style.height=S+'px';B.innerHTML='';const w=S/N,ph=photos[order[cur]];
+function build(){window.newRound&&window.newRound();clearTimeout(auto);S=Math.min(innerWidth-32,innerWidth>=800?620:448);B.style.width=B.style.height=S+'px';B.innerHTML='';const w=S/N,ph=photos[order[cur]];
 for(let i=0;i<N*N;i++){const t=document.createElement('div');t.className='t';t.style.width=t.style.height=(w-3)+'px';t.style.margin='1.5px';t.style.backgroundImage=`url(${ph.s})`;t.style.backgroundSize=`${S}px ${S}px`;t.style.backgroundPosition=`-${(i%N)*w+1.5}px -${Math.floor(i/N)*w+1.5}px`;B.appendChild(t)}
 pos=[...Array(N*N).keys()];do{shuffle()}while(pos.every((p,i)=>p===i));
 B.classList.add('nt');place();B.offsetWidth;B.classList.remove('nt');
@@ -184,13 +184,23 @@ function reorder(){order=photos.map((_,i)=>i).sort(()=>Math.random()-.5);cur=0}
 function start(){reorder();build()}
 const gi=$('g');let typed='',hints=0,hintText='';
 function showTyped(){const t=$('typed');t.textContent=typed||hintText||'Type your answer';t.classList.toggle('ph',!typed);t.classList.toggle('hn',!typed&&!!hintText)}
-function end(m,win){done=true;clearInterval(timer);$('give').disabled=true;$('hb').disabled=true;const w=S/N;[...B.children].forEach((t,i)=>{t.style.transform=`translate(${(i%N)*w}px,${Math.floor(i/N)*w}px)`});const e=$('msg');e.textContent='';if(win){const d=document.createElement('div');d.className='win';d.textContent=m;e.appendChild(d)}else e.textContent=m;schedule()}
+function end(m,win){done=true;clearInterval(timer);$('give').disabled=true;$('hb').disabled=true;const w=S/N;[...B.children].forEach((t,i)=>{t.style.transform=`translate(${(i%N)*w}px,${Math.floor(i/N)*w}px)`});const e=$('msg');e.textContent='';if(win&&window.WinnerCard&&WinnerCard.show({game:"Guess the Picture",name:winnerName,word:photos[order[cur]].a,points:5})){schedule(WinnerCard.total()+300);return}if(win){const d=document.createElement('div');d.className='win';d.textContent=m;e.appendChild(d)}else e.textContent=m;schedule()}
 function guess(){if(done||!typed)return;const a=photos[order[cur]].a;if(norm(typed)===norm(a)){end('You won with \u2018'+a+'\u2019',true);confetti()}else{$('msg').textContent='Not quite, try again!'}typed='';gi.value='';showTyped()}
 gi.addEventListener('input',()=>{if(done)return;gi.value=gi.value.replace(/[^a-z0-9 ]/gi,'').toUpperCase().slice(0,24);typed=gi.value;showTyped()});
 gi.addEventListener('keydown',e=>{if(e.key==='Enter')guess()});
 $('typed').addEventListener('click',()=>{if(!done)gi.focus()});B.addEventListener('click',()=>{if(!done)gi.focus()});
 document.addEventListener('keydown',e=>{if(!done&&document.activeElement!==gi&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key.length===1||e.key==='Enter'||e.key==='Backspace'))gi.focus()});
-$('nb').onclick=()=>{cur++;if(cur>=order.length)reorder();build()};
+let winnerName='';
+window.submitGuess=function(word,name){
+  if(done)return;
+  const a=photos[order[cur]].a;
+  if(norm(String(word||''))!==norm(a))return;
+  winnerName=String(name||'').trim().slice(0,30);
+  if(winnerName&&window.sendScore)window.sendScore(winnerName,"Guess the Picture",5,true);
+  end('You won with \u2018'+a+'\u2019',true);confetti();
+  winnerName='';
+};
+  $('nb').onclick=()=>{cur++;if(cur>=order.length)reorder();build()};
 function hint(){if(done||hints>=3)return;hints++;const a=photos[order[cur]].a.toUpperCase();const L=[...a].map((c,i)=>i).filter(i=>a[i]!==' ');const f=L[0],l=L[L.length-1];const p=[...a].map((c,i)=>c===' '?'\u00a0\u00a0':((hints>=2&&i===f)||(hints>=3&&i===l))?c:'_').join(' ');hintText=p;typed='';gi.value='';showTyped();$('hb').textContent='Hint ('+(3-hints)+')';if(hints>=3)$('hb').disabled=true}
 $('hb').onclick=hint;
 $('give').onclick=()=>{if(done)return;end('You gave up. It was '+photos[order[cur]].a+'.')};
@@ -198,4 +208,5 @@ addEventListener('resize',()=>{if(order.length&&cur>=0&&!done)build()});
 start();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body></html>
+<script src="../live-comments.js"></script>
+</body></html>
