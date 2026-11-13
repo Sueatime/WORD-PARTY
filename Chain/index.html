@@ -157,7 +157,7 @@ const i=d[Math.random()*d.length|0];used.push(i);return i}
 const free=k=>cur.w[k].length-Object.keys(kn[k]).length;
 function layout(k,t){let j=0,s='';for(let i=0;i<cur.w[k].length;i++)s+=kn[k][i]!==undefined?kn[k][i]:(j<t.length?t[j++]:'_');return s}
 function paint(k){ins[k].nextElementSibling.textContent=shown[k]||layout(k,typ[k])}
-function start(){
+function start(){window.newRound&&window.newRound();
 const p=P[pick()];cur=p;last=p.m;over=false;
 let h;do{h=HUES[Math.random()*HUES.length|0]}while(h===hue);hue=h;
 document.documentElement.style.setProperty('--a',h);
@@ -183,7 +183,7 @@ typ[k]=el.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,free(k));
 el.value=typ[k];el.classList.remove('wrong');paint(k);check(k)}
 function check(k,who){const el=ins[k];if(typ[k].length!==free(k))return;
 const f=layout(k,typ[k]);
-if(f===cur.w[k]||((cur.alt||{})[k]||[]).includes(f)){solved[k]=true;shown[k]=f;wins.push([nameOf(who),f]);el.classList.add('good');el.readOnly=true;paint(k);
+if(f===cur.w[k]||((cur.alt||{})[k]||[]).includes(f)){solved[k]=true;shown[k]=f;if(who&&window.sendScore)window.sendScore(who,"Word Chain",3,solved.every(Boolean));wins.push([nameOf(who),f]);el.classList.add('good');el.readOnly=true;paint(k);
 if(solved.every(Boolean)){end();popup();confetti()}else focusNext()}
 else{void el.offsetWidth;el.classList.add('wrong')}}
 function end(){over=true;$('hint').disabled=true;$('give').disabled=true}
@@ -198,7 +198,7 @@ for(let k=0;k<solved.length;k++)if(!solved[k]){shown[k]=cur.w[k];ins[k].readOnly
 $('msg').textContent='You gave up. Here are the answers.'};
 $('new').onclick=start;
 function nameOf(who){let nm=who||'';try{nm=nm||(new URLSearchParams(location.search).get('name')||window.playerName||'').trim().slice(0,30)}catch(e){}return nm||'Player'}
-function popup(){const g=new Map();wins.forEach(([n,w])=>g.set(n,(g.get(n)||[]).concat(w)));
+function popup(){if(window.WinnerCard&&wins.length){const lw=wins[wins.length-1],nm=lw[0]==="Player"?"":lw[0],mine=wins.filter(x=>x[0]===lw[0]).map(x=>x[1]);if(WinnerCard.show({game:"Word Chain",name:nm,word:mine.join(" · "),points:3*mine.length,slow:true})){const r0=cur;setTimeout(()=>{if(over&&cur===r0)start()},WinnerCard.total(true)+300);return}}const g=new Map();wins.forEach(([n,w])=>g.set(n,(g.get(n)||[]).concat(w)));
 const d=document.createElement('div');d.className='win';
 const h=document.createElement('div');h.className='wh';h.textContent=g.size>1?'Winners':'Winner';d.appendChild(h);
 g.forEach((ws,n)=>{const l=document.createElement('div');l.className='wl';l.textContent=n+" won with "+ws.map(w=>"'"+w+"'").join(', ');d.appendChild(l)});
@@ -229,5 +229,5 @@ if(t<160)requestAnimationFrame(f);else c.remove();
 start();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script>
+<script src="../live-comments.js"></script>
 </body></html>
