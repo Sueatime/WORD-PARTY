@@ -66,7 +66,7 @@ const $=id=>document.getElementById(id);
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function setHue(){let h;do{h=HUES[Math.floor(Math.random()*HUES.length)]}while(h===hue);hue=h;document.documentElement.style.setProperty("--h",h)}
 function msg(t){$("msg").textContent=t}
-function start(){
+function start(){window.newRound&&window.newRound();
   clearTimeout(timer);
   if(!deck.length)deck=shuffle(PUZZLES);
   cur=deck.pop();answer=cur[3];setHue();
@@ -87,13 +87,13 @@ function draw(){
 function submit(){
   if(over)return;
   if(typed.length<answer.length){msg("Need "+answer.length+" letters.");return}
-  if(typed===answer){
+  if(typed===answer){if(winner&&window.sendScore)window.sendScore(winner,"Word Clues",5,true);
     over=true;$("give").disabled=true;$("g").disabled=true;
-    draw();popup();confetti();return;
+    draw();popup(winner);confetti();return;
   }
   msg("Not quite. Try again.");typed="";$("g").value="";draw();
 }
-function popup(name){
+function popup(name){if(window.WinnerCard&&WinnerCard.show({game:"Word Clues",name:name||"Player",word:answer.toUpperCase(),points:5})){const r0=answer;timer=setTimeout(()=>{if(over&&answer===r0)start()},WinnerCard.total()+300);return}
   const d=document.createElement("div");d.className="win";d.textContent=(name||"Player")+" won with '"+answer.toUpperCase()+"'";
   const m=$("msg");m.textContent="";m.appendChild(d);
   const r=answer;timer=setTimeout(()=>{if(over&&answer===r)start()},6000);
@@ -105,6 +105,16 @@ $("tiles").addEventListener("click",()=>{if(!over)gi.focus()});
 document.addEventListener("keydown",e=>{
   if(!over&&document.activeElement.tagName!=="INPUT"&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key.length===1||e.key==="Enter"||e.key==="Backspace"))gi.focus();
 });
+  let winner="";
+window.submitGuess=function(word,name){
+  if(over)return;
+  word=String(word||"").trim().toLowerCase();
+  if(!/^[a-z]+$/.test(word)||word.length!==answer.length)return;
+  typed=word;
+  winner=String(name||"").trim().slice(0,30);
+  submit();
+  winner="";
+};
 $("nb").onclick=start;
 $("give").onclick=()=>{
   if(over)return;
@@ -126,6 +136,6 @@ function confetti(){
 start();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script>
+<script src="../live-comments.js"></script>
 </body>
 </html>
