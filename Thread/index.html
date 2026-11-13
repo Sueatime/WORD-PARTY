@@ -109,7 +109,7 @@ d.className="tile"+(!has&&!done?" cur":"");d.textContent=g[i]||"";p.appendChild(
 p.style.display=done?"none":"flex";
 $("hist").innerHTML="";hist.slice().reverse().forEach(function(h){$("hist").appendChild(hrow(h))});
 buildAbc()}
-function load(){
+function load(){window.newRound&&window.newRound();
 var P=Math.random()<.25?W2:W;target=P[Math.floor(Math.random()*P.length)];
 hist=[];g=[];ks={};done=false;gaveUp=false;
 $("msg").textContent="";$("winbox").innerHTML="";draw()}
@@ -122,10 +122,10 @@ for(var k=0;k<w.length;k++)if(ks[w[k]]==="mm"){$("msg").textContent=w+" does not
 if(!SET[w]){$("msg").textContent=w+" is not a valid word.";return}
 var s=score(w),rk={mm:1,ye:2,gr:3};
 w.split("").forEach(function(l,i){if(!ks[l]||rk[s.r[i]]>rk[ks[l]])ks[l]=s.r[i]});
-hist.push({w:w,r:s.r,mt:s.mt});g=[];
+hist.push({w:w,r:s.r,mt:s.mt});g=[];window.scoreGuess&&window.scoreGuess(winner,"Word Thread",w===target);
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
-function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Thread",name:winner,word:target,points:5})){var r0=hist;setTimeout(function(){if(done&&hist===r0&&!gaveUp)load()},WinnerCard.total()+300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";$("msg").textContent="";var m=$("winbox");m.innerHTML="";m.appendChild(d);
 var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
 function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length>20)return;g=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
@@ -163,5 +163,5 @@ $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
