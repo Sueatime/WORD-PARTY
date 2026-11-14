@@ -77,6 +77,7 @@ h1{font-size:66px;margin-bottom:12px}
 <p>Guess the secret word. Each round it has 3 to 8 letters.</p>
 <p>The purple line is the secret word. The white line is your guess. Make them match.</p>
 <p>Higher on the arrow means a later letter: A is at the bottom, Z is at the top.</p>
+<p>Each round, some of the vertical lines are hidden.</p>
 <p>A green tile is a correct letter in the right spot. Keep it there in your next guesses. A letter that is not green cannot be used again in that same spot.</p>
 <button id="x">Got it</button></div></div>
 <input id="kbd" autocomplete="off" autocapitalize="none" aria-label="Type your answer">
@@ -85,7 +86,7 @@ var V=new Set(),ANS=[];
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
 function prep(a,g){ANS=a.filter(function(w){return w.length>=3&&w.length<=8});
  g.forEach(function(w){if(w.length>=3&&w.length<=8)V.add(w)});ANS.forEach(function(w){V.add(w)})}
-var L=5;
+var L=5,hid=[];
 var MODES=[
 {n:"Height",f:function(w){return w.split("").map(function(c){return c.charCodeAt(0)-65})},lo:0,hi:25}];
 var m=0,T,rows,cur,over,winT=0,seen=[];
@@ -100,7 +101,7 @@ return d}
 function chart(){var md=MODES[m],s="";
 var ac="hsl(260 20% 78%)",tf=' fill="'+ac+'" font-size="10" font-weight="700" font-family="Outfit,sans-serif" text-anchor="middle"';
 s+='<line x1="22" x2="22" y1="168" y2="32" stroke="'+ac+'" stroke-width="1.5"/><path d="M18.5,38 L22,31 L25.5,38" fill="none" stroke="'+ac+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><text x="22" y="22"'+tf+'>Z</text><text x="22" y="184"'+tf+'>A</text>';
-for(var i=0;i<L;i++){var x=44+i*336/(L-1);s+='<line x1="'+x+'" x2="'+x+'" y1="8" y2="184" stroke="hsl(260 20% 68%)" stroke-opacity=".4" stroke-width=".8"/><text x="'+x+'" y="202" text-anchor="middle" fill="#c95bff" font-size="12" font-weight="700" font-family="Outfit,sans-serif">'+(i+1)+'</text>'}
+for(var i=0;i<L;i++){if(hid.indexOf(i)>=0)continue;var x=44+i*336/(L-1);s+='<line x1="'+x+'" x2="'+x+'" y1="8" y2="184" stroke="hsl(260 20% 68%)" stroke-opacity=".4" stroke-width=".8"/><text x="'+x+'" y="202" text-anchor="middle" fill="#c95bff" font-size="12" font-weight="700" font-family="Outfit,sans-serif">'+(i+1)+'</text>'}
 s+='<path d="'+path(md.f(T),md)+'" fill="none" stroke="#c95bff" stroke-width="2.4" stroke-linecap="round"/>';
 if(rows.length)s+='<path d="'+path(md.f(rows[rows.length-1]),md)+'" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>';
 $("chart").innerHTML=s}
@@ -111,20 +112,30 @@ chart();
 var g=$("grid");g.innerHTML="";
 rows.forEach(function(w){var r=document.createElement("div");r.className="row";w.split("").forEach(function(c,i){r.appendChild(tile(c===T[i]?"g":"n",c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<L;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}}
-function newGame(){clearTimeout(winT);window.newRound&&window.newRound();L=3+Math.floor(Math.random()*6);
+function pickHidden(){var idx=[];for(var q=0;q<L;q++)idx.push(q);
+ for(var k=idx.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1)),tmp=idx[k];idx[k]=idx[r];idx[r]=tmp}
+ var lo=L>=5?2:1,hi=Math.min(3,L-2);
+ hid=idx.slice(0,lo+Math.floor(Math.random()*(hi-lo+1)))}
+function newGame(){clearTimeout(winT);window.newRound&&window.newRound();L=3+Math.floor(Math.random()*6);pickHidden();
 var all=ANS.filter(function(x){return x.length===L}),pool=all.filter(function(x){return seen.indexOf(x)<0});if(!pool.length){seen=seen.filter(function(x){return x.length!==L});pool=all}
 T=pool[Math.floor(Math.random()*pool.length)];seen.push(T);
 rows=[];cur=[];over=false;$("msg").textContent="";render()}
 function add(l){if(over)return;if(cur.length>=L)cur=[];cur.push(l);$("msg").textContent="";render();if(cur.length===L)check()}
 function del(){if(over)return;cur.pop();render()}
+/* A guess fits only if every green letter from earlier guesses stays in its spot,
+   and no non-green letter is reused in the same spot. */
+function fits(g){
+ for(var r=0;r<rows.length;r++){var w=rows[r];
+  for(var j=0;j<L;j++){
+   if(w[j]===T[j]){if(g[j]!==w[j])return false}
+   else if(g[j]===w[j])return false}}
+ return true}
+function reject(g,msg,ms){$("msg").textContent=msg;setTimeout(function(){if(cur.join("")===g){cur=[];render()}},ms)}
 function check(){
 if(over||cur.length<L)return;
 var g=cur.join("");
-if(!V.has(g)){$("msg").textContent="Not in the word list.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},800);return}
-var lk=[];rows.forEach(function(w){for(var j=0;j<L;j++)if(w[j]===T[j])lk[j]=w[j]});
-for(var j=0;j<L;j++)if(lk[j]&&g[j]!==lk[j]){$("msg").textContent="Word does not fit the tiles.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},1200);return}
-var bad=false;rows.forEach(function(w){for(var j=0;j<L;j++)if(w[j]!==T[j]&&g[j]===w[j])bad=true});
-if(bad){$("msg").textContent="Word does not fit the tiles.";setTimeout(function(){if(cur.join("")===g){cur=[];render()}},1200);return}
+if(!V.has(g)){reject(g,"Not in the word list.",800);return}
+if(!fits(g)){reject(g,"Word does not fit the tiles.",1200);return}
 rows.push(g);cur=[];$("msg").textContent="";
  window.scoreGuess&&window.scoreGuess(winner,"Word Graph",g===T);
 if(g===T){over=true;render();popup();confetti();return}
