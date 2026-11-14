@@ -237,7 +237,7 @@ function draw(){
   $("hint").disabled=over||ans.every(w=>found.has(w)||hinted.get(w)>=2);
 }
 function lock(){over=true;$("g").disabled=true;$("hint").disabled=true;$("give").disabled=true}
-function start(){
+function start(){window.newRound&&window.newRound();
   clearTimeout(startT);clearInterval(tickT);round++;
   const keys=Object.keys(P).filter(k=>k!==word);
   word=keys[Math.floor(Math.random()*keys.length)];
@@ -300,10 +300,12 @@ function guess(word_,name){
   const i=ans.indexOf(w);
   if(i<0){flash(`"${w}" is not one of the top ${ans.length} for ${word}.`);return"wrong"}
   const who=nameOf(String(name||"").trim().slice(0,30));
-  found.set(w,who);
+  found.set(w,who);{const rn=String(name||"").trim().slice(0,30);if(rn&&window.sendScore)window.sendScore(rn,"Word Related",pts(i),found.size===ans.length)}
   if(found.size===ans.length){
     lock();draw();
     const top=players()[0];
+    {const me=players().find(p=>p.name===who)||{words:[w],pts:pts(i)};
+    if(window.WinnerCard&&WinnerCard.show({game:"Word Related",name:(who==="Player"?"":who),word:me.words.join(" · "),points:me.pts,slow:true})){const r0=round;clearTimeout(startT);startT=setTimeout(()=>{if(over&&round===r0)start()},WinnerCard.total(true)+300);confetti();return"ok"}}
     popup(`${top.name} won with ${top.pts} points!`);confetti();
     return"ok";
   }
@@ -363,5 +365,5 @@ if(LIVE)tikfinity();
 newGame();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
