@@ -66,7 +66,7 @@ h1{font-size:66px;margin-bottom:12px}
 </head>
 <body>
 <main>
-<div class="top"><h1>Word Graph</h1><p class="sub">Find the secret word. Make the white line cover the purple line.</p><button id="help" aria-label="How to play">?</button></div>
+<div class="top"><h1>Word Graph</h1><p class="sub">Make the white line cover the purple line. Green tiles means correct spot. Each round, some of the vertical lines are hidden.</p><button id="help" aria-label="How to play">?</button></div>
 <div class="ref" id="ref" aria-label="Alphabet"></div>
 <div class="chart"><svg id="chart" viewBox="0 0 400 208"></svg><div class="lg"><span><i class="k" style="background:#c95bff"></i>Secret word</span><span><i class="k" style="background:#fff"></i>Your guess</span></div></div>
 <div id="msg" role="status" aria-live="polite"></div>
@@ -74,11 +74,10 @@ h1{font-size:66px;margin-bottom:12px}
 <div class="acts"><button id="new">New game</button><button id="give">Give up</button></div>
 </main>
 <div id="how"><div class="card"><h2>How to play</h2>
-<p>Guess the secret word. Each round it has 3 to 8 letters.</p>
-<p>The purple line is the secret word. The white line is your guess. Make them match.</p>
+<p>Guess the secret word. The purple line is the secret word. The white line is your guess. Make them match.</p>
 <p>Higher on the arrow means a later letter: A is at the bottom, Z is at the top.</p>
 <p>Each round, some of the vertical lines are hidden. The numbers stay, so you always know how many letters the word has.</p>
-<p>A green tile is a correct letter in the right spot. Keep it there in your next guesses. A letter that is not green cannot be used again in that same spot.</p>
+<p>A green tile is a correct letter in the right spot. A letter that is not green cannot be used again in that same spot.</p>
 <button id="x">Got it</button></div></div>
 <input id="kbd" autocomplete="off" autocapitalize="none" aria-label="Type your answer">
 <script>
