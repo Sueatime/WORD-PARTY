@@ -66,7 +66,7 @@ h1{font-size:66px;margin-bottom:12px}
 </head>
 <body>
 <main>
-<div class="top"><h1>Word Graph</h1><p class="sub">Make the white line cover the purple line. Each round, some of the vertical lines are hidden.</p><button id="help" aria-label="How to play">?</button></div>
+<div class="top"><h1>Word Graph</h1><p class="sub">Find the secret word. Make the white line cover the purple line.</p><button id="help" aria-label="How to play">?</button></div>
 <div class="ref" id="ref" aria-label="Alphabet"></div>
 <div class="chart"><svg id="chart" viewBox="0 0 400 208"></svg><div class="lg"><span><i class="k" style="background:#c95bff"></i>Secret word</span><span><i class="k" style="background:#fff"></i>Your guess</span></div></div>
 <div id="msg" role="status" aria-live="polite"></div>
@@ -77,7 +77,7 @@ h1{font-size:66px;margin-bottom:12px}
 <p>Guess the secret word. Each round it has 3 to 8 letters.</p>
 <p>The purple line is the secret word. The white line is your guess. Make them match.</p>
 <p>Higher on the arrow means a later letter: A is at the bottom, Z is at the top.</p>
-<p>Each round, some of the vertical lines are hidden.</p>
+<p>Each round, some of the vertical lines are hidden. The numbers stay, so you always know how many letters the word has.</p>
 <p>A green tile is a correct letter in the right spot. Keep it there in your next guesses. A letter that is not green cannot be used again in that same spot.</p>
 <button id="x">Got it</button></div></div>
 <input id="kbd" autocomplete="off" autocapitalize="none" aria-label="Type your answer">
@@ -101,7 +101,7 @@ return d}
 function chart(){var md=MODES[m],s="";
 var ac="hsl(260 20% 78%)",tf=' fill="'+ac+'" font-size="10" font-weight="700" font-family="Outfit,sans-serif" text-anchor="middle"';
 s+='<line x1="22" x2="22" y1="168" y2="32" stroke="'+ac+'" stroke-width="1.5"/><path d="M18.5,38 L22,31 L25.5,38" fill="none" stroke="'+ac+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><text x="22" y="22"'+tf+'>Z</text><text x="22" y="184"'+tf+'>A</text>';
-for(var i=0;i<L;i++){if(hid.indexOf(i)>=0)continue;var x=44+i*336/(L-1);s+='<line x1="'+x+'" x2="'+x+'" y1="8" y2="184" stroke="hsl(260 20% 68%)" stroke-opacity=".4" stroke-width=".8"/><text x="'+x+'" y="202" text-anchor="middle" fill="#c95bff" font-size="12" font-weight="700" font-family="Outfit,sans-serif">'+(i+1)+'</text>'}
+for(var i=0;i<L;i++){var x=44+i*336/(L-1);if(hid.indexOf(i)<0)s+='<line x1="'+x+'" x2="'+x+'" y1="8" y2="184" stroke="hsl(260 20% 68%)" stroke-opacity=".4" stroke-width=".8"/>';s+='<text x="'+x+'" y="202" text-anchor="middle" fill="#c95bff" font-size="12" font-weight="700" font-family="Outfit,sans-serif">'+(i+1)+'</text>'}
 s+='<path d="'+path(md.f(T),md)+'" fill="none" stroke="#c95bff" stroke-width="2.4" stroke-linecap="round"/>';
 if(rows.length)s+='<path d="'+path(md.f(rows[rows.length-1]),md)+'" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>';
 $("chart").innerHTML=s}
