@@ -198,7 +198,7 @@ $("q").textContent=Q[r][0];$("msg").textContent="";
 $("hint").disabled=false;$("give").disabled=false;
 draw();fi()}
 function finish(win){over=true;$("hint").disabled=true;$("give").disabled=true;typed="";
-if(win){winPopup();confetti();const t=round;setTimeout(function()if(over&&round===t)newGame()},window.__cardMs||8000)
+if(win){winPopup();confetti();const t=round;setTimeout(function(){if(over&&round===t)newGame()},window.__cardMs||8000)}
 else{draw(true);$("msg").textContent="Here are the answers."}}
 function submit(text,name,remote){
 if(over)return;const v=norm(String(text||"").slice(0,60));if(!v)return;
