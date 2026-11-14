@@ -185,12 +185,12 @@ const d=m?` style="animation-delay:${(k++)*.18}s"`:"";
 const txt=s?esc(a[0]):(act?(esc(typed)||hints[i]||""):(hints[i]||""));
 return `<div class="row ${cls}" data-i="${i}"${d}><span class="n">${i+1}</span><span class="a${act?" t":""}">${txt}</span><span class="p">${s?a[1]:""}</span></div>`}).join("")}
 function list(a){return a.length<2?a.join(""):a.slice(0,-1).join("\u2019, \u2018")+"\u2019 and \u2018"+a[a.length-1]}
-function winPopup(){const g={},order=[];names.forEach(x=>{if(!g[x.n]){g[x.n]=[];order.push(x.n)}g[x.n].push(x.w.toUpperCase())});
+function winPopup(){window.__cardMs=0;{const lw=names[names.length-1],A=Q[r][1],mine=names.filter(x=>x.n===lw.n),pts=mine.reduce((s,x)=>s+2*(A.length-A.findIndex(a=>a[0]===x.w)),0);if(window.WinnerCard&&WinnerCard.show({game:"Survey Says",name:(lw.n==="Player"?"":lw.n),word:mine.map(x=>x.w.toUpperCase()).join(" · "),points:pts,slow:true})){window.__cardMs=WinnerCard.total(true)+300;return}}const g={},order=[];names.forEach(x=>{if(!g[x.n]){g[x.n]=[];order.push(x.n)}g[x.n].push(x.w.toUpperCase())});
 const d=document.createElement("div");d.className="win";
 order.forEach(n=>{const p=document.createElement("div");p.textContent=n+" won with \u2018"+list(g[n])+"\u2019";d.appendChild(p)});
 const m=$("msg");m.textContent="";m.appendChild(d)}
 function fi(){try{inp.focus({preventScroll:true});inp.setSelectionRange(inp.value.length,inp.value.length)}catch(e){}}
-function newGame(){round++;
+function newGame(){window.newRound&&window.newRound();round++;
 if(!deck.length)deck=Q.map((_,i)=>i).sort(()=>Math.random()-.5);r=deck.pop();
 let h;do{h=HUES[Math.random()*HUES.length|0]}while(h===hue);hue=h;document.documentElement.style.setProperty("--h",h);
 over=false;found=[];hints={};names=[];typed="";active=0;
@@ -198,7 +198,7 @@ $("q").textContent=Q[r][0];$("msg").textContent="";
 $("hint").disabled=false;$("give").disabled=false;
 draw();fi()}
 function finish(win){over=true;$("hint").disabled=true;$("give").disabled=true;typed="";
-if(win){winPopup();confetti();const t=round;setTimeout(function(){if(over&&round===t)newGame()},8000)}
+if(win){winPopup();confetti();const t=round;setTimeout(function()if(over&&round===t)newGame()},window.__cardMs||8000)
 else{draw(true);$("msg").textContent="Here are the answers."}}
 function submit(text,name,remote){
 if(over)return;const v=norm(String(text||"").slice(0,60));if(!v)return;
@@ -207,7 +207,7 @@ ans.forEach((a,i)=>{if(hit<0&&[a[0],...a[2]].some(t=>same(v,t)))hit=i});
 if(hit>=0){
 if(found.includes(hit)){if(!remote)$("msg").textContent="Already on the board.";return}
 found.push(hit);const n=String(name||pname()||"Player").trim().slice(0,30);
-names.push({n:n,w:ans[hit][0]});
+names.push({n:n,w:ans[hit][0]});{const rn=String(name||"").trim().slice(0,30);if(rn&&window.sendScore)window.sendScore(rn,"Survey Says",2*(ans.length-hit),found.length===ans.length)}
 if(found.length===ans.length){draw(false,hit);ding();finish(true);return}
 if(found.includes(active))active=nextActive(active);
 $("msg").textContent="";draw(false,hit);ding()}
@@ -261,5 +261,5 @@ $("new").onclick=newGame;$("hint").onclick=hint;$("give").onclick=giveUp;
 newGame();
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script></body>
+<script src="../live-comments.js"></script></body>
 </html>
