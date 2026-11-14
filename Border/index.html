@@ -107,17 +107,17 @@ var s=document.createElement("div");s.className="sc";s.textContent=h.sc;wrap.app
 function draw(){
 $("hist").innerHTML="";hist.slice().sort(function(a,b){return b.sc-a.sc||a.n-b.n}).forEach(function(h){$("hist").appendChild(hrow(h))});
 inp.style.display=done?"none":"block"}
-function load(){
+function load(){window.newRound&&window.newRound();
 target=Math.random()<.75?W[Math.floor(Math.random()*W.length)]:LG[Math.floor(Math.random()*LG.length)];hist=[];done=false;gaveUp=false;inp.value="";
 $("msg").textContent="";$("winbox").innerHTML="";draw();try{inp.focus({preventScroll:true})}catch(e){}}
 function submit(){if(done)return;var w=inp.value.toUpperCase().replace(/[^A-Z]/g,"");
 if(w.length<2){$("msg").textContent="Type at least 2 letters.";return}
 if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
 if(hist.some(function(h){return h.w===w})){$("msg").textContent="Already guessed.";return}
-var p=pre(w),s=suf(w);hist.push({w:w,sc:p+s,n:hist.length});inp.value="";
+var p=pre(w),s=suf(w);hist.push({w:w,sc:p+s,n:hist.length});inp.value="";if(winner&&window.sendScore&&p+s>0)window.sendScore(winner,"Word Border",p+s,w===target);
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
-function popup(){var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){if(window.WinnerCard&&WinnerCard.show({game:"Word Border",name:winner,word:target,points:target.length*2})){var r0=hist;setTimeout(function(){if(done&&hist===r0&&!gaveUp)load()},WinnerCard.total()+300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target+"\u2019";$("msg").textContent="";var m=$("winbox");m.innerHTML="";m.appendChild(d);
 var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
 function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]{2,20}$/.test(word))return;inp.value=word;winner=String(name||"").trim().slice(0,30);submit();winner=""}
@@ -143,6 +143,6 @@ $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../answers-long.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1],r[2]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
 <script src="../back-to-menu.js"></script>
-<script src="live-comments.js"></script>
+<script src="../live-comments.js"></script>
 </body>
 </html>
