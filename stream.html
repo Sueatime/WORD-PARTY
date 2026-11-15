@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex">
+<title>Word Party Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14122b;--card:#211e45;--ink:#f3f1ff;--mu:#a9a5d1}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Fredoka",system-ui,sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;font-size:22px;font-weight:600;flex:none}
+#bar .live{background:#e11d48;border-radius:8px;padding:2px 10px;font-size:16px;font-weight:700}
+#bar .guide{color:#c9b3ff;font-size:20px;text-align:center;flex:1}
+#bar .rd{background:#332e66;border-radius:99px;padding:2px 14px;font-size:18px}
+#wrap{position:relative;flex:1;min-height:0}
+iframe{width:100%;height:100%;border:0;background:var(--bg)}
+#ov{position:absolute;inset:0;background:rgba(20,18,43,.8);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+#ov[hidden]{display:none}
+#pn{width:100%;max-width:820px}
+#pn h2{margin:0 0 14px;text-align:center;font-size:26px;color:#d9d3ff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g{position:relative;background:var(--card);border-bottom:6px solid var(--a);border-radius:18px;padding:14px 6px 10px;font-weight:600;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.g .ic{width:68px;height:68px;border-radius:18px;background:var(--a);display:grid;place-items:center;font-size:36px}
+.g b{font-size:20px;line-height:1.1}
+.g em{font-style:normal;font-size:16px;opacity:.85}
+.g small{position:absolute;top:8px;left:8px;width:36px;height:36px;border-radius:50%;border:2.5px solid #fff;display:grid;place-items:center;font-size:20px;font-weight:700}
+#cd{text-align:center;font-size:34px;font-weight:700;margin-top:16px}
+#hint{text-align:center;color:var(--mu);font-size:18px;margin-top:6px}
+#wait{padding:40px;text-align:center;color:var(--mu);font-size:24px}
+@media(max-width:560px){.g .ic{width:52px;height:52px;font-size:28px}.g b{font-size:16px}#bar{font-size:18px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bar"><span class="live">LIVE</span><span id="gm"></span><span class="guide" id="gd"></span><span class="rd" id="rd"></span></div>
+  <div id="wrap">
+    <div id="wait">Waiting for the host to start…</div>
+    <iframe id="fr" title="Game" hidden></iframe>
+    <div id="ov" hidden><div id="pn"><h2>Vote for the next game</h2><div class="grid" id="gr"></div><div id="cd"></div><div id="hint"></div></div></div>
+  </div>
+</div>
+<script src="live-config.js"></script>
+<script>
+var $=function(i){return document.getElementById(i)},S=null,cur="";
+function poll(){
+  getState().then(function(s){
+    if(!s||!s.game)return;
+    var key=s.game+"|"+s.round;
+    if(key!==cur){cur=key;$("fr").src=slug(s.game)+"/";$("fr").hidden=false;$("wait").hidden=true}
+    S=s;draw();
+  }).catch(function(){});
+}
+function draw(){
+  $("gm").textContent=ic(S.game)+" "+S.game;
+  $("rd").textContent="Round "+S.round;
+  var g=S.guide?"Type your guess in the chat!":"";
+  if(g&&S.play_who&&S.play_who!=="all")g+=" ("+SHORT[S.play_who]+" only)";
+  $("gd").textContent=g;
+  var voting=!!S.vote_ends_at;
+  $("ov").hidden=!voting;
+  if(voting){
+    var tot=0;S.votes.forEach(function(v){tot+=v});tot=tot||1;
+    $("gr").innerHTML=(S.options||[]).map(function(o,i){
+      return '<div class="g" style="--a:'+acc(o)+'"><small>'+(i+1)+'</small><div class="ic">'+ic(o)+'</div><b>'+o+'</b><em>'+S.votes[i]+' votes · '+Math.round(S.votes[i]/tot*100)+'%</em></div>';
+    }).join("");
+    $("hint").textContent="Type 1 to 6 in the chat to vote"+((S.vote_who&&S.vote_who!=="all")?" ("+SHORT[S.vote_who]+" only)":"");
+  }
+}
+function tick(){
+  if(!S||!S.vote_ends_at)return;
+  $("cd").textContent="Voting ends in "+fmt(new Date(S.vote_ends_at).getTime()-Date.now());
+}
+poll();setInterval(poll,1500);setInterval(tick,500);
+</script>
+</body>
+</html>
