@@ -85,6 +85,7 @@ h1{font-size:66px;margin-bottom:12px}
 <p>Every new guess must also fit all the colors so far.</p>
 <button id="x">Got it</button></div></div>
 <input id="kbd" autocomplete="off" autocapitalize="none" aria-label="Type your answer">
+<script src="../live-answer.js"></script>
 <script>
 var WORDS={},SET={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
@@ -110,7 +111,7 @@ function newGame(){clearTimeout(winT);scored={};
 var L=3+Math.floor(Math.random()*6),all=WORDS[L],pool=all.filter(function(x){return seen.indexOf(x)<0}),w;
 if(!pool.length){seen=[];pool=all}
 w=pool[Math.floor(Math.random()*pool.length)];seen.push(w);
-T=w;document.documentElement.style.setProperty("--n",w.length);rows=[];cur=[];over=false;$("msg").textContent="";render()}
+T=w;if(window.reportAnswer)window.reportAnswer(w);document.documentElement.style.setProperty("--n",w.length);rows=[];cur=[];over=false;$("msg").textContent="";render()}
 function add(l){if(over)return;if(cur.length>=T.length)cur=[];cur.push(l);$("msg").textContent="";render();if(cur.length===T.length)check()}
 function del(){if(over)return;cur.pop();render()}
 // a new guess must agree with every earlier colour: if it were the secret word, it would give the same colours
