@@ -125,7 +125,7 @@ if(!SET[g]){reject(g,g+" is not a valid word.");return}
 if(!fits(g)){reject(g,"The word does not fit the tiles.");return}
 rows.push(g);cur=[];$("msg").textContent="";
   window.playerName=liveGuesser||"";
-if(g===T){over=true;render();popup();confetti();if(liveGuesser)sendScore(liveGuesser,"Word Shift",5);return}
+if(g===T){over=true;render();popup();confetti();if(liveGuesser)sendScore(liveGuesser,"Word Shift",5,true);return}
 if(liveGuesser&&!scored[liveGuesser]){scored[liveGuesser]=true;sendScore(liveGuesser,"Word Shift",2)}
 render()}
 function popup(){var nm="";try{nm=(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
