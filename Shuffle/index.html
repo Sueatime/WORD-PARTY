@@ -84,6 +84,7 @@ button.k{padding:0}
 <div class="row acts"><button id="new">New game</button><button id="giveup">Give up</button></div>
 </main>
 <input id="kbd" type="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Type your word">
+ <script src="../live-answer.js"></script>
 <script>
 var W=[],SET={},since8=4,USED={},BYL={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
@@ -118,7 +119,7 @@ function drawLegend(show){var L=$("lg");L.innerHTML="";var r=document.createElem
 if(show){var m=ML.filter(function(k){return CM[k]===col})[0];d.appendChild(document.createElement("br"));d.appendChild(document.createTextNode(MN[m]))}r.appendChild(d)});L.appendChild(r);
 var n=document.createElement("div");n.className="note";n.textContent=show?"This round's meanings.":"The colors are random each round, so keep guessing and shuffle them to work it out.";L.appendChild(n)}
 function load(){window.newRound&&window.newRound();
-var L;do{L=3+Math.floor(Math.random()*6)}while(L===8&&since8<4);since8=L===8?0:since8+1;var P=BYL[L].filter(function(w){return!USED[w]});if(!P.length){BYL[L].forEach(function(w){delete USED[w]});P=BYL[L]}target=P[Math.floor(Math.random()*P.length)];USED[target]=1;kp=target;
+var L;do{L=3+Math.floor(Math.random()*6)}while(L===8&&since8<4);since8=L===8?0:since8+1;var P=BYL[L].filter(function(w){return!USED[w]});if(!P.length){BYL[L].forEach(function(w){delete USED[w]});P=BYL[L]}target=P[Math.floor(Math.random()*P.length)];USED[target]=1;kp=target;if(window.reportAnswer)window.reportAnswer(target);
 document.documentElement.style.setProperty("--n",kp.length);
 hist=[];g=[];ks={};done=false;gaveUp=false;
 $("msg").textContent="";$("winbox").innerHTML="";newColors();draw()}
