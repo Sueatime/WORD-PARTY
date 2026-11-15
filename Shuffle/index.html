@@ -117,7 +117,7 @@ function drawLegend(show){var L=$("lg");L.innerHTML="";var r=document.createElem
 ["pk","wh","bl"].forEach(function(col){var d=document.createElement("div");d.className="c";d.style.borderColor="var(--"+col+")";var b=document.createElement("b");b.textContent=CN[col];d.appendChild(b);
 if(show){var m=ML.filter(function(k){return CM[k]===col})[0];d.appendChild(document.createElement("br"));d.appendChild(document.createTextNode(MN[m]))}r.appendChild(d)});L.appendChild(r);
 var n=document.createElement("div");n.className="note";n.textContent=show?"This round's meanings.":"The colors are random each round, so keep guessing and shuffle them to work it out.";L.appendChild(n)}
-function load(){
+function load(){window.newRound&&window.newRound();
 var L;do{L=3+Math.floor(Math.random()*6)}while(L===8&&since8<4);since8=L===8?0:since8+1;var P=BYL[L].filter(function(w){return!USED[w]});if(!P.length){BYL[L].forEach(function(w){delete USED[w]});P=BYL[L]}target=P[Math.floor(Math.random()*P.length)];USED[target]=1;kp=target;
 document.documentElement.style.setProperty("--n",kp.length);
 hist=[];g=[];ks={};done=false;gaveUp=false;
@@ -136,10 +136,11 @@ if(!okColors(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 var r=score(w),rk={mm:1,ye:2,gr:3};
 w.split("").forEach(function(l,i){if(!ks[l]||rk[r[i]]>rk[ks[l]])ks[l]=r[i]});
 hist.push({w:w,r:r});g=[];
+ window.scoreGuess&&window.scoreGuess(winner,"Color Shuffle",w===target);
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
 var winner="";
-function popup(){drawLegend(true);var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
+function popup(){drawLegend(true);if(window.WinnerCard&&WinnerCard.show({game:"Color Shuffle",name:winner,word:target,points:5})){var r0=hist;setTimeout(function(){if(done&&hist===r0&&!gaveUp)load()},WinnerCard.total()+3300);return}var nm=winner;try{nm=nm||(new URLSearchParams(location.search).get("name")||window.playerName||"").trim().slice(0,30)}catch(e){}
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+target.toUpperCase()+"\u2019";$("msg").textContent="";var m=$("winbox");m.innerHTML="";m.appendChild(d);
 var r=hist;setTimeout(function(){if(done&&hist===r&&!gaveUp)load()},6000)}
 function remote(word,name){if(done)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==kp.length)return;g=word.split("");winner=String(name||"").trim().slice(0,30);check();winner=""}
@@ -182,5 +183,6 @@ fk();
 $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);load()}).catch(function(){$("msg").textContent="Could not load the word lists."});
 </script>
-<script src="../back-to-menu.js"></script></body>
+<script src="../back-to-menu.js"></script>
+<script src="../live-comments.js"></script></body>
 </html>
