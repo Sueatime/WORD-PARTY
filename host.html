@@ -71,7 +71,7 @@ function rnd(a,n){return a.slice().sort(function(){return Math.random()-.5}).sli
 function iso(ms){return new Date(ms).toISOString()}
 function patch(p){return rpc("set_state",{code:CODE,patch:p}).then(function(ok){if(ok!==true)$("log").textContent="Host code not accepted";return poll()})}
 function poll(){
-  if(CODE)rpc("get_answer",{code:CODE}).then(function(a){$("ans").textContent=(typeof a==="string"&&a)?a:"—"}).catch(function(){});
+  if(CODE)rpc("get_answer",{code:CODE}).then(function(a){var t=(typeof a==="string"&&a)?a:"—";$("ans").textContent=t;$("ans").style.fontSize=t.length>14?"26px":"";$("ans").style.letterSpacing=t.length>14?"0":""}).catch(function(){});
   return getState().then(function(s){
     if(!s)return;S=s;
     if(!S.game){return patch({game:rnd(MENU,1)[0][0],next_vote_at:iso(Date.now()+S.interval_min*60000)})}
