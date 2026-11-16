@@ -50,6 +50,10 @@ input[type=number]{width:80px}
     <div class="btns" id="sim"></div>
   </div>
   <div class="card">
+    <div class="lbl">Choose a game</div>
+    <select id="cg"></select> <button class="alt" id="cgo">Switch game now</button>
+  </div>
+  <div class="card">
     <div class="lbl">Test answer (until games send it)</div>
     <input id="ta" placeholder="Type any word"> <button class="alt" id="tabtn">Set answer</button>
   </div>
@@ -119,6 +123,8 @@ $("vnow").onclick=function(){if(S&&!S.vote_ends_at)openVote()};
 $("vdue").onclick=function(){if(S&&!S.vote_ends_at)patch({next_vote_at:iso(Date.now()),log:"Vote will open when this round ends"})};
 $("tabtn").onclick=function(){var w=$("ta").value.trim().toUpperCase();if(w)rpc("set_answer",{code:CODE,new_answer:w}).then(poll)};
 $("sset").onclick=function(){patch({interval_min:+$("im").value||20,vote_secs:+$("vs").value||35,guide:$("gd").checked,play_who:$("pw").value,vote_who:$("vw").value,log:"Settings saved"})};
+MENU.forEach(function(m){var o=document.createElement("option");o.value=m[0];o.textContent=m[1]+" "+m[0];$("cg").appendChild(o)});
+$("cgo").onclick=function(){if(S&&!S.vote_ends_at)patch({game:$("cg").value,round:S.round+1,log:"Host chose "+$("cg").value})};
 function enter(c){
   rpc("set_state",{code:c,patch:{}}).then(function(ok){
     if(ok===true){CODE=c;localStorage.setItem("wp_code",c);$("login").hidden=true;$("panel").hidden=false;poll();setInterval(poll,2000);setInterval(tick,1000)}

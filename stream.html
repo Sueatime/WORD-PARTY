@@ -45,12 +45,12 @@ iframe{width:100%;height:100%;border:0;background:var(--bg)}
 </div>
 <script src="live-config.js"></script>
 <script>
-var $=function(i){return document.getElementById(i)},S=null,cur="";
+var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="";
 function poll(){
   getState().then(function(s){
     if(!s||!s.game)return;
     var key=s.game+"|"+s.round;
-    if(key!==cur){cur=key;$("fr").src=slug(s.game)+"/";$("fr").hidden=false;$("wait").hidden=true}
+    if(key!==cur){cur=key;EXP=slug(s.game);$("fr").src=EXP+"/";$("fr").hidden=false;$("wait").hidden=true}
     S=s;draw();
   }).catch(function(){});
 }
@@ -74,6 +74,16 @@ function tick(){
   if(!S||!S.vote_ends_at)return;
   $("cd").textContent="Voting ends in "+fmt(new Date(S.vote_ends_at).getTime()-Date.now());
 }
+// If someone taps the menu button inside the game, bring the selected game back
+$("fr").addEventListener("load",function(){
+  try{
+    var w=$("fr").contentWindow;
+    if(!EXP||w.location.href==="about:blank")return;
+    var p=w.location.pathname.split("/").filter(Boolean);
+    var f=/\./.test(p[p.length-1]||"")?p[p.length-2]:p[p.length-1];
+    if(f!==EXP)$("fr").src=EXP+"/";
+  }catch(e){}
+});
 poll();setInterval(poll,1500);setInterval(tick,500);
 </script>
 </body>
