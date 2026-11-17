@@ -122,7 +122,10 @@ $("solve").onclick=function(){
 $("vnow").onclick=function(){if(S&&!S.vote_ends_at)openVote()};
 $("vdue").onclick=function(){if(S&&!S.vote_ends_at)patch({next_vote_at:iso(Date.now()),log:"Vote will open when this round ends"})};
 $("tabtn").onclick=function(){var w=$("ta").value.trim().toUpperCase();if(w)rpc("set_answer",{code:CODE,new_answer:w}).then(poll)};
-$("sset").onclick=function(){patch({interval_min:+$("im").value||20,vote_secs:+$("vs").value||35,guide:$("gd").checked,play_who:$("pw").value,vote_who:$("vw").value,log:"Settings saved"})};
+$("sset").onclick=function(){
+  var im=+$("im").value||20,p={interval_min:im,vote_secs:+$("vs").value||35,guide:$("gd").checked,play_who:$("pw").value,vote_who:$("vw").value,log:"Settings saved"};
+  if(S&&!S.vote_ends_at)p.next_vote_at=iso(Date.now()+im*60000);
+  patch(p)};
 MENU.forEach(function(m){var o=document.createElement("option");o.value=m[0];o.textContent=m[1]+" "+m[0];$("cg").appendChild(o)});
 $("cgo").onclick=function(){if(S&&!S.vote_ends_at)patch({game:$("cg").value,round:S.round+1,log:"Host chose "+$("cg").value})};
 function enter(c){
