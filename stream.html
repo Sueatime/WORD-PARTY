@@ -27,6 +27,8 @@ iframe{width:100%;height:100%;border:0;background:var(--bg)}
 .g .ic{width:80px;height:80px;border-radius:20px;background:var(--a);display:grid;place-items:center;font-size:44px}
 .g b{font-size:24px;line-height:1.1}
 .g em{font-style:normal;font-size:18px;opacity:.85}
+.g .pc{font-size:34px;font-weight:700;line-height:1;margin-top:2px}
+.g.lead{outline:3px solid #fff;outline-offset:-3px}
 .g small{position:absolute;top:8px;left:8px;width:40px;height:40px;border-radius:50%;border:2.5px solid #fff;display:grid;place-items:center;font-size:22px;font-weight:700}
 #cd{text-align:center;font-size:34px;font-weight:700;margin-top:16px}
 #hint{text-align:center;color:var(--mu);font-size:18px;margin-top:6px}
@@ -45,17 +47,17 @@ iframe{width:100%;height:100%;border:0;background:var(--bg)}
 </div>
 <script src="live-config.js"></script>
 <script>
-var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="";
+var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="",shown="",inMenu=false;
 function poll(){
   getState().then(function(s){
     if(!s||!s.game)return;
     var key=s.game+"|"+s.round;
-    if(key!==cur){cur=key;EXP=slug(s.game);$("fr").src=EXP+"/";$("fr").hidden=false;$("wait").hidden=true}
+    if(key!==cur){cur=key;EXP=slug(s.game);shown=s.game;inMenu=false;$("fr").src=EXP+"/";$("fr").hidden=false;$("wait").hidden=true}
     S=s;draw();
   }).catch(function(){});
 }
 function draw(){
-  $("gm").textContent=ic(S.game)+" "+S.game;
+  var sg=shown||S.game;$("gm").textContent=inMenu?"\uD83C\uDFE0 Choose a game":ic(sg)+" "+sg;
   $("rd").textContent="Round "+S.round;
   var g=S.guide?"Type your guess in the chat!":"";
   if(g&&S.play_who&&S.play_who!=="all")g+=" ("+SHORT[S.play_who]+" only)";
@@ -63,9 +65,9 @@ function draw(){
   var voting=!!S.vote_ends_at;
   $("ov").hidden=!voting;
   if(voting){
-    var tot=0;S.votes.forEach(function(v){tot+=v});tot=tot||1;
+    var tot=0;S.votes.forEach(function(v){tot+=v});tot=tot||1;var mx=Math.max.apply(null,S.votes);
     $("gr").innerHTML=(S.options||[]).map(function(o,i){
-      return '<div class="g" style="--a:'+acc(o)+'"><small>'+(i+1)+'</small><div class="ic">'+ic(o)+'</div><b>'+o+'</b><em>'+S.votes[i]+' votes · '+Math.round(S.votes[i]/tot*100)+'%</em></div>';
+      return '<div class="g'+(mx>0&&S.votes[i]===mx?' lead':'')+'" style="--a:'+acc(o)+'"><small>'+(i+1)+'</small><div class="ic">'+ic(o)+'</div><b>'+o+'</b><strong class="pc">'+Math.round(S.votes[i]/tot*100)+'%</strong><em>'+S.votes[i]+' votes</em></div>';
     }).join("");
     $("hint").textContent="Type 1 to 6 in the chat to vote"+((S.vote_who&&S.vote_who!=="all")?" ("+SHORT[S.vote_who]+" only)":"");
   }
@@ -74,14 +76,27 @@ function tick(){
   if(!S||!S.vote_ends_at)return;
   $("cd").textContent="Voting ends in "+fmt(new Date(S.vote_ends_at).getTime()-Date.now());
 }
-// If someone taps the menu button inside the game, bring the selected game back
+// The menu button inside the game works. A game picked from the menu becomes the live game
+// and the vote countdown starts again from that moment.
+function chooseGame(name){
+  var code=null;try{code=localStorage.getItem("wp_code")}catch(e){}
+  if(!code||!S||S.vote_ends_at)return;
+  var old=cur,rd=(Number(S.round)||0)+1,im=Number(S.interval_min)||20;
+  cur=name+"|"+rd;
+  rpc("set_state",{code:code,patch:{game:name,round:rd,next_vote_at:new Date(Date.now()+im*60000).toISOString(),log:"Game chosen from the menu: "+name}})
+    .then(function(ok){if(ok!==true)cur=old}).catch(function(){cur=old});
+}
 $("fr").addEventListener("load",function(){
   try{
     var w=$("fr").contentWindow;
-    if(!EXP||w.location.href==="about:blank")return;
+    if(w.location.href==="about:blank")return;
     var p=w.location.pathname.split("/").filter(Boolean);
     var f=/\./.test(p[p.length-1]||"")?p[p.length-2]:p[p.length-1];
-    if(f!==EXP)$("fr").src=EXP+"/";
+    var name="";for(var i=0;i<MENU.length;i++)if(MENU[i][2]===f)name=MENU[i][0];
+    if(!name){inMenu=true;if(S)draw();return}
+    inMenu=false;shown=name;
+    if(S&&name!==S.game)chooseGame(name);
+    if(S)draw();
   }catch(e){}
 });
 poll();setInterval(poll,1500);setInterval(tick,500);
