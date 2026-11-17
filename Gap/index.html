@@ -9,7 +9,7 @@
 <style>
 :root{--h:260;--bg:hsl(var(--h) 30% 9%);--panel:hsl(var(--h) 26% 15%);--ink:hsl(var(--h) 60% 95%);--mute:hsl(var(--h) 20% 68%);--pur:hsl(var(--h) 70% 68%);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}:env(safe-area-inset-top,0px);background:var(--bg)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:18px;display:flex;justify-content:center}
 main{width:100%;max-width:480px;padding:24px 16px 40px;text-align:center;display:flex;flex-direction:column;min-height:100vh}
@@ -92,7 +92,7 @@ h1{font-size:66px;margin-bottom:12px}
 <script src="../live-answer.js"></script>
 <script>
 var W=[],SET={};
-function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
+function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean).map(function(w){return w.toUpperCase()})})}
 function prep(a,g){var u={};a.forEach(function(w){u[w]=1});
  W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=7&&!/S$/.test(w)});
  g.forEach(function(w){if(w.length>=3&&w.length<=7)SET[w]=1});W.forEach(function(w){SET[w]=1})}
