@@ -82,3 +82,4 @@
   s.src = new URL("top-bar.js", document.currentScript.src).href;
   document.body.appendChild(s);
 })();
+var cs=document.createElement("script");cs.src=new URL("credit.js",document.currentScript.src).href;document.head.appendChild(cs);
