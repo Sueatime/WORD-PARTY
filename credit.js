@@ -5,7 +5,7 @@
   window.__creditLine = true;
 
   var TEXT = "All games are inspired by the work of their original creators and developers. Full credit goes to them.";
-  var LIFT = 5; // height from the bottom of the screen, in percent (higher = further up, away from comments)
+  var LIFT = 3; // height from the bottom of the screen, in percent (higher = further up, away from comments)
 
   var d = document.createElement("div");
   d.textContent = TEXT;
