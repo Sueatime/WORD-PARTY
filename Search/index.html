@@ -28,6 +28,7 @@ h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-seri
 .capi{width:100%;height:100%;border-radius:999px;transform-origin:0 50%}
 .capi.new{animation:grow .45s ease-out}
 .w.new{animation:pop .5s ease-out}
+.w.hint{background:var(--panel);color:var(--ink);border:2px dashed var(--dark);padding:2px 10px;letter-spacing:3px}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .msg{min-height:26px;font-weight:600;margin:0 0 14px}
 .row{display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:16px}
@@ -69,7 +70,7 @@ input{font-size:34px;width:280px;height:76px;border-radius:10px}
   <div id="grid" role="group" aria-label="Letter grid"></div>
   <div class="msg" id="msg" role="status"></div>
   <div class="row"><input id="g" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" aria-label="Type a hidden word"></div>
-  <div class="end"><button id="new">New game</button><button id="giveup">Give up</button></div>
+  <div class="end"><button id="new">New game</button><button id="hint">Hint</button><button id="giveup">Give up</button></div>
 </main>
 <script src="../live-answer.js"></script>
 <script>
@@ -200,7 +201,7 @@ const $=id=>document.getElementById(id);
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const SHOW_THEME=true; // set to false for a harder puzzle with no category shown
 const C=13,R=11;
-let clues=null,grid=[],words=[],where={},found=new Set(),colors={},sel=[],start=-1,over=false,hue=-1,theme="",round=0,flashT,finders={},fresh=null;
+let clues=null,grid=[],words=[],where={},found=new Set(),colors={},sel=[],start=-1,over=false,hue=-1,theme="",round=0,flashT,finders={},fresh=null,hinted=false;
 function build(){
   const rr=Math.random(),mode=rr<MATH_CHANCE?MATH:rr<MATH_CHANCE+RANDOM_CHANCE?RANDOM:null;  // chosen once so a rejected try is retried in the same mode
   for(let tries=0;tries<200;tries++){
@@ -234,8 +235,12 @@ function build(){
 function draw(){
   $("theme").textContent=SHOW_THEME?"Theme: "+theme:"";
   const got=words.filter(w=>found.has(w)).sort((a,b)=>a.length-b.length||a.localeCompare(b));
-  $("stat").textContent=clues?(over?"All answers":`Found ${got.length} of ${words.length}`):over&&got.length===words.length&&!gaveUp?`All ${words.length} words found`:over?"All words":`Found ${got.length} of ${words.length} hidden words`;
-  $("words").innerHTML=clues?words.map(w=>found.has(w)?`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${clues[w].f} · ${w}</span>`:`<span class="w" style="background:var(--panel);color:var(--ink)">${clues[w].q}</span>`).join(""):got.map(w=>`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${w}</span>`).join("");
+  const lens=words.map(w=>w.length),lo=Math.min(...lens),hi=Math.max(...lens),rng=lo===hi?`${lo} letters`:`${lo} to ${hi} letters`;
+  const base=clues?(over?"All answers":`Found ${got.length} of ${words.length}`):over&&got.length===words.length&&!gaveUp?`All ${words.length} words found`:over?"All words":`Found ${got.length} of ${words.length} hidden words`;
+  $("stat").textContent=base+(over?"":` · ${rng}`);
+  const hintOf=w=>w[0]+"_".repeat(w.length-1);
+  const left=words.filter(w=>!found.has(w)).sort((a,b)=>a.length-b.length||a.localeCompare(b));
+  $("words").innerHTML=clues?words.map(w=>found.has(w)?`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${clues[w].f} · ${w}</span>`:`<span class="w" style="background:var(--panel);color:var(--ink)">${clues[w].q}${hinted?` · ${hintOf(w)}`:""}</span>`).join(""):got.map(w=>`<span class="w${w===fresh?" new":""}" style="background:${colors[w]}">${w}</span>`).join("")+(hinted?left.map(w=>`<span class="w hint">${hintOf(w)}</span>`).join(""):"");
   const cc={};for(const w of words)if(found.has(w))where[w].forEach(i=>cc[i]=1);
   $("grid").style.gridTemplateColumns=`repeat(${C},1fr)`;
   $("grid").innerHTML=grid.map((ch,i)=>`<div class="cell${sel.includes(i)?" sel":""}" data-i="${i}">${ch}</div>`).join("");
@@ -260,7 +265,7 @@ function begin(){window.newRound&&window.newRound();window.__lastWho="";
   hue=h;document.documentElement.style.setProperty("--h",h);
   found=new Set();finders={};sel=[];start=-1;over=false;gaveUp=false;round++;window.reportAnswer&&window.reportAnswer((theme?theme+": ":"")+words.join(" - "));
   colors={};words.forEach((w,i)=>colors[w]=`hsl(${(h+Math.round(i*360/words.length))%360} 55% 40%)`);
-  $("msg").textContent="";$("giveup").disabled=false;$("g").disabled=false;$("g").value="";
+  hinted=false;$("hint").disabled=false;$("msg").textContent="";$("giveup").disabled=false;$("g").disabled=false;$("g").value="";
   draw();
 }
 function newGame(){begin();$("g").focus()}
@@ -312,7 +317,7 @@ function guess(word,name,local){
   const nm=nameOf(String(name||"").trim().slice(0,30));(finders[nm]=finders[nm]||[]).push(w);
   if(found.size===words.length){
     over=true;sel=[];start=-1;
-    $("giveup").disabled=true;$("g").disabled=true;$("g").value="";
+    $("giveup").disabled=true;$("hint").disabled=true;$("g").disabled=true;$("g").value="";
     draw();popup();confetti();
   }else{
     draw();flash(`Found ${w}!`);
@@ -355,11 +360,12 @@ function submitTyped(force){
 $("g").oninput=()=>{$("g").value=$("g").value.toUpperCase().replace(/[^A-Z]/g,"");submitTyped(false)};
 $("g").onkeydown=e=>{if(e.key==="Enter")submitTyped(true)};
 window.addEventListener("resize",()=>draw());
+$("hint").onclick=()=>{if(over||hinted)return;hinted=true;$("hint").disabled=true;draw()};
 $("new").onclick=newGame;
 $("giveup").onclick=()=>{
   if(over)return;
   over=true;gaveUp=true;sel=[];start=-1;
-  $("giveup").disabled=true;$("g").disabled=true;
+  $("giveup").disabled=true;$("hint").disabled=true;$("g").disabled=true;
   words.forEach(w=>found.add(w));
   draw();
   $("msg").textContent="You gave up. Here are all the words.";
