@@ -39,7 +39,7 @@ h1{margin:0 0 8px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-seri
 .tile.rr{border-top-right-radius:999px;border-bottom-right-radius:999px}
 #winbox{margin:0 0 10px}
 #winbox:empty,#msg:empty{display:none}
-.hist{display:flex;flex-direction:column;gap:5px;margin:5px 0 0}
+.hist{display:flex;flex-direction:column;gap:5px;margin:5px 0}
 #msg{min-height:0;font-weight:600;margin:0 0 8px}
 .acts{margin:12px 0 0}
 button{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:2px solid var(--mute);background:transparent;color:var(--ink);cursor:pointer}
@@ -76,8 +76,8 @@ button.k{padding:0}
 <div class="panel"><div class="abc" id="abc" aria-label="Alphabet"></div></div>
 <div id="winbox"></div>
 <div id="msg" role="status" aria-live="polite"></div>
-<div class="row" id="pat"></div>
 <div class="hist" id="hist"></div>
+<div class="row" id="pat"></div>
 <div class="row acts"><button id="new">New game</button><button id="giveup">Give up</button></div>
 </main>
 <input id="kbd" type="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Type your word">
@@ -88,7 +88,7 @@ var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),W=[],SET={},W2="ACCOMPLISHMENT ADVE
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
 function prep(a,g){W=a.filter(function(w){return w.length>=3&&w.length<=8});
  g.forEach(function(w){if(w.length<=15)SET[w]=1});W.forEach(function(w){SET[w]=1});W2.forEach(function(w){SET[w]=1})}
-var target,g=[],hist=[],ks={},done=false,gaveUp=false,winner="";
+var target,g=[],hist=[],ks={},kc={},done=false,gaveUp=false,winner="";
 function score(w){var n=w.length,m=target.length,a=target,L=[],i,j;
 for(i=0;i<=n;i++)L.push(new Array(m+1).fill(0));
 for(i=n-1;i>=0;i--)for(j=m-1;j>=0;j--)L[i][j]=w[i]===a[j]?1+L[i+1][j+1]:Math.max(L[i+1][j],L[i][j+1]);
@@ -108,11 +108,11 @@ var p=$("pat");p.innerHTML="";p.style.setProperty("--n",Math.max(g.length+1,5));
 for(var i=0;i<=g.length;i++){var d=document.createElement("div"),has=i<g.length;
 d.className="tile"+(!has&&!done?" cur":"");d.textContent=g[i]||"";p.appendChild(d)}
 p.style.display=done?"none":"flex";
-$("hist").innerHTML="";hist.slice().reverse().forEach(function(h){$("hist").appendChild(hrow(h))});
+$("hist").innerHTML="";hist.forEach(function(h){$("hist").appendChild(hrow(h))});
 buildAbc()}
 function load(){window.newRound&&window.newRound();
 var P=Math.random()<.25?W2:W;target=P[Math.floor(Math.random()*P.length)];window.reportAnswer&&window.reportAnswer(target);
-hist=[];g=[];ks={};done=false;gaveUp=false;
+hist=[];g=[];ks={};kc={};done=false;gaveUp=false;
 $("msg").textContent="";$("winbox").innerHTML="";draw()}
 function add(l){if(done)return;if(g.length>=20)return;g.push(l);$("msg").textContent="";draw()}
 function del(){if(done)return;g.pop();draw()}
@@ -120,9 +120,12 @@ function check(){
 if(done)return;var w=g.join("");
 if(!w){$("msg").textContent="Type a word first.";return}
 for(var k=0;k<w.length;k++)if(ks[w[k]]==="mm"){$("msg").textContent=w+" does not fit the tiles.";return}
+var wc={};w.split("").forEach(function(l){wc[l]=(wc[l]||0)+1});
+for(var q0 in kc)if((wc[q0]||0)<kc[q0]){$("msg").textContent=w+" does not fit the tiles.";return}
 if(!SET[w]){$("msg").textContent=w+" is not a valid word.";return}
 var s=score(w),rk={mm:1,ye:2,gr:3};
 w.split("").forEach(function(l,i){if(!ks[l]||rk[s.r[i]]>rk[ks[l]])ks[l]=s.r[i]});
+var cc={};w.split("").forEach(function(l,i){if(s.r[i]!=="mm")cc[l]=(cc[l]||0)+1});for(var q in cc)if(!kc[q]||cc[q]>kc[q])kc[q]=cc[q];
 hist.push({w:w,r:s.r,mt:s.mt});g=[];window.scoreGuess&&window.scoreGuess(winner,"Word Thread",w===target);
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
