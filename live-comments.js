@@ -94,6 +94,9 @@
 
   function handleComment(user, text) {
     text = String(text || '').trim();
+if (!window.liveKeepSymbols) {
+  text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z]/g, '');
+}
     if (!text) return;
 
     // Games with their own handler
