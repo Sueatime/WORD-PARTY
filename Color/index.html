@@ -101,7 +101,7 @@ for(var i=0;i<kp.length;i++){
 var d=document.createElement("div"),c=GR[+kp[i]],cu=!done&&i===g.length;
 d.className="tile"+(cu?" cur":"");
 d.style.background=c[1];d.style.borderColor=cu?"":c[1];d.style.color=c[2];d.textContent=g[i]||"";p.appendChild(d)}
-$("hist").innerHTML="";hist.forEach(function(w){$("hist").appendChild(hrow(w))})}
+$("hist").innerHTML="";hist.slice().reverse().forEach(function(w){$("hist").appendChild(hrow(w))})}
 function load(){window.newRound&&window.newRound();
 for(var t=0;t<600;t++){regroup();var L0=3+Math.floor(Math.random()*5),pool=W.filter(function(x){return x.length===L0}),w0=pool[Math.floor(Math.random()*pool.length)],k0=pat(w0),m0=W.filter(function(x){return pat(x)===k0}),need=L0<=4?3:(L0==5?2:1);if(m0.length>=need||t===599){kp=k0;words=m0;target=w0;break}}window.reportAnswer&&window.reportAnswer(target);
 document.documentElement.style.setProperty("--n",kp.length);buildAbc();found=[];hist=[];g=[];done=false;gaveUp=false;
