@@ -19,4 +19,13 @@
       body: JSON.stringify({ code: code, new_answer: word })
     }).catch(function () {});
   };
+
+  // The host panel can ask for a hint. The stream page passes the request into the game.
+  window.addEventListener("message", function (e) {
+    var d = e.data;
+    if (!d || d.type !== "wp_hint" || e.source !== window.parent) return;
+    if (typeof window.liveHint === "function") { window.liveHint(); return; }
+    var b = document.getElementById("hint") || document.getElementById("hb");
+    if (b && !b.disabled) b.click();
+  });
 })();

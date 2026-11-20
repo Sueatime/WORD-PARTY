@@ -41,7 +41,8 @@ input[type=number]{width:80px}
   <div class="card">
     <div class="lbl" id="gm">Current game</div>
     <div class="ans" id="ans">—</div>
-    <div class="btns"><button id="solve">Round solved ✓</button></div>
+    <div class="btns"><button id="solve">Round solved ✓</button><button class="alt" id="hintbtn">💡 Hint</button></div>
+    <p class="mu" id="hmsg"></p>
   </div>
   <div class="card">
     <div class="lbl">Next-game vote</div>
@@ -93,6 +94,9 @@ function closeVote(){
 }
 function draw(){
   $("gm").textContent=ic(S.game)+" "+S.game+" · Round "+S.round;
+  var hasHint=HINT_GAMES.indexOf(S.game)>=0;$("hintbtn").disabled=!hasHint;
+  if(!hasHint&&!$("hmsg").textContent)$("hmsg").textContent="This game has no hint button.";
+  else if(hasHint&&$("hmsg").textContent==="This game has no hint button.")$("hmsg").textContent="";
   $("log").textContent=S.log||"";
   var sim=$("sim");sim.innerHTML="";
   if(S.vote_ends_at)(S.options||[]).forEach(function(o,i){
@@ -118,6 +122,14 @@ $("solve").onclick=function(){
   if(!S||S.vote_ends_at)return;
   if(S.next_vote_at&&Date.now()>=new Date(S.next_vote_at).getTime())openVote();
   else patch({round:S.round+1,log:"Round solved"});
+};
+var HINT_GAMES=["Guess the Country","Word Chain","Secret Word","Word Related","Emoji Words","Word Jumble","Survey Says","Guess the Picture"],hmT;
+$("hintbtn").onclick=function(){
+  if(!CODE)return;
+  rpc("send_hint",{code:CODE}).then(function(ok){
+    $("hmsg").textContent=ok===true?"Hint sent to the stream":"Hint not sent. Run the new SQL step first.";
+    clearTimeout(hmT);hmT=setTimeout(function(){$("hmsg").textContent=""},3000);
+  }).catch(function(){$("hmsg").textContent="Hint not sent."});
 };
 $("vnow").onclick=function(){if(S&&!S.vote_ends_at)openVote()};
 $("vdue").onclick=function(){if(S&&!S.vote_ends_at)patch({next_vote_at:iso(Date.now()),log:"Vote will open when this round ends"})};

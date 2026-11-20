@@ -47,13 +47,20 @@ iframe{width:100%;height:100%;border:0;background:var(--bg)}
 </div>
 <script src="live-config.js"></script>
 <script>
-var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="",shown="",inMenu=false;
+var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="",shown="",inMenu=false,lastHint=null;
 function poll(){
   getState().then(function(s){
     if(!s||!s.game)return;
     var key=s.game+"|"+s.round;
     if(key!==cur){cur=key;EXP=slug(s.game);shown=s.game;inMenu=false;$("fr").src=EXP+"/";$("fr").hidden=false;$("wait").hidden=true}
     S=s;draw();
+    if(typeof s.hint_count==="number"){
+      if(lastHint===null)lastHint=s.hint_count;
+      else if(s.hint_count>lastHint){
+        lastHint=s.hint_count;
+        try{$("fr").contentWindow.postMessage({type:"wp_hint"},"*")}catch(e){}
+      }
+    }
   }).catch(function(){});
 }
 function draw(){
