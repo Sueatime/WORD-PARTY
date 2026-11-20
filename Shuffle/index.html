@@ -125,10 +125,11 @@ hist=[];g=[];ks={};done=false;gaveUp=false;
 $("msg").textContent="";$("winbox").innerHTML="";newColors();draw()}
 function add(l){if(done)return;if(g.length>=kp.length)g=[];g.push(l);$("msg").textContent="";draw();if(g.length===kp.length)check()}
 function del(){if(done)return;g.pop();draw()}
-function okColors(w){var bad={},good={},k,i,l,has=false,any=false;
-for(k=0;k<hist.length;k++){for(i=0;i<hist[k].w.length;i++){l=hist[k].w[i];if(hist[k].r[i]==="mm")bad[l]=1;else{good[l]=1;any=true}}}
-for(i=0;i<w.length;i++){if(bad[w[i]]&&!good[w[i]])return false;if(good[w[i]])has=true}
-if(any&&!has)return false;
+function okColors(w){var bad={},good={},need={},k,i,l,c,cw={};
+for(k=0;k<hist.length;k++){c={};for(i=0;i<hist[k].w.length;i++){l=hist[k].w[i];if(hist[k].r[i]==="mm")bad[l]=1;else{good[l]=1;c[l]=(c[l]||0)+1}}
+for(l in c)if(c[l]>(need[l]||0))need[l]=c[l]}
+for(i=0;i<w.length;i++){l=w[i];if(bad[l]&&!good[l])return false;cw[l]=(cw[l]||0)+1}
+for(l in need)if((cw[l]||0)<need[l])return false;
 return true}
 function check(){
 var w=g.join("");
