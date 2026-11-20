@@ -58,7 +58,7 @@ function poll(){
 }
 function draw(){
   var sg=shown||S.game;$("gm").textContent=inMenu?"\uD83C\uDFE0 Choose a game":ic(sg)+" "+sg;
-  $("rd").textContent="Round "+S.round;
+  
   var g=S.guide?"Type your guess in the chat!":"";
   if(g&&S.play_who&&S.play_who!=="all")g+=" ("+SHORT[S.play_who]+" only)";
   $("gd").textContent=g;
@@ -73,8 +73,11 @@ function draw(){
   }
 }
 function tick(){
-  if(!S||!S.vote_ends_at)return;
-  $("cd").textContent="Voting ends in "+fmt(new Date(S.vote_ends_at).getTime()-Date.now());
+  if(!S)return;
+  var n=Date.now(),e=S.vote_ends_at?new Date(S.vote_ends_at).getTime():0,d=S.next_vote_at?new Date(S.next_vote_at).getTime():0;
+  if(e){var t=fmt(e-n);$("cd").textContent="Voting ends in "+t;$("rd").textContent="Voting "+t}
+  else if(d&&n>=d)$("rd").textContent="Vote after this round";
+  else if(d)$("rd").textContent="Next vote in "+fmt(d-n);
 }
 // The menu button inside the game works. A game picked from the menu becomes the live game
 // and the vote countdown starts again from that moment.
