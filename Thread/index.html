@@ -89,7 +89,7 @@ function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return
 function prep(a,g){W=a.filter(function(w){return w.length>=3&&w.length<=8});
  g.forEach(function(w){if(w.length<=15)SET[w]=1});W.forEach(function(w){SET[w]=1});W2.forEach(function(w){SET[w]=1})}
 var target,g=[],hist=[],ks={},kc={},ke={},done=false,gaveUp=false,winner="";
-function score(w){var n=w.length,m=target.length,a=target,L=[],i,j;
+function score(w,tg){tg=tg||target;var n=w.length,m=tg.length,a=tg,L=[],i,j;
 for(i=0;i<=n;i++)L.push(new Array(m+1).fill(0));
 for(i=n-1;i>=0;i--)for(j=m-1;j>=0;j--)L[i][j]=w[i]===a[j]?1+L[i+1][j+1]:Math.max(L[i+1][j],L[i][j+1]);
 var r=new Array(n).fill("mm"),mt=new Array(n).fill(-1),used=new Array(m).fill(false),c={};i=0;j=0;
@@ -98,11 +98,10 @@ for(j=0;j<m;j++)if(!used[j])c[a[j]]=(c[a[j]]||0)+1;
 for(i=0;i<n;i++)if(r[i]==="mm"&&c[w[i]]>0){r[i]="ye";c[w[i]]--}
 return{r:r,mt:mt}}
 function buildAbc(){var a=$("abc");a.innerHTML="";A.forEach(function(l){var b=document.createElement("button");b.className="k"+(ks[l]?" "+ks[l]:"");b.textContent=l;b.setAttribute("aria-label","Letter "+l);b.onclick=function(){add(l)};a.appendChild(b)})}
-function hrow(h){var r=document.createElement("div"),n=h.w.length,T=target.length;r.className="row";r.style.setProperty("--n",n);
-h.w.split("").forEach(function(l,i){var d=document.createElement("div"),c=h.r[i],jl=c==="gr"&&i>0&&h.r[i-1]==="gr"&&h.mt[i]===h.mt[i-1]+1,jr=c==="gr"&&i<n-1&&h.r[i+1]==="gr"&&h.mt[i+1]===h.mt[i]+1;
-d.className="tile "+c+(jl?" jl":"")+(jr?" jr":"");
-if(c==="gr"){var yb=h.r.slice(0,i).indexOf("ye")>=0,ya=h.r.slice(i+1).indexOf("ye")>=0;if(!jl&&h.mt[i]===0&&!yb)d.className+=" rl";if(!jr&&h.mt[i]===T-1&&!ya)d.className+=" rr"}
-d.textContent=l;r.appendChild(d)});return r}
+function cls(r,mt,T){var n=r.length;return r.map(function(c,i){var jl=c==="gr"&&i>0&&r[i-1]==="gr"&&mt[i]===mt[i-1]+1,jr=c==="gr"&&i<n-1&&r[i+1]==="gr"&&mt[i+1]===mt[i]+1,k=c+(jl?" jl":"")+(jr?" jr":"");
+if(c==="gr"){if(!jl&&i===0&&mt[i]===0)k+=" rl";if(!jr&&i===n-1&&mt[i]===T-1)k+=" rr"}return k})}
+function hrow(h){var r=document.createElement("div"),n=h.w.length,k=cls(h.r,h.mt,target.length);r.className="row";r.style.setProperty("--n",n);
+h.w.split("").forEach(function(l,i){var d=document.createElement("div");d.className="tile "+k[i];d.textContent=l;r.appendChild(d)});return r}
 function draw(){
 var p=$("pat");p.innerHTML="";p.style.setProperty("--n",Math.max(g.length+1,5));
 for(var i=0;i<=g.length;i++){var d=document.createElement("div"),has=i<g.length;
@@ -124,6 +123,7 @@ var wc={};w.split("").forEach(function(l){wc[l]=(wc[l]||0)+1});
 for(var q0 in kc)if((wc[q0]||0)<kc[q0]){$("msg").textContent=w+" does not fit the tiles.";return}
 for(var q1 in ke)if((wc[q1]||0)>ke[q1]){$("msg").textContent=w+" does not fit the tiles.";return}
 if(!SET[w]){$("msg").textContent=w+" is not a valid word.";return}
+for(var z=0;z<hist.length;z++){var hz=hist[z],sz=score(hz.w,w);if(cls(sz.r,sz.mt,w.length).join("|")!==cls(hz.r,hz.mt,target.length).join("|")){$("msg").textContent=w+" does not fit the tiles.";return}}
 var s=score(w),rk={mm:1,ye:2,gr:3};
 w.split("").forEach(function(l,i){if(!ks[l]||rk[s.r[i]]>rk[ks[l]])ks[l]=s.r[i]});
 var cc={};w.split("").forEach(function(l,i){if(s.r[i]!=="mm")cc[l]=(cc[l]||0)+1});for(var q in cc)if(!kc[q]||cc[q]>kc[q])kc[q]=cc[q];
