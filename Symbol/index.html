@@ -133,6 +133,8 @@ function addGuess(w,who){
     end();drawSlots();popup(nameOf(who),w);confetti();
   }
 }
+// a letter already tried in a spot where it was wrong can't go back in that same spot
+function reuse(w){for(let i=0;i<w.length;i++)if(w[i]!==secret[i]&&rows.some(x=>x.w[i]===w[i]))return i;return -1}
 function end(){over=true;$("g").readOnly=true;$("give").disabled=true}
 $("g").addEventListener("input",e=>{if(over)return;
 typ=e.target.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,n);e.target.value=typ;
@@ -140,6 +142,7 @@ $("slots").classList.remove("wrong");
 if(typ.length===n){const w=typ;
   if(!VALID.has(w)){const t=$("slots");void t.offsetWidth;t.classList.add("wrong");$("msg").textContent=`"${w}" isn't a word. Try again!`}
   else if(rows.some(x=>x.w===w)){const t=$("slots");void t.offsetWidth;t.classList.add("wrong");$("msg").textContent=`"${w}" was already guessed.`}
+  else if(reuse(w)>=0){const i=reuse(w),t=$("slots");void t.offsetWidth;t.classList.add("wrong");$("msg").textContent=`"${w}" doesn't fit the tiles.`}
   else{$("msg").textContent="";typ="";e.target.value="";addGuess(w)}}
 else if($("msg").textContent)$("msg").textContent="";
 if(!over)drawSlots()});
@@ -155,7 +158,7 @@ const d=document.createElement("div");d.className="win";
 const l=document.createElement("div");l.className="wl";l.textContent=name+" won with '"+w+"'";d.appendChild(l);
 const m=$("wb");m.textContent="";m.appendChild(d);$("msg").textContent="";
 const r=round;setTimeout(()=>{if(over&&round===r)start()},6000)}
-function remote(word,name){if(over)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==n||!VALID.has(word)||rows.some(x=>x.w===word))return;
+function remote(word,name){if(over)return;word=String(word||"").trim().toUpperCase();if(!/^[A-Z]+$/.test(word)||word.length!==n||!VALID.has(word)||rows.some(x=>x.w===word)||reuse(word)>=0)return;
 addGuess(word,String(name||"").trim().slice(0,30))}
 window.submitGuess=remote;
 window.addEventListener("message",e=>{const d=e.data;if(d&&d.type==="guess")remote(d.word,d.name)});
