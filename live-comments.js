@@ -9,7 +9,7 @@
 
   For games that need special handling, define this BEFORE this script:
     window.onLiveComment = function (user, text) { ...your game's code... };
-*/
+*/A-Za-z
 (function () {
   if (window.__liveCommentsLoaded) return;
   window.__liveCommentsLoaded = true;
@@ -95,7 +95,7 @@
   function handleComment(user, text) {
     text = String(text || '').trim();
 if (!window.liveKeepSymbols) {
-  text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z]/g, '');
+  text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]/g, '');
 }
     if (!text) return;
 
