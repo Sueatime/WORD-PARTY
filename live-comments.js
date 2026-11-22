@@ -9,7 +9,7 @@
 
   For games that need special handling, define this BEFORE this script:
     window.onLiveComment = function (user, text) { ...your game's code... };
-*/A-Za-z
+*/
 (function () {
   if (window.__liveCommentsLoaded) return;
   window.__liveCommentsLoaded = true;
@@ -94,9 +94,9 @@
 
   function handleComment(user, text) {
     text = String(text || '').trim();
-if (!window.liveKeepSymbols) {
-  text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]/g, '');
-}
+    if (!window.liveKeepSymbols) {
+      text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]/g, '');
+    }
     if (!text) return;
 
     // Games with their own handler
@@ -140,7 +140,7 @@ if (!window.liveKeepSymbols) {
       try {
         var d = JSON.parse(e.data);
         handleComment(d.user, d.comment);
-      } catch (err) {}
+      } catch (err) { }
     };
     ws.onclose = function () {
       setBadge(false);
@@ -148,10 +148,10 @@ if (!window.liveKeepSymbols) {
       setTimeout(connect, wait);
     };
     ws.onerror = function () {
-      try { ws.close(); } catch (e) {}
+      try { ws.close(); } catch (e) { }
     };
   }
-// ---- send points to the relay (saved to the leaderboard) ----
+  // ---- send points to the relay (saved to the leaderboard) ----
   window.sendScore = function (user, game, points, win) {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: 'score', user: user, game: game, points: points, win: win === true }));
