@@ -5,7 +5,7 @@
   window.__creditNote = true;
 
   var TEXT = "All games are inspired by the work of their original creators and developers. Full credit goes to them.";
-  var LIFT = 5;            // height from the bottom of the screen, in percent (higher = further up, away from comments)
+  var LIFT = 4;            // height from the bottom of the screen, in percent (higher = further up, away from comments)
   var SECONDS = 4;          // how long the note stays on screen
   var ONCE_PER_VISIT = false; // true = show only the first time someone opens a game in this visit
 
