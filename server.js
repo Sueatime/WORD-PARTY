@@ -21,7 +21,7 @@ const LEVEL = { all: 0, follow: 1, fan: 2, sub: 3, mod: 4 }; // who can play / v
 const ALL_GAMES = ['Color Shuffle','Color Spell','Emoji Words','Guess the Country','Guess the Picture','Icon Spell','Letter Order','Number Code','Secret Word','Spot the Difference','Survey Says','Word Between','Word Blur','Word Border','Word Chain','Word Clues','Word Compare','Word Counts','Word Gap','Word Graph','Word Jumble','Word Overlap','Word Pixels','Word Related','Word Search','Word Shift','Word Symbol','Word Tangle','Word Thread','Word Trail','Word Trick'];
 const SB_HEADERS = { 'Content-Type': 'application/json', apikey: SUPABASE_SECRET_KEY };
 
-let live = { play_who: 'all', vote_who: 'all', options: [], votes: [0, 0, 0, 0, 0, 0], vote_ends_at: null, next_vote_at: null, vote_secs: 35, game: null };
+let live = { play_who: 'all', vote_who: 'all', options: [], votes: [0, 0, 0, 0, 0, 0, 0, 0], vote_ends_at: null, next_vote_at: null, vote_secs: 35, game: null };
 let voteSession = '';
 const voted = new Set();
 let queue = Promise.resolve();
@@ -77,26 +77,47 @@ function addVote(idx) {
   queue = queue.then(async () => {
     await refreshLive();
     if (!voteOpen()) return;
-    const votes = Array.isArray(live.votes) ? live.votes.slice() : [0, 0, 0, 0, 0, 0];
+    const votes = Array.isArray(live.votes) ? live.votes.slice() : [0, 0, 0, 0, 0, 0, 0, 0];
     votes[idx] = (Number(votes[idx]) || 0) + 1;
     await patchLive({ votes: votes });
     live.votes = votes;
   }).catch((e) => console.log('Vote error:', e.message));
 }
 
-// A viewer won a round: if a vote is due, open it
-async function onRoundWin() {
+// A viewer won a round: if a vote is due, wait until the winner card and leaderboard screens are
+// finished (the game then starts its next round) and open the vote at that moment.
+let pendingTimer = null;
+
+async function openVote(reason) {
   await refreshLive();
-  if (voteOpen()) return; // a vote is already open
-  const due = live.next_vote_at && new Date(live.next_vote_at).getTime() <= Date.now();
-  if (!due) return;
-  const names = ALL_GAMES.filter((n) => n !== live.game).sort(() => Math.random() - 0.5).slice(0, 6);
+  if (voteOpen()) return;
+  const names = ALL_GAMES.filter((n) => n !== live.game).sort(() => Math.random() - 0.5).slice(0, 8);
   await patchLive({
     options: names,
-    votes: [0, 0, 0, 0, 0, 0],
+    votes: [0, 0, 0, 0, 0, 0, 0, 0],
     vote_ends_at: new Date(Date.now() + (Number(live.vote_secs) || 35) * 1000).toISOString(),
-    log: 'Vote opened after a round was won',
+    log: reason,
   });
+}
+
+async function onRoundWin() {
+  await refreshLive();
+  if (voteOpen() || pendingTimer) return; // a vote is open, or already waiting
+  const due = live.next_vote_at && new Date(live.next_vote_at).getTime() <= Date.now();
+  if (!due) return;
+  // Safety: if the next round never reports in, open the vote anyway after 60 seconds
+  pendingTimer = setTimeout(() => {
+    pendingTimer = null;
+    openVote('Vote opened (waited 60 seconds after a win)').catch((e) => console.log('Vote open error:', e.message));
+  }, 60000);
+}
+
+// The game on the stream page started a new round (after the winner and leaderboard screens)
+async function onRoundStart() {
+  if (!pendingTimer) return;
+  clearTimeout(pendingTimer);
+  pendingTimer = null;
+  await openVote('Vote opened after the leaderboard screens');
 }
 
 // Simple page so the host (and you) can check the relay is awake
@@ -145,6 +166,10 @@ wss.on('connection', (ws) => {
   ws.on('message', (raw) => {
     let m;
     try { m = JSON.parse(raw.toString()); } catch (e) { return; }
+    if (m && m.type === 'round_start') {
+      if (m.embedded === true) onRoundStart().catch((e) => console.log('Vote open error:', e.message));
+      return;
+    }
     if (!m || m.type !== 'score') return;
 
     const user = String(m.user || '').toLowerCase().slice(0, 60);
@@ -199,7 +224,7 @@ function startTikTok() {
 
     // While a vote is open, only the numbers 1 to 6 count, and guesses are paused
     if (voteOpen()) {
-      if (/^[1-6]$/.test(comment) && name && level >= (LEVEL[live.vote_who] || 0)) {
+      if (/^[1-8]$/.test(comment) && name && level >= (LEVEL[live.vote_who] || 0)) {
         if (voteSession !== live.vote_ends_at) { voteSession = live.vote_ends_at; voted.clear(); }
         const idx = Number(comment) - 1;
         if (!voted.has(name) && idx < (live.options || []).length) {
@@ -209,7 +234,7 @@ function startTikTok() {
         } else {
           note('vote ignored (already voted, or no such card)');
         }
-      } else if (/^[1-6]$/.test(comment)) {
+      } else if (/^[1-8]$/.test(comment)) {
         note('vote blocked: only "' + (live.vote_who || 'all') + '" can vote');
       } else {
         note('dropped: a vote is open, guesses are paused');

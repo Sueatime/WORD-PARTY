@@ -85,12 +85,12 @@ function poll(){
 }
 function openVote(){
   var names=MENU.map(function(m){return m[0]}).filter(function(n){return n!==S.game});
-  patch({options:rnd(names,6),votes:[0,0,0,0,0,0],vote_ends_at:iso(Date.now()+S.vote_secs*1000),log:"Vote opened"});
+  patch({options:rnd(names,8),votes:[0,0,0,0,0,0,0,0],vote_ends_at:iso(Date.now()+S.vote_secs*1000),log:"Vote opened"});
 }
 function closeVote(){
   var m=Math.max.apply(null,S.votes),w="";
   if(m>0)w=rnd(S.options.filter(function(o,i){return S.votes[i]===m}),1)[0];
-  return patch({game:w||S.game,round:S.round+1,options:[],votes:[0,0,0,0,0,0],vote_ends_at:"",next_vote_at:iso(Date.now()+S.interval_min*60000),log:w?"Vote won: "+w:"No votes, same game"});
+  return patch({game:w||S.game,round:S.round+1,options:[],votes:[0,0,0,0,0,0,0,0],vote_ends_at:"",next_vote_at:iso(Date.now()+S.interval_min*60000),log:w?"Vote won: "+w:"No votes, same game"});
 }
 function draw(){
   $("gm").textContent=ic(S.game)+" "+S.game+" · Round "+S.round;
