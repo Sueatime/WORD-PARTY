@@ -74,7 +74,7 @@ var M={};function gi(l){return M[l]}
 function pat(w){return w.split("").map(gi).join("")}
 var W=[],X=[],SET={};
 
-function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=7&&!/S$/.test(w)});g.forEach(function(w){if(w.length>=3&&w.length<=8)SET[w]=1});W.forEach(function(w){SET[w]=1})}
+function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=7&&!/S$/.test(w)});g.forEach(function(w){if(w.length>=3&&w.length<=7)SET[w]=1});W.forEach(function(w){SET[w]=1})}
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean).map(function(w){return w.toUpperCase()})})}
 var kp,words,found,g,sc=0,rounds=0;
 function $(i){return document.getElementById(i)}
