@@ -1,116 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="robots" content="noindex">
-<title>Word Party Live</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#14122b;--card:#211e45;--ink:#f3f1ff;--mu:#a9a5d1}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Fredoka",system-ui,sans-serif;overflow:hidden}
-#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-#bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;font-size:22px;font-weight:600;flex:none}
-#bar .live{background:#e11d48;border-radius:8px;padding:2px 10px;font-size:16px;font-weight:700}
-#bar .guide{color:#c9b3ff;font-size:20px;text-align:center;flex:1}
-#bar .rd{background:#332e66;border-radius:99px;padding:2px 14px;font-size:18px}
-#wrap{position:relative;flex:1;min-height:0}
-iframe{width:100%;height:100%;border:0;background:var(--bg)}
-#ov{position:absolute;inset:0;background:rgba(20,18,43,.8);display:flex;align-items:flex-start;justify-content:center;padding:clamp(52px,6.5vh,84px) 14px 14px;overflow:auto}
-#ov[hidden]{display:none}
-#pn{width:100%;max-width:700px}
-#pn h2{margin:0 0 clamp(6px,1.2vh,14px);text-align:center;font-size:clamp(20px,3.8vh,32px);font-weight:700;color:#fff;background:#a46bff;border-radius:clamp(12px,2vh,18px);padding:clamp(7px,1.3vh,14px) 10px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(6px,1.2vh,12px)}
-.g{position:relative;background:var(--card);border-bottom:clamp(4px,.7vh,6px) solid var(--a);border-radius:clamp(12px,2vh,18px);padding:clamp(7px,1.3vh,14px) 6px clamp(5px,1vh,10px);font-weight:600;text-align:center;display:flex;flex-direction:column;align-items:center;gap:clamp(2px,.5vh,6px)}
-.g .ic{width:clamp(34px,6.8vh,60px);height:clamp(34px,6.8vh,60px);border-radius:clamp(9px,1.6vh,16px);background:var(--a);display:grid;place-items:center;font-size:clamp(20px,3.8vh,34px)}
-.g b{font-size:clamp(14px,2.5vh,22px);line-height:1.1}
-.g .pr{display:flex;align-items:baseline;justify-content:center;gap:8px}
-.g .pc{font-size:clamp(20px,3.8vh,32px);font-weight:700;line-height:1}
-.g em{font-style:normal;font-size:clamp(11px,1.9vh,16px);opacity:.85}
-.g.lead{outline:3px solid #fff;outline-offset:-3px}
-.g small{position:absolute;top:clamp(4px,.8vh,8px);left:clamp(4px,.8vh,8px);width:clamp(24px,3.8vh,36px);height:clamp(24px,3.8vh,36px);border-radius:50%;border:2.5px solid #fff;display:grid;place-items:center;font-size:clamp(14px,2.2vh,20px);font-weight:700}
-#cd{text-align:center;font-size:clamp(22px,3.8vh,32px);font-weight:700;margin-top:clamp(6px,1.2vh,14px)}
-#hint{text-align:center;color:var(--mu);font-size:clamp(13px,2vh,18px);margin-top:4px}
-#wait{padding:40px;text-align:center;color:var(--mu);font-size:24px}
-@media(max-width:560px){#bar{font-size:18px}}
-</style>
-</head>
-<body>
-<div id="app">
-  <div id="bar"><span class="live">LIVE</span><span id="gm"></span><span class="guide" id="gd"></span><span class="rd" id="rd"></span></div>
-  <div id="wrap">
-    <div id="wait">Waiting for the host to start…</div>
-    <iframe id="fr" title="Game" hidden></iframe>
-    <div id="ov" hidden><div id="pn"><h2>Vote for the next game</h2><div class="grid" id="gr"></div><div id="cd"></div><div id="hint"></div></div></div>
-  </div>
-</div>
-<script src="live-config.js"></script>
-<script>
-var $=function(i){return document.getElementById(i)},S=null,cur="",EXP="",shown="",inMenu=false,lastHint=null;
-function poll(){
-  getState().then(function(s){
-    if(!s||!s.game)return;
-    var key=s.game+"|"+s.round;
-    if(key!==cur){cur=key;EXP=slug(s.game);shown=s.game;inMenu=false;$("fr").src=EXP+"/";$("fr").hidden=false;$("wait").hidden=true}
-    S=s;draw();
-    if(typeof s.hint_count==="number"){
-      if(lastHint===null)lastHint=s.hint_count;
-      else if(s.hint_count>lastHint){
-        lastHint=s.hint_count;
-        try{$("fr").contentWindow.postMessage({type:"wp_hint"},"*")}catch(e){}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex">
+  <title>Word Party Live</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #14122b;
+      --card: #211e45;
+      --ink: #f3f1ff;
+      --mu: #a9a5d1
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Fredoka", system-ui, sans-serif;
+      overflow: hidden
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    #bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      font-size: 22px;
+      font-weight: 600;
+      flex: none
+    }
+
+    #bar .live {
+      background: #e11d48;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 16px;
+      font-weight: 700
+    }
+
+    #bar .guide {
+      color: #c9b3ff;
+      font-size: 20px;
+      text-align: center;
+      flex: 1
+    }
+
+    #bar .rd {
+      background: #332e66;
+      border-radius: 99px;
+      padding: 2px 14px;
+      font-size: 18px
+    }
+
+    #wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--bg)
+    }
+
+    #ov {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 18, 43, .8);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: clamp(52px, 6.5vh, 84px) 14px 14px;
+      overflow: hidden
+    }
+
+    #ov[hidden] {
+      display: none
+    }
+
+    #pn {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
+
+    #pn h2 {
+      flex: none;
+      margin: 0 0 clamp(4px, 1vh, 14px);
+      text-align: center;
+      font-size: clamp(18px, min(3.8vh, 6vw), 32px);
+      font-weight: 700;
+      color: #fff;
+      background: #a46bff;
+      border-radius: clamp(12px, 2vh, 18px);
+      padding: clamp(5px, 1.1vh, 14px) 10px
+    }
+
+    .grid {
+      flex: 1 1 0;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(0, 1fr);
+      gap: clamp(5px, 1vh, 12px)
+    }
+
+    .g {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--card);
+      border-bottom: clamp(3px, .6vh, 6px) solid var(--a);
+      border-radius: clamp(12px, 2vh, 18px);
+      padding: clamp(3px, .8vh, 14px) 6px clamp(3px, .6vh, 10px);
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(1px, .4vh, 6px)
+    }
+
+    .g .ic {
+      flex: none;
+      width: clamp(26px, min(5.6vh, 11vw), 60px);
+      height: clamp(26px, min(5.6vh, 11vw), 60px);
+      border-radius: clamp(8px, 1.5vh, 16px);
+      background: var(--a);
+      display: grid;
+      place-items: center;
+      font-size: clamp(16px, min(3.2vh, 6vw), 34px)
+    }
+
+    .g b {
+      font-size: clamp(11px, min(2.3vh, 4.2vw), 22px);
+      line-height: 1.1
+    }
+
+    .g .pr {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px
+    }
+
+    .g .pc {
+      font-size: clamp(16px, min(3.4vh, 6vw), 32px);
+      font-weight: 700;
+      line-height: 1
+    }
+
+    .g em {
+      font-style: normal;
+      font-size: clamp(10px, min(1.8vh, 3.2vw), 16px);
+      opacity: .85
+    }
+
+    .g.lead {
+      outline: 3px solid #fff;
+      outline-offset: -3px
+    }
+
+    .g small {
+      position: absolute;
+      top: clamp(3px, .7vh, 8px);
+      left: clamp(3px, .7vh, 8px);
+      width: clamp(20px, min(3.6vh, 6vw), 36px);
+      height: clamp(20px, min(3.6vh, 6vw), 36px);
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      display: grid;
+      place-items: center;
+      font-size: clamp(12px, min(2.1vh, 3.8vw), 20px);
+      font-weight: 700
+    }
+
+    #cd {
+      flex: none;
+      text-align: center;
+      font-size: clamp(18px, min(3.6vh, 6vw), 32px);
+      font-weight: 700;
+      margin-top: clamp(4px, 1vh, 14px)
+    }
+
+    #hint {
+      flex: none;
+      text-align: center;
+      color: var(--mu);
+      font-size: clamp(12px, min(1.9vh, 3.6vw), 18px);
+      margin-top: 2px
+    }
+
+    #wait {
+      padding: 40px;
+      text-align: center;
+      color: var(--mu);
+      font-size: 24px
+    }
+
+    @media(max-width:560px) {
+      #bar {
+        font-size: 18px
       }
     }
-  }).catch(function(){});
-}
-function draw(){
-  var sg=shown||S.game;$("gm").textContent=inMenu?"\uD83C\uDFE0 Choose a game":ic(sg)+" "+sg;
-  
-  var g=S.guide?"Type your guess in the chat!":"";
-  if(g&&S.play_who&&S.play_who!=="all")g+=" ("+SHORT[S.play_who]+" only)";
-  $("gd").textContent=g;
-  var voting=!!S.vote_ends_at;
-  $("ov").hidden=!voting;
-  if(voting){
-    var tot=0;S.votes.forEach(function(v){tot+=v});tot=tot||1;var mx=Math.max.apply(null,S.votes);
-    $("gr").innerHTML=(S.options||[]).map(function(o,i){
-      return '<div class="g'+(mx>0&&S.votes[i]===mx?' lead':'')+'" style="--a:'+acc(o)+'"><small>'+(i+1)+'</small><div class="ic">'+ic(o)+'</div><b>'+o+'</b><div class="pr"><strong class="pc">'+Math.round(S.votes[i]/tot*100)+'%</strong><em>'+S.votes[i]+' votes</em></div></div>';
-    }).join("");
-    $("hint").textContent="Type 1 to 8 in the chat to vote"+((S.vote_who&&S.vote_who!=="all")?" ("+SHORT[S.vote_who]+" only)":"");
-  }
-}
-function tick(){
-  if(!S)return;
-  var n=Date.now(),e=S.vote_ends_at?new Date(S.vote_ends_at).getTime():0,d=S.next_vote_at?new Date(S.next_vote_at).getTime():0;
-  if(e){var t=fmt(e-n);$("cd").textContent="Voting ends in "+t;$("rd").textContent="Voting "+t}
-  else if(d&&n>=d)$("rd").textContent="Vote after this round";
-  else if(d)$("rd").textContent="Next vote in "+fmt(d-n);
-}
-// The menu button inside the game works. A game picked from the menu becomes the live game
-// and the vote countdown starts again from that moment.
-function chooseGame(name){
-  var code=null;try{code=localStorage.getItem("wp_code")}catch(e){}
-  if(!code||!S||S.vote_ends_at)return;
-  var old=cur,rd=(Number(S.round)||0)+1,im=Number(S.interval_min)||20;
-  cur=name+"|"+rd;
-  rpc("set_state",{code:code,patch:{game:name,round:rd,next_vote_at:new Date(Date.now()+im*60000).toISOString(),log:"Game chosen from the menu: "+name}})
-    .then(function(ok){if(ok!==true)cur=old}).catch(function(){cur=old});
-}
-$("fr").addEventListener("load",function(){
-  try{
-    var w=$("fr").contentWindow;
-    if(w.location.href==="about:blank")return;
-    var p=w.location.pathname.split("/").filter(Boolean);
-    var f=/\./.test(p[p.length-1]||"")?p[p.length-2]:p[p.length-1];
-    var name="";for(var i=0;i<MENU.length;i++)if(MENU[i][2]===f)name=MENU[i][0];
-    if(!name){inMenu=true;if(S)draw();return}
-    inMenu=false;shown=name;
-    if(S&&name!==S.game)chooseGame(name);
-    if(S)draw();
-  }catch(e){}
-});
-poll();setInterval(poll,1500);setInterval(tick,500);
-</script>
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="bar"><span class="live">LIVE</span><span id="gm"></span><span class="guide" id="gd"></span><span class="rd"
+        id="rd"></span></div>
+    <div id="wrap">
+      <div id="wait">Waiting for the host to start…</div>
+      <iframe id="fr" title="Game" hidden></iframe>
+      <div id="ov" hidden>
+        <div id="pn">
+          <h2>Vote for the next game</h2>
+          <div class="grid" id="gr"></div>
+          <div id="cd"></div>
+          <div id="hint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="live-config.js"></script>
+  <script>
+    var $ = function (i) { return document.getElementById(i) }, S = null, cur = "", EXP = "", shown = "", inMenu = false, lastHint = null;
+    function poll() {
+      getState().then(function (s) {
+        if (!s || !s.game) return;
+        var key = s.game + "|" + s.round;
+        if (key !== cur) { cur = key; EXP = slug(s.game); shown = s.game; inMenu = false; $("fr").src = EXP + "/"; $("fr").hidden = false; $("wait").hidden = true }
+        S = s; draw();
+        if (typeof s.hint_count === "number") {
+          if (lastHint === null) lastHint = s.hint_count;
+          else if (s.hint_count > lastHint) {
+            lastHint = s.hint_count;
+            try { $("fr").contentWindow.postMessage({ type: "wp_hint" }, "*") } catch (e) { }
+          }
+        }
+      }).catch(function () { });
+    }
+    function draw() {
+      var sg = shown || S.game; $("gm").textContent = inMenu ? "\uD83C\uDFE0 Choose a game" : ic(sg) + " " + sg;
+
+      var g = S.guide ? "Type your guess in the chat!" : "";
+      if (g && S.play_who && S.play_who !== "all") g += " (" + SHORT[S.play_who] + " only)";
+      $("gd").textContent = g;
+      var voting = !!S.vote_ends_at;
+      $("ov").hidden = !voting;
+      if (voting) {
+        var tot = 0; S.votes.forEach(function (v) { tot += v }); tot = tot || 1; var mx = Math.max.apply(null, S.votes);
+        $("gr").innerHTML = (S.options || []).map(function (o, i) {
+          return '<div class="g' + (mx > 0 && S.votes[i] === mx ? ' lead' : '') + '" style="--a:' + acc(o) + '"><small>' + (i + 1) + '</small><div class="ic">' + ic(o) + '</div><b>' + o + '</b><div class="pr"><strong class="pc">' + Math.round(S.votes[i] / tot * 100) + '%</strong><em>' + S.votes[i] + ' votes</em></div></div>';
+        }).join("");
+        $("hint").textContent = "Type 1 to 8 in the chat to vote" + ((S.vote_who && S.vote_who !== "all") ? " (" + SHORT[S.vote_who] + " only)" : "");
+      }
+    }
+    function tick() {
+      if (!S) return;
+      var n = Date.now(), e = S.vote_ends_at ? new Date(S.vote_ends_at).getTime() : 0, d = S.next_vote_at ? new Date(S.next_vote_at).getTime() : 0;
+      if (e) { var t = fmt(e - n); $("cd").textContent = "Voting ends in " + t; $("rd").textContent = "Voting " + t }
+      else if (d && n >= d) $("rd").textContent = "Vote after this round";
+      else if (d) $("rd").textContent = "Next vote in " + fmt(d - n);
+    }
+    // The menu button inside the game works. A game picked from the menu becomes the live game
+    // and the vote countdown starts again from that moment.
+    function chooseGame(name) {
+      var code = null; try { code = localStorage.getItem("wp_code") } catch (e) { }
+      if (!code || !S || S.vote_ends_at) return;
+      var old = cur, rd = (Number(S.round) || 0) + 1, im = Number(S.interval_min) || 20;
+      cur = name + "|" + rd;
+      rpc("set_state", { code: code, patch: { game: name, round: rd, next_vote_at: new Date(Date.now() + im * 60000).toISOString(), log: "Game chosen from the menu: " + name } })
+        .then(function (ok) { if (ok !== true) cur = old }).catch(function () { cur = old });
+    }
+    $("fr").addEventListener("load", function () {
+      try {
+        var w = $("fr").contentWindow;
+        if (w.location.href === "about:blank") return;
+        var p = w.location.pathname.split("/").filter(Boolean);
+        var f = /\./.test(p[p.length - 1] || "") ? p[p.length - 2] : p[p.length - 1];
+        var name = ""; for (var i = 0; i < MENU.length; i++)if (MENU[i][2] === f) name = MENU[i][0];
+        if (!name) { inMenu = true; if (S) draw(); return }
+        inMenu = false; shown = name;
+        if (S && name !== S.game) chooseGame(name);
+        if (S) draw();
+      } catch (e) { }
+    });
+    poll(); setInterval(poll, 1500); setInterval(tick, 500);
+  </script>
 </body>
+
 </html>
