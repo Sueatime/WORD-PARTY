@@ -78,9 +78,9 @@ var W=[],ALL={},SET={},BY={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
 function plural(w){if(w.slice(-1)!=="S")return false;if(ALL[w.slice(0,-1)])return true;if(/ES$/.test(w)&&ALL[w.slice(0,-2)])return true;if(/IES$/.test(w)&&ALL[w.slice(0,-3)+"Y"])return true;return false}
 function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u);ALL={};SET={};BY={};
- W.concat(g).forEach(function(w){if(/^[A-Z]+$/.test(w)&&w.length>=3&&w.length<=7&&/[AEIOUY]/.test(w))ALL[w]=1});
- Object.keys(ALL).forEach(function(w){if(!plural(w))SET[w]=1});
- W.forEach(function(w){if(SET[w]&&w.length<=7)(BY[w.length]=BY[w.length]||[]).push(w)})}
+W.concat(g).forEach(function(w){if(/^[A-Z]+$/.test(w)&&w.length>=3&&w.length<=7&&/[AEIOUY]/.test(w))ALL[w]=1});
+Object.keys(ALL).forEach(function(w){if(!plural(w))SET[w]=1});
+W.forEach(function(w){if(SET[w]&&w.length<=7)(BY[w.length]=BY[w.length]||[]).push(w)})}
 var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 function $(i){return document.getElementById(i)}
 var COL={R:"gr",M:"ye",A:"mm"};
@@ -105,7 +105,7 @@ d.className="tile"+(cu?" cur":"");d.textContent=g[i]||"";p.appendChild(d)}
 p.style.display=done?"none":"flex";
 $("hist").innerHTML="";hist.slice().reverse().forEach(function(h){$("hist").appendChild(hrow(h))});
 buildAbc();var kk=$("kbd");if(kk&&kk.value!==g.join(""))kk.value=g.join("")}
-function load(){window.newRound&&window.newRound();var L=3+Math.floor(Math.random()*5),pool=BY[L];
+function load(){window.newRound&&window.newRound();var L=Math.random()<0.1?7:3+Math.floor(Math.random()*4),pool=BY[L];
 target=pool[Math.floor(Math.random()*pool.length)];window.reportAnswer&&window.reportAnswer(target);
 document.documentElement.style.setProperty("--n",target.length);
 hist=[];g=[];used={};done=false;gaveUp=false;
@@ -117,7 +117,7 @@ var w=g.join("");
 if(!SET[w]){$("msg").textContent=w+" is not valid.";return}
 if(!fits(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 hist.push({w:w,r:shown(tstate(w,target))});
- window.scoreGuess&&window.scoreGuess(winner,"Word Tangle",w===target);
+window.scoreGuess&&window.scoreGuess(winner,"Word Tangle",w===target);
 w.split("").forEach(function(l){used[l]=1});g=[];
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
