@@ -86,10 +86,11 @@ button.k{padding:0}
 <input id="kbd" type="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Type your word">
 <script src="../live-answer.js"></script>
 <script>
+var MAXL=7;
 var W=[],SET={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
-function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=8&&!/S$/.test(w)});
- g.forEach(function(w){if(w.length>=3&&w.length<=8)SET[w]=1});W.forEach(function(w){SET[w]=1})}
+function prep(a,g){var u={};a.forEach(function(w){u[w]=1});W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=MAXL&&!/S$/.test(w)});
+g.forEach(function(w){if(w.length>=3&&w.length<=MAXL)SET[w]=1});W.forEach(function(w){SET[w]=1})}
 var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 var TH=[["<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\" fill=\"#ff7eb6\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"3.5\" width=\"17\" height=\"17\" rx=\"1.5\" fill=\"#5ec4ff\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"12,3 22,20 2,20\" fill=\"#b68cff\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"12,2 22,12 12,22 2,12\" fill=\"#ffe94d\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"12,2.5 21.5,9.5 18,21 6,21 2.5,9.5\" fill=\"#2bff88\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"12,2 20.5,7 20.5,17 12,22 3.5,17 3.5,7\" fill=\"#ff9f5e\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"12,2 14.7,9 22,9.3 16.2,13.8 18.2,21 12,17 5.8,21 7.8,13.8 2,9.3 9.3,9\" fill=\"#4fe3d0\"/></svg>", "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polygon points=\"9,2 15,2 15,9 22,9 22,15 15,15 15,22 9,22 9,15 2,15 2,9 9,9\" fill=\"#ff6b6b\"/></svg>"], ["🐱", "🦊", "🐼", "🐸", "🦁", "🐙", "🦋", "🐢", "🦄"], ["🍎", "🍌", "🍇", "🍕", "🍩", "🍒", "🍉", "🍔", "🥕", "🍪"], ["🌵", "🌻", "🌈", "⭐", "🌙", "☀️", "⚡", "🔥", "❄️", "🍀"], ["🚀", "🛸", "🪐", "🌍", "☄️", "👽", "🛰️", "🌟", "🌙", "🔭"], ["⚽", "🏀", "🎾", "🏈", "⚾", "🎱", "🏓", "🥊", "🎯", "🏆"], ["🔑", "💎", "👑", "🎁", "🎈", "🎸", "⏰", "🔔", "🧲", "✏️"], ["🌸", "🌹", "🌻", "🌷", "🌼", "🌺", "💐", "🏵️", "🥀"], ["🥕", "🌽", "🥦", "🍅", "🥔", "🍆", "🌶️", "🥒", "🧅", "🧄", "🥬", "🍄"], ["🚗", "🚕", "🚌", "🚓", "🚑", "🚒", "🚜", "🚲", "🛵", "🚂", "✈️", "🚁", "🚢", "🏍️"], ["😀", "😂", "😍", "😎", "😡", "😴", "🤔", "😱", "🥳", "😭", "🤢", "🤪"]],ic=[];
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
@@ -113,7 +114,7 @@ p.style.display=done?"none":"flex";
 $("hist").innerHTML="";hist.forEach(function(h){$("hist").appendChild(hrow(h))});
 buildAbc()}
 function load(){window.newRound&&window.newRound();
-for(var t=0;t<400;t++){var L0=3+Math.floor(Math.random()*6),pool=W.filter(function(x){return x.length===L0});if(!pool.length)continue;var w0=pool[Math.floor(Math.random()*pool.length)];
+for(var t=0;t<400;t++){var L0=3+Math.floor(Math.random()*(MAXL-2)),pool=W.filter(function(x){return x.length===L0});if(!pool.length)continue;var w0=pool[Math.floor(Math.random()*pool.length)];
 if(L0>=5&&!rep(w0)&&t<300)continue;target=w0;break}
 window.reportAnswer&&window.reportAnswer(target);kp=mk(target);ic=shuf(TH[Math.floor(Math.random()*TH.length)]);document.documentElement.style.setProperty("--n",kp.length);
 hist=[];g=[];ks={};done=false;gaveUp=false;
@@ -138,7 +139,7 @@ if(!okColors(w)){$("msg").textContent=w+" does not fit the tiles.";return}
 var r=score(w),rk={mm:1,ye:2,gr:3};
 w.split("").forEach(function(l,i){if(!ks[l]||rk[r[i]]>rk[ks[l]])ks[l]=r[i]});
 hist.push({w:w,r:r});g=[];
- window.scoreGuess&&window.scoreGuess(winner,"Icon Spell",w===target);
+window.scoreGuess&&window.scoreGuess(winner,"Icon Spell",w===target);
 if(w===target){done=true;draw();popup();confetti();return}
 draw();$("msg").textContent=""}
 var winner="";
