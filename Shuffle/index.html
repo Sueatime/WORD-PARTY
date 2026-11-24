@@ -86,12 +86,12 @@ button.k{padding:0}
 <input id="kbd" type="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Type your word">
  <script src="../live-answer.js"></script>
 <script>
-var W=[],SET={},since8=4,USED={},BYL={};
+var W=[],SET={},USED={},BYL={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
 function prep(a,g){var u={};a.forEach(function(w){u[w]=1});
- W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=8&&!/S$/.test(w)});
+ W=Object.keys(u).filter(function(w){return w.length>=3&&w.length<=7&&!/S$/.test(w)});
  BYL={};W.forEach(function(w){(BYL[w.length]=BYL[w.length]||[]).push(w)});
- g.forEach(function(w){if(w.length>=3&&w.length<=8)SET[w]=1});W.forEach(function(w){SET[w]=1})}
+ g.forEach(function(w){if(w.length>=3&&w.length<=7)SET[w]=1});W.forEach(function(w){SET[w]=1})}
 var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
 function $(i){return document.getElementById(i)}
@@ -119,7 +119,7 @@ function drawLegend(show){var L=$("lg");L.innerHTML="";var r=document.createElem
 if(show){var m=ML.filter(function(k){return CM[k]===col})[0];d.appendChild(document.createElement("br"));d.appendChild(document.createTextNode(MN[m]))}r.appendChild(d)});L.appendChild(r);
 var n=document.createElement("div");n.className="note";n.textContent=show?"This round's meanings.":"The colors are random each round, so keep guessing and shuffle them to work it out.";L.appendChild(n)}
 function load(){window.newRound&&window.newRound();
-var L;do{L=3+Math.floor(Math.random()*6)}while(L===8&&since8<4);since8=L===8?0:since8+1;var P=BYL[L].filter(function(w){return!USED[w]});if(!P.length){BYL[L].forEach(function(w){delete USED[w]});P=BYL[L]}target=P[Math.floor(Math.random()*P.length)];USED[target]=1;kp=target;if(window.reportAnswer)window.reportAnswer(target);
+var L=3+Math.floor(Math.random()*5);var P=BYL[L].filter(function(w){return!USED[w]});if(!P.length){BYL[L].forEach(function(w){delete USED[w]});P=BYL[L]}target=P[Math.floor(Math.random()*P.length)];USED[target]=1;kp=target;if(window.reportAnswer)window.reportAnswer(target);
 document.documentElement.style.setProperty("--n",kp.length);
 hist=[];g=[];ks={};done=false;gaveUp=false;
 $("msg").textContent="";$("winbox").innerHTML="";newColors();draw()}
