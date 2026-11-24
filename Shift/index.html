@@ -89,9 +89,9 @@ h1{font-size:66px;margin-bottom:12px}
 <script>
 var WORDS={},SET={};
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
-function prep(a,g){for(var n=3;n<=8;n++)WORDS[n]=[];
- a.forEach(function(w){if(w.length>=3&&w.length<=8)WORDS[w.length].push(w)});
- g.forEach(function(w){if(w.length>=3&&w.length<=8)SET[w]=1});for(var n in WORDS)WORDS[n].forEach(function(w){SET[w]=1})}
+function prep(a,g){for(var n=3;n<=7;n++)WORDS[n]=[];
+a.forEach(function(w){if(w.length>=3&&w.length<=7)WORDS[w.length].push(w)});
+g.forEach(function(w){if(w.length>=3&&w.length<=7)SET[w]=1});for(var n in WORDS)WORDS[n].forEach(function(w){SET[w]=1})}
 var T,rows,cur,over,seen=[],winT=0;
 function $(i){return document.getElementById(i)}
 var A="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),KB={};
@@ -108,7 +108,7 @@ rows.forEach(function(w){var f=fb(w),r=document.createElement("div");r.className
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<T.length;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}
 }
 function newGame(){clearTimeout(winT);scored={};
-var L=3+Math.floor(Math.random()*6),all=WORDS[L],pool=all.filter(function(x){return seen.indexOf(x)<0}),w;
+var L=3+Math.floor(Math.random()*5),all=WORDS[L],pool=all.filter(function(x){return seen.indexOf(x)<0}),w;
 if(!pool.length){seen=[];pool=all}
 w=pool[Math.floor(Math.random()*pool.length)];seen.push(w);
 T=w;if(window.reportAnswer)window.reportAnswer(w);document.documentElement.style.setProperty("--n",w.length);rows=[];cur=[];over=false;$("msg").textContent="";render()}
@@ -124,7 +124,7 @@ if(rows.indexOf(g)>=0){reject(g,"You already tried that word.");return}
 if(!SET[g]){reject(g,g+" is not a valid word.");return}
 if(!fits(g)){reject(g,"The word does not fit the tiles.");return}
 rows.push(g);cur=[];$("msg").textContent="";
-  window.playerName=liveGuesser||"";
+window.playerName=liveGuesser||"";
 if(g===T){over=true;render();popup();confetti();if(liveGuesser)sendScore(liveGuesser,"Word Shift",5,true);return}
 if(liveGuesser&&!scored[liveGuesser]){scored[liveGuesser]=true;sendScore(liveGuesser,"Word Shift",2)}
 render()}
@@ -133,16 +133,16 @@ if(window.WinnerCard&&WinnerCard.show({game:"Word Shift",name:nm,word:T,points:5
 var d=document.createElement("div");d.className="win";d.textContent=(nm||"Player")+" won with \u2018"+T+"\u2019";var m=$("msg");m.textContent="";m.appendChild(d);clearTimeout(winT);winT=setTimeout(newGame,6000)}
 function giveUp(){if(over)return;over=true;cur=[];render();$("msg").textContent="The word was "+T+"."}
 function confetti(){
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
-  const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
-  const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
-  const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
-  let t=0;
-  (function f(){
-    x.clearRect(0,0,c.width,c.height);t++;
-    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
-    if(t<160)requestAnimationFrame(f);else c.remove();
-  })();
+if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+const c=document.createElement("canvas");c.id="confetti";c.width=innerWidth;c.height=innerHeight;document.body.append(c);
+const x=c.getContext("2d"),cols=[0,45,150,200,260,320].map(h=>`hsl(${h} 85% 55%)`);
+const ps=Array.from({length:150},()=>({x:innerWidth/2+(Math.random()-.5)*160,y:innerHeight*.35,vx:(Math.random()-.5)*15,vy:-Math.random()*13-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.floor(Math.random()*cols.length)]}));
+let t=0;
+(function f(){
+x.clearRect(0,0,c.width,c.height);t++;
+ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+if(t<160)requestAnimationFrame(f);else c.remove();
+})();
 }
 var kb=$("kbd");
 function fk(){if($("how").classList.contains("on"))return;try{kb.focus({preventScroll:true})}catch(e){}}
@@ -160,10 +160,10 @@ $("help").onclick=function(){$("how").classList.add("on")};
 $("x").onclick=function(){$("how").classList.remove("on");fk()};
 var scored={},liveGuesser=null;
 window.onLiveComment=function(user,text){
-  if(over||!/^[A-Za-z]+$/.test(text)||text.length!==T.length)return;
-  var w=text.toUpperCase();
-  if(!SET[w])return;
-  liveGuesser=user;cur=w.split("");check();liveGuesser=null;
+if(over||!/^[A-Za-z]+$/.test(text)||text.length!==T.length)return;
+var w=text.toUpperCase();
+if(!SET[w])return;
+liveGuesser=user;cur=w.split("");check();liveGuesser=null;
 };
 $("msg").textContent="Loading words...";
 Promise.all([getList("../answers.txt"),getList("../guesses.txt")]).then(function(r){prep(r[0],r[1]);newGame();fk()}).catch(function(){$("msg").textContent="Could not load the word lists."});
