@@ -32,6 +32,22 @@ h1{margin:0 0 6px;font-family:"Rubik Doodle Shadow","Outfit",system-ui,sans-seri
 .name small{display:block;color:var(--muted);font-weight:400;font-size:17px}
 .row .pv{font-size:26px}
 .empty{color:var(--muted);padding:24px}
+.gridlist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gridlist .empty{grid-column:1/-1}
+.gridlist .row{margin-bottom:0;padding:12px;gap:10px;min-width:0}
+.gridlist .medal{font-size:30px}
+.gridlist .name{font-size:20px;white-space:nowrap}
+.gridlist .name small{font-size:16px;overflow:hidden;text-overflow:ellipsis}
+.gridlist .row .pv{font-size:22px}
+@media (min-width:800px){.gridlist .name{font-size:22px}.gridlist .row .pv{font-size:26px}}
+@media (max-width:599px){
+.gridlist{gap:6px}
+.gridlist .row{padding:10px 8px;gap:6px}
+.gridlist .medal{font-size:22px}
+.gridlist .name{font-size:16px;white-space:normal;line-height:1.15}
+.gridlist .name small{font-size:13px;white-space:nowrap}
+.gridlist .row .pv{font-size:17px}
+}
 @media (min-width:800px){
 body{font-size:26px}
 main{max-width:760px;padding-top:32px}
@@ -85,7 +101,7 @@ function show(){
     games:{view:"leaderboard_by_game",col:"total",q:"&order=game.asc&select=game,viewer_name,total",title:"Top scorer for each game"}
   }[kind];
   document.getElementById("sub").textContent=cfg.title+" · "+label(selMonth);
-  pod.innerHTML="";list.innerHTML="";
+  pod.innerHTML="";list.innerHTML="";list.className=kind==="games"?"gridlist":"";document.querySelector("main").style.maxWidth=kind==="games"?"900px":"";
   list.appendChild(el("div","empty","Loading..."));
   api(cfg.view+"?month=eq."+selMonth+cfg.q).then(function(rows){
     list.innerHTML="";
