@@ -100,10 +100,11 @@
     }
 
     #pn {
-      width: 100%;
-      max-width: 700px;
+      width: 80%;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       min-height: 0
     }
 
@@ -120,12 +121,17 @@
     }
 
     .grid {
+      --gp: clamp(4px, .6vh, 8px);
+      --rh: 160px;
+      /* tallest a card may be */
       flex: 1 1 0;
       min-height: 0;
+      /* 4 rows x max card height: on tall screens the cards stop growing instead of stretching */
+      max-height: calc(var(--rh) * 4 + var(--gp) * 3);
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: clamp(100px, 12 vh, 180px);
-      gap: clamp(4px, .6vh, 8px)
+      grid-auto-rows: minmax(0, 1fr);
+      gap: var(--gp)
     }
 
     .g {
@@ -199,12 +205,46 @@
       font-weight: 700
     }
 
+    /* Size everything inside a card from the card itself (not the screen), so the icon,
+       text and card always stay in proportion on any phone, in desktop mode, or in a tall view.
+       Browsers without container query units keep the vh/vw sizes above. */
+    @supports (width: 1cqmin) {
+      .g {
+        container-type: size
+      }
+
+      .g .ic {
+        width: clamp(26px, 34cqmin, 80px);
+        height: clamp(26px, 34cqmin, 80px);
+        border-radius: clamp(8px, 7cqmin, 20px);
+        font-size: clamp(16px, 19cqmin, 44px)
+      }
+
+      .g b {
+        font-size: clamp(11px, min(14cqmin, 8.6cqw), 26px)
+      }
+
+      .g .pc {
+        font-size: clamp(16px, min(19cqmin, 12cqw), 38px)
+      }
+
+      .g em {
+        font-size: clamp(10px, min(10.5cqmin, 6.5cqw), 18px)
+      }
+
+      .g small {
+        width: clamp(20px, 19cqmin, 40px);
+        height: clamp(20px, 19cqmin, 40px);
+        font-size: clamp(12px, 11cqmin, 22px)
+      }
+    }
+
     #cd {
       flex: none;
       text-align: center;
       font-size: clamp(18px, min(3.6vh, 6vw), 32px);
       font-weight: 700;
-      margin-top: auto
+      margin-top: clamp(4px, 1vh, 12px)
     }
 
     #hint {
