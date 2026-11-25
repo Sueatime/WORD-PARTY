@@ -116,8 +116,10 @@ var q=document.createElement("div");q.className="row";code(T).forEach(function(n
 rows.forEach(function(w){var f=fb(w),r=document.createElement("div");r.className="row";w.split("").forEach(function(c,i){r.appendChild(tile(f[i],c))});g.appendChild(r)});
 if(!over){var r=document.createElement("div");r.className="row";for(var i=0;i<T.length;i++)r.appendChild(cur[i]?tile("n",cur[i]):tile("e",""));g.appendChild(r)}
 }
+var rn=0,sevenAt=0;
+function pickLen(){if(rn%8===0)sevenAt=Math.floor(Math.random()*8);var L=(rn%8===sevenAt)?7:3+Math.floor(Math.random()*4);rn++;return L}
 function newGame(){clearTimeout(winT);window.newRound&&window.newRound();
-var L=3+Math.floor(Math.random()*6),pool=W.filter(function(x){return x.length===L&&seen.indexOf(x)<0}),w;
+var L=pickLen(),pool=W.filter(function(x){return x.length===L&&seen.indexOf(x)<0}),w;
 if(!pool.length){seen=[];pool=W.filter(function(x){return x.length===L})}
 w=pool[Math.floor(Math.random()*pool.length)];seen.push(w);
 T=w;window.reportAnswer&&window.reportAnswer(w);document.documentElement.style.setProperty("--n",w.length);rows=[];cur=[];over=false;$("msg").textContent="";render()}
