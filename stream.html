@@ -104,7 +104,7 @@
       max-width: 500px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 0
     }
 
@@ -122,8 +122,8 @@
 
     .grid {
       --gp: clamp(4px, .6vh, 8px);
-      --rh: 160px;
-      /* tallest a card may be */
+      --rh: 113px;
+      /* tallest a card may be: make this number smaller for shorter cards, bigger for taller cards */
       flex: 1 1 0;
       min-height: 0;
       /* 4 rows x max card height: on tall screens the cards stop growing instead of stretching */
@@ -214,28 +214,28 @@
       }
 
       .g .ic {
-        width: clamp(26px, 34cqmin, 80px);
-        height: clamp(26px, 34cqmin, 80px);
-        border-radius: clamp(8px, 7cqmin, 20px);
-        font-size: clamp(16px, 19cqmin, 44px)
+        width: clamp(26px, 40cqmin, 70px);
+        height: clamp(26px, 40cqmin, 70px);
+        border-radius: clamp(8px, 8cqmin, 18px);
+        font-size: clamp(16px, 22cqmin, 40px)
       }
 
       .g b {
-        font-size: clamp(11px, min(14cqmin, 8.6cqw), 26px)
+        font-size: clamp(11px, min(12.5cqmin, 8.6cqw), 24px)
       }
 
       .g .pc {
-        font-size: clamp(16px, min(19cqmin, 12cqw), 38px)
+        font-size: clamp(16px, min(17cqmin, 12cqw), 34px)
       }
 
       .g em {
-        font-size: clamp(10px, min(10.5cqmin, 6.5cqw), 18px)
+        font-size: clamp(10px, min(9.5cqmin, 6.5cqw), 17px)
       }
 
       .g small {
-        width: clamp(20px, 19cqmin, 40px);
-        height: clamp(20px, 19cqmin, 40px);
-        font-size: clamp(12px, 11cqmin, 22px)
+        width: clamp(20px, 18cqmin, 36px);
+        height: clamp(20px, 18cqmin, 36px);
+        font-size: clamp(12px, 10.5cqmin, 20px)
       }
     }
 
