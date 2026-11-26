@@ -13,7 +13,21 @@
       --bg: #14122b;
       --card: #211e45;
       --ink: #f3f1ff;
-      --mu: #a9a5d1
+      --mu: #a9a5d1;
+
+      /* ===== VOTE BOX SIZE: EDIT THESE NUMBERS =====
+         --vote-width : how wide the vote box is on the screen (94% = almost full width)
+         --card-h     : height of each game box. Bigger numbers = taller boxes.
+                        Example: clamp(104px, min(27vw, 15.5vh), 160px) means "27% of the screen
+                        width, but never more than 15.5% of the screen height, and between 104px and 160px"
+         --name-scale : size of the game name (1 = normal, 1.2 = 20% bigger, 0.9 = smaller)
+         --icon-scale : size of the icon
+         --pct-scale  : size of the percentage                                              */
+      --vote-width: 94%;
+      --card-h: clamp(104px, min(27vw, 15.5vh), 160px);
+      --name-scale: 1;
+      --icon-scale: 1;
+      --pct-scale: 1
     }
 
     * {
@@ -100,8 +114,8 @@
     }
 
     #pn {
-      width: 80%;
-      max-width: 500px;
+      width: var(--vote-width);
+      max-width: 560px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -121,16 +135,11 @@
     }
 
     .grid {
-      --gp: clamp(4px, .6vh, 8px);
-      --rh: 113px;
-      /* tallest a card may be: make this number smaller for shorter cards, bigger for taller cards */
-      flex: 1 1 0;
-      min-height: 0;
-      /* 4 rows x max card height: on tall screens the cards stop growing instead of stretching */
-      max-height: calc(var(--rh) * 4 + var(--gp) * 3);
+      --gp: clamp(4px, .8vh, 8px);
+      flex: none;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: minmax(0, 1fr);
+      grid-auto-rows: var(--card-h);
       gap: var(--gp)
     }
 
@@ -214,18 +223,18 @@
       }
 
       .g .ic {
-        width: clamp(26px, 40cqmin, 70px);
-        height: clamp(26px, 40cqmin, 70px);
+        width: calc(clamp(26px, 38cqmin, 76px) * var(--icon-scale));
+        height: calc(clamp(26px, 38cqmin, 76px) * var(--icon-scale));
         border-radius: clamp(8px, 8cqmin, 18px);
-        font-size: clamp(16px, 22cqmin, 40px)
+        font-size: calc(clamp(16px, 21cqmin, 40px) * var(--icon-scale))
       }
 
       .g b {
-        font-size: clamp(11px, min(12.5cqmin, 8.6cqw), 24px)
+        font-size: calc(clamp(12px, min(16cqmin, 9.5cqw), 28px) * var(--name-scale))
       }
 
       .g .pc {
-        font-size: clamp(16px, min(17cqmin, 12cqw), 34px)
+        font-size: calc(clamp(16px, min(17cqmin, 11cqw), 34px) * var(--pct-scale))
       }
 
       .g em {
@@ -233,8 +242,8 @@
       }
 
       .g small {
-        width: clamp(20px, 18cqmin, 36px);
-        height: clamp(20px, 18cqmin, 36px);
+        width: clamp(20px, 18cqmin, 34px);
+        height: clamp(20px, 18cqmin, 34px);
         font-size: clamp(12px, 10.5cqmin, 20px)
       }
     }
