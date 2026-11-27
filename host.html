@@ -1,154 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="robots" content="noindex">
-<title>Word Party Host</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#14122b;--panel:#211e45;--ink:#f3f1ff;--mu:#a9a5d1;--pu:#a46bff;--gr:#3ecf8e;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Outfit",system-ui,sans-serif;font-size:20px;display:flex;justify-content:center}
-main{width:100%;max-width:640px;padding:40px 16px}
-h1{font-family:"Rubik Doodle Shadow","Outfit",sans-serif;font-weight:400;font-size:48px;margin:0 0 14px;text-align:center}
-.card{background:var(--panel);border-radius:18px;padding:18px;margin-bottom:14px}
-.lbl{color:var(--mu);text-transform:uppercase;letter-spacing:.08em;font-size:15px;margin-bottom:8px}
-.ans{font-size:clamp(40px,12vw,64px);font-weight:700;letter-spacing:.12em;text-align:center;color:var(--gr);margin:6px 0 12px;word-break:break-all}
-.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:14px 20px;background:var(--pu);color:#fff;cursor:pointer}
-button.alt{background:#332e66}
-input,select{font:inherit;font-size:18px;padding:10px 12px;border-radius:10px;border:2px solid #4a4486;background:var(--bg);color:var(--ink);max-width:100%}
-input[type=number]{width:80px}
-.mu{color:var(--mu);font-size:17px;text-align:center}
-.cd{font-size:30px;font-weight:700;text-align:center}
-.set{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex">
+  <title>Word Party Host</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Rubik+Doodle+Shadow&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #14122b;
+      --panel: #211e45;
+      --ink: #f3f1ff;
+      --mu: #a9a5d1;
+      --pu: #a46bff;
+      --gr: #3ecf8e;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Outfit", system-ui, sans-serif;
+      font-size: 20px;
+      display: flex;
+      justify-content: center
+    }
+
+    main {
+      width: 100%;
+      max-width: 640px;
+      padding: 40px 16px
+    }
+
+    h1 {
+      font-family: "Rubik Doodle Shadow", "Outfit", sans-serif;
+      font-weight: 400;
+      font-size: 48px;
+      margin: 0 0 14px;
+      text-align: center
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px
+    }
+
+    .lbl {
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 15px;
+      margin-bottom: 8px
+    }
+
+    .ans {
+      font-size: clamp(40px, 12vw, 64px);
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-align: center;
+      color: var(--gr);
+      margin: 6px 0 12px;
+      word-break: break-all
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px
+    }
+
+    button {
+      font: inherit;
+      font-weight: 600;
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 20px;
+      background: var(--pu);
+      color: #fff;
+      cursor: pointer
+    }
+
+    button.alt {
+      background: #332e66
+    }
+
+    input,
+    select {
+      font: inherit;
+      font-size: 18px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #4a4486;
+      background: var(--bg);
+      color: var(--ink);
+      max-width: 100%
+    }
+
+    input[type=number] {
+      width: 80px
+    }
+
+    .mu {
+      color: var(--mu);
+      font-size: 17px;
+      text-align: center
+    }
+
+    .cd {
+      font-size: 30px;
+      font-weight: 700;
+      text-align: center
+    }
+
+    .set {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px
+    }
+  </style>
 </head>
+
 <body>
-<main>
-<h1>Live Host</h1>
+  <main>
+    <h1>Live Host</h1>
 
-<div id="login" class="card">
-  <div class="lbl">Host code</div>
-  <input id="code" type="password" placeholder="Type your host code">
-  <button id="save">Save</button>
-  <p class="mu" id="lmsg"></p>
-</div>
+    <div id="login" class="card">
+      <div class="lbl">Host code</div>
+      <input id="code" type="password" placeholder="Type your host code">
+      <button id="save">Save</button>
+      <p class="mu" id="lmsg"></p>
+    </div>
 
-<div id="panel" hidden>
-  <div class="card">
-    <div class="lbl" id="gm">Current game</div>
-    <div class="ans" id="ans">—</div>
-    <div class="btns"><button id="solve">Round solved ✓</button><button class="alt" id="hintbtn">💡 Hint</button></div>
-    <p class="mu" id="hmsg"></p>
-  </div>
-  <div class="card">
-    <div class="lbl">Next-game vote</div>
-    <div class="cd" id="cd">…</div>
-    <div class="btns"><button id="vnow">Start vote now</button><button class="alt" id="vdue">Vote after this round</button></div>
-    <div class="btns" id="sim"></div>
-  </div>
-  <div class="card">
-    <div class="lbl">Choose a game</div>
-    <select id="cg"></select> <button class="alt" id="cgo">Switch game now</button>
-  </div>
-  <div class="card">
-    <div class="lbl">Test answer (until games send it)</div>
-    <input id="ta" placeholder="Type any word"> <button class="alt" id="tabtn">Set answer</button>
-  </div>
-  <div class="card">
-    <div class="lbl">Settings</div>
-    <div class="set"><label>Vote every <input type="number" id="im" min="1"> min</label><label>Vote lasts <input type="number" id="vs" min="10"> sec</label></div>
-    <div class="set"><label>Who can play <select id="pw"></select></label></div>
-    <div class="set"><label>Who can vote <select id="vw"></select></label></div>
-    <div class="set"><label><input type="checkbox" id="gd"> Show play guide</label> <button class="alt" id="sset">Save settings</button></div>
-  </div>
-  <p class="mu" id="log"></p>
-  <p class="mu">Keep this page open during the live: it closes each vote.</p>
-</div>
-</main>
-<script src="live-config.js"></script>
-<script>
-var $=function(i){return document.getElementById(i)},S=null,CODE=localStorage.getItem("wp_code")||"",busy=false,filled=false;
-function rnd(a,n){return a.slice().sort(function(){return Math.random()-.5}).slice(0,n)}
-function iso(ms){return new Date(ms).toISOString()}
-function patch(p){return rpc("set_state",{code:CODE,patch:p}).then(function(ok){if(ok!==true)$("log").textContent="Host code not accepted";return poll()})}
-function poll(){
-  if(CODE)rpc("get_answer",{code:CODE}).then(function(a){var t=(typeof a==="string"&&a)?a:"—";$("ans").textContent=t;$("ans").style.fontSize=t.length>14?"26px":"";$("ans").style.letterSpacing=t.length>14?"0":""}).catch(function(){});
-  return getState().then(function(s){
-    if(!s)return;S=s;
-    if(!S.game){return patch({game:rnd(MENU,1)[0][0],next_vote_at:iso(Date.now()+S.interval_min*60000)})}
-    draw();
-  }).catch(function(){});
-}
-function openVote(){
-  var names=MENU.map(function(m){return m[0]}).filter(function(n){return n!==S.game});
-  patch({options:rnd(names,8),votes:[0,0,0,0,0,0,0,0],vote_ends_at:iso(Date.now()+S.vote_secs*1000),log:"Vote opened"});
-}
-function closeVote(){
-  var m=Math.max.apply(null,S.votes),w="";
-  if(m>0)w=rnd(S.options.filter(function(o,i){return S.votes[i]===m}),1)[0];
-  return patch({game:w||S.game,round:S.round+1,options:[],votes:[0,0,0,0,0,0,0,0],vote_ends_at:"",next_vote_at:iso(Date.now()+S.interval_min*60000),log:w?"Vote won: "+w:"No votes, same game"});
-}
-function draw(){
-  $("gm").textContent=ic(S.game)+" "+S.game+" · Round "+S.round;
-  var hasHint=HINT_GAMES.indexOf(S.game)>=0;$("hintbtn").disabled=!hasHint;
-  if(!hasHint&&!$("hmsg").textContent)$("hmsg").textContent="This game has no hint button.";
-  else if(hasHint&&$("hmsg").textContent==="This game has no hint button.")$("hmsg").textContent="";
-  $("log").textContent=S.log||"";
-  var sim=$("sim");sim.innerHTML="";
-  if(S.vote_ends_at)(S.options||[]).forEach(function(o,i){
-    var b=document.createElement("button");b.className="alt";
-    b.textContent=ic(o)+" "+(i+1)+" · "+o+" ("+S.votes[i]+")";
-    b.onclick=function(){var v=S.votes.slice();v[i]++;patch({votes:v})};
-    sim.appendChild(b);
-  });
-  if(!filled){
-    filled=true;
-    $("im").value=S.interval_min;$("vs").value=S.vote_secs;$("gd").checked=!!S.guide;
-    ["pw","vw"].forEach(function(id){var s=$(id);Object.keys(WHO).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=WHO[k];s.appendChild(o)})});
-    $("pw").value=S.play_who||"all";$("vw").value=S.vote_who||"all";
-  }
-}
-function tick(){
-  if(!S)return;
-  var n=Date.now(),e=S.vote_ends_at?new Date(S.vote_ends_at).getTime():0,d=S.next_vote_at?new Date(S.next_vote_at).getTime():0;
-  $("cd").textContent=e?"Voting ends in "+fmt(e-n):(d&&n>=d?"Vote opens when this round ends":"Next vote in "+fmt(d-n));
-  if(e&&n>=e&&!busy){busy=true;closeVote().then(function(){busy=false})}
-}
-$("solve").onclick=function(){
-  if(!S||S.vote_ends_at)return;
-  if(S.next_vote_at&&Date.now()>=new Date(S.next_vote_at).getTime())openVote();
-  else patch({round:S.round+1,log:"Round solved"});
-};
-var HINT_GAMES=["Guess the Country","Word Chain","Secret Word","Word Related","Emoji Words","Word Jumble","Survey Says","Guess the Picture"],hmT;
-$("hintbtn").onclick=function(){
-  if(!CODE)return;
-  rpc("send_hint",{code:CODE}).then(function(ok){
-    $("hmsg").textContent=ok===true?"Hint sent to the stream":"Hint not sent. Run the new SQL step first.";
-    clearTimeout(hmT);hmT=setTimeout(function(){$("hmsg").textContent=""},3000);
-  }).catch(function(){$("hmsg").textContent="Hint not sent."});
-};
-$("vnow").onclick=function(){if(S&&!S.vote_ends_at)openVote()};
-$("vdue").onclick=function(){if(S&&!S.vote_ends_at)patch({next_vote_at:iso(Date.now()),log:"Vote will open when this round ends"})};
-$("tabtn").onclick=function(){var w=$("ta").value.trim().toUpperCase();if(w)rpc("set_answer",{code:CODE,new_answer:w}).then(poll)};
-$("sset").onclick=function(){
-  var im=+$("im").value||20,p={interval_min:im,vote_secs:+$("vs").value||35,guide:$("gd").checked,play_who:$("pw").value,vote_who:$("vw").value,log:"Settings saved"};
-  if(S&&!S.vote_ends_at)p.next_vote_at=iso(Date.now()+im*60000);
-  patch(p)};
-MENU.forEach(function(m){var o=document.createElement("option");o.value=m[0];o.textContent=m[1]+" "+m[0];$("cg").appendChild(o)});
-$("cgo").onclick=function(){if(S&&!S.vote_ends_at)patch({game:$("cg").value,round:S.round+1,log:"Host chose "+$("cg").value})};
-function enter(c){
-  rpc("set_state",{code:c,patch:{}}).then(function(ok){
-    if(ok===true){CODE=c;localStorage.setItem("wp_code",c);$("login").hidden=true;$("panel").hidden=false;poll();setInterval(poll,2000);setInterval(tick,1000)}
-    else{$("lmsg").textContent="That code is not right, or the SQL steps are not finished.";$("login").hidden=false}
-  }).catch(function(){$("lmsg").textContent="Could not reach Supabase."});
-}
-$("save").onclick=function(){var c=$("code").value.trim();if(c)enter(c)};
-if(CODE)enter(CODE);
-</script>
-<script src="back-to-menu.js"></script>
+    <div id="panel" hidden>
+      <div class="card">
+        <div class="lbl" id="gm">Current game</div>
+        <div class="ans" id="ans">—</div>
+        <div class="btns"><button id="solve">Round solved ✓</button><button class="alt" id="hintbtn">💡 Hint</button>
+        </div>
+        <p class="mu" id="hmsg"></p>
+      </div>
+      <div class="card">
+        <div class="lbl">Next-game vote</div>
+        <div class="cd" id="cd">…</div>
+        <div class="btns"><button id="vnow">Start vote now</button><button class="alt" id="vdue">Vote after this
+            round</button></div>
+        <div class="btns" id="sim"></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Choose a game</div>
+        <select id="cg"></select> <button class="alt" id="cgo">Switch game now</button>
+      </div>
+      <div class="card">
+        <div class="lbl">Test answer (until games send it)</div>
+        <input id="ta" placeholder="Type any word"> <button class="alt" id="tabtn">Set answer</button>
+      </div>
+      <div class="card">
+        <div class="lbl">Settings</div>
+        <div class="set"><label>Vote every <input type="number" id="im" min="1"> min</label><label>Vote lasts <input
+              type="number" id="vs" min="10"> sec</label></div>
+        <div class="set"><label>Who can play <select id="pw"></select></label></div>
+        <div class="set"><label>Who can vote <select id="vw"></select></label></div>
+        <div class="set"><label><input type="checkbox" id="gd"> Show play guide</label> <button class="alt"
+            id="sset">Save settings</button></div>
+      </div>
+      <p class="mu" id="log"></p>
+      <p class="mu">The relay closes each vote. Keep this page open as a backup.</p>
+    </div>
+  </main>
+  <script src="live-config.js"></script>
+  <script>
+    var $ = function (i) { return document.getElementById(i) }, S = null, CODE = localStorage.getItem("wp_code") || "", busy = false, filled = false;
+    function rnd(a, n) { return a.slice().sort(function () { return Math.random() - .5 }).slice(0, n) }
+    function iso(ms) { return new Date(ms).toISOString() }
+    function patch(p) { return rpc("set_state", { code: CODE, patch: p }).then(function (ok) { if (ok !== true) $("log").textContent = "Host code not accepted"; return poll() }) }
+    function poll() {
+      if (CODE) rpc("get_answer", { code: CODE }).then(function (a) { var t = (typeof a === "string" && a) ? a : "—"; $("ans").textContent = t; $("ans").style.fontSize = t.length > 14 ? "26px" : ""; $("ans").style.letterSpacing = t.length > 14 ? "0" : "" }).catch(function () { });
+      return getState().then(function (s) {
+        if (!s) return; S = s;
+        if (!S.game) { return patch({ game: rnd(MENU, 1)[0][0], next_vote_at: iso(Date.now() + S.interval_min * 60000) }) }
+        draw();
+      }).catch(function () { });
+    }
+    function openVote() {
+      var names = MENU.map(function (m) { return m[0] }).filter(function (n) { return n !== S.game });
+      patch({ options: rnd(names, 8), votes: [0, 0, 0, 0, 0, 0, 0, 0], vote_ends_at: iso(Date.now() + S.vote_secs * 1000), log: "Vote opened" });
+    }
+    // The relay closes each vote. This page only steps in if a vote is still open 15 seconds late.
+    var LATE_MS = 15000;
+    function closeVote() {
+      return getState().then(function (s) {
+        if (!s || !s.vote_ends_at || Date.now() < new Date(s.vote_ends_at).getTime() + LATE_MS) return;
+        var m = Math.max.apply(null, s.votes), w = "";
+        if (m > 0) w = rnd(s.options.filter(function (o, i) { return s.votes[i] === m }), 1)[0];
+        return patch({ game: w || s.game, round: s.round + 1, options: [], votes: [0, 0, 0, 0, 0, 0, 0, 0], vote_ends_at: "", next_vote_at: iso(Date.now() + s.interval_min * 60000), log: w ? "Vote won: " + w : "No votes, same game" });
+      });
+    }
+    function draw() {
+      $("gm").textContent = ic(S.game) + " " + S.game + " · Round " + S.round;
+      var hasHint = HINT_GAMES.indexOf(S.game) >= 0; $("hintbtn").disabled = !hasHint;
+      if (!hasHint && !$("hmsg").textContent) $("hmsg").textContent = "This game has no hint button.";
+      else if (hasHint && $("hmsg").textContent === "This game has no hint button.") $("hmsg").textContent = "";
+      $("log").textContent = S.log || "";
+      var sim = $("sim"); sim.innerHTML = "";
+      if (S.vote_ends_at) (S.options || []).forEach(function (o, i) {
+        var b = document.createElement("button"); b.className = "alt"; b.disabled = true;
+        b.textContent = ic(o) + " " + (i + 1) + " · " + o + " (" + S.votes[i] + ")";
+        sim.appendChild(b);
+      });
+      if (!filled) {
+        filled = true;
+        $("im").value = S.interval_min; $("vs").value = S.vote_secs; $("gd").checked = !!S.guide;
+        ["pw", "vw"].forEach(function (id) { var s = $(id); Object.keys(WHO).forEach(function (k) { var o = document.createElement("option"); o.value = k; o.textContent = WHO[k]; s.appendChild(o) }) });
+        $("pw").value = S.play_who || "all"; $("vw").value = S.vote_who || "all";
+      }
+    }
+    function tick() {
+      if (!S) return;
+      var n = Date.now(), e = S.vote_ends_at ? new Date(S.vote_ends_at).getTime() : 0, d = S.next_vote_at ? new Date(S.next_vote_at).getTime() : 0;
+      $("cd").textContent = e ? (n < e ? "Voting ends in " + fmt(e - n) : "Counting votes…") : (d && n >= d ? "Vote opens when this round ends" : "Next vote in " + fmt(d - n));
+      if (e && n >= e + LATE_MS && !busy) { busy = true; closeVote().catch(function () { }).then(function () { busy = false }) }
+    }
+    $("solve").onclick = function () {
+      if (!S || S.vote_ends_at) return;
+      if (S.next_vote_at && Date.now() >= new Date(S.next_vote_at).getTime()) openVote();
+      else patch({ round: S.round + 1, log: "Round solved" });
+    };
+    var HINT_GAMES = ["Guess the Country", "Word Chain", "Secret Word", "Word Related", "Emoji Words", "Word Jumble", "Survey Says", "Guess the Picture"], hmT;
+    $("hintbtn").onclick = function () {
+      if (!CODE) return;
+      rpc("send_hint", { code: CODE }).then(function (ok) {
+        $("hmsg").textContent = ok === true ? "Hint sent to the stream" : "Hint not sent. Run the new SQL step first.";
+        clearTimeout(hmT); hmT = setTimeout(function () { $("hmsg").textContent = "" }, 3000);
+      }).catch(function () { $("hmsg").textContent = "Hint not sent." });
+    };
+    $("vnow").onclick = function () { if (S && !S.vote_ends_at) openVote() };
+    $("vdue").onclick = function () { if (S && !S.vote_ends_at) patch({ next_vote_at: iso(Date.now()), log: "Vote will open when this round ends" }) };
+    $("tabtn").onclick = function () { var w = $("ta").value.trim().toUpperCase(); if (w) rpc("set_answer", { code: CODE, new_answer: w }).then(poll) };
+    $("sset").onclick = function () {
+      var im = +$("im").value || 20, p = { interval_min: im, vote_secs: +$("vs").value || 35, guide: $("gd").checked, play_who: $("pw").value, vote_who: $("vw").value, log: "Settings saved" };
+      if (S && !S.vote_ends_at) p.next_vote_at = iso(Date.now() + im * 60000);
+      patch(p)
+    };
+    MENU.forEach(function (m) { var o = document.createElement("option"); o.value = m[0]; o.textContent = m[1] + " " + m[0]; $("cg").appendChild(o) });
+    $("cgo").onclick = function () { if (S && !S.vote_ends_at) patch({ game: $("cg").value, round: S.round + 1, log: "Host chose " + $("cg").value }) };
+    function enter(c) {
+      rpc("set_state", { code: c, patch: {} }).then(function (ok) {
+        if (ok === true) { CODE = c; localStorage.setItem("wp_code", c); $("login").hidden = true; $("panel").hidden = false; poll(); setInterval(poll, 2000); setInterval(tick, 1000) }
+        else { $("lmsg").textContent = "That code is not right, or the SQL steps are not finished."; $("login").hidden = false }
+      }).catch(function () { $("lmsg").textContent = "Could not reach Supabase." });
+    }
+    $("save").onclick = function () { var c = $("code").value.trim(); if (c) enter(c) };
+    if (CODE) enter(CODE);
+  </script>
+  <script src="back-to-menu.js"></script>
 </body>
+
 </html>
