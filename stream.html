@@ -407,6 +407,25 @@
         } catch (e) { }
         if (tries > 40) clearInterval(iv);
       }, 400);
+      // A player's own win has no viewer name, so the game shows a plain purple "won with" bar
+      // instead of the winner card. Watch for that bar too.
+      try {
+        var body = w.document.body;
+        if (body && !w.__wpObs) {
+          w.__wpObs = true;
+          var mo = new w.MutationObserver(function (muts) {
+            if (winTimer) return;
+            for (var i = 0; i < muts.length; i++) {
+              var ad = muts[i].addedNodes;
+              for (var j = 0; j < ad.length; j++) {
+                var n = ad[j];
+                if (n.nodeType === 1 && ((n.classList && n.classList.contains("win")) || (n.querySelector && n.querySelector(".win")))) { onWin(6800); return }
+              }
+            }
+          });
+          mo.observe(body, { childList: true, subtree: true });
+        }
+      } catch (e) { }
     }
 
     poll(); setInterval(poll, 1500); setInterval(tick, 500);
