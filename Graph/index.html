@@ -84,8 +84,8 @@ h1{font-size:66px;margin-bottom:12px}
 <script>
 var V=new Set(),ANS=[];
 function getList(url){return fetch(url).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){return t.split(/\s+/).filter(Boolean)})}
-function prep(a,g){ANS=a.filter(function(w){return w.length>=3&&w.length<=8});
- g.forEach(function(w){if(w.length>=3&&w.length<=8)V.add(w)});ANS.forEach(function(w){V.add(w)})}
+function prep(a,g){ANS=a.filter(function(w){return w.length>=3&&w.length<=7});
+ g.forEach(function(w){if(w.length>=3&&w.length<=7)V.add(w)});ANS.forEach(function(w){V.add(w)})}
 var L=5,hid=[];
 var MODES=[
 {n:"Height",f:function(w){return w.split("").map(function(c){return c.charCodeAt(0)-65})},lo:0,hi:25}];
@@ -117,7 +117,7 @@ function pickHidden(){var idx=[];for(var q=1;q<L;q++)idx.push(q);
  for(var k=idx.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1)),tmp=idx[k];idx[k]=idx[r];idx[r]=tmp}
  var lo=L>=5?2:1,hi=Math.min(3,L-2);
  hid=idx.slice(0,lo+Math.floor(Math.random()*(hi-lo+1)))}
-function newGame(){clearTimeout(winT);window.newRound&&window.newRound();L=3+Math.floor(Math.random()*6);pickHidden();
+function newGame(){clearTimeout(winT);window.newRound&&window.newRound();L=3+Math.floor(Math.random()*5);pickHidden();
 var all=ANS.filter(function(x){return x.length===L}),pool=all.filter(function(x){return seen.indexOf(x)<0});if(!pool.length){seen=seen.filter(function(x){return x.length!==L});pool=all}
 T=pool[Math.floor(Math.random()*pool.length)];seen.push(T);window.reportAnswer&&window.reportAnswer(T);
 rows=[];cur=[];over=false;$("msg").textContent="";render()}
