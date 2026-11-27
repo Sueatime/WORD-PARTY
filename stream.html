@@ -392,7 +392,7 @@
             var os = w.WinnerCard.show;
             w.WinnerCard.show = function () {
               var r = os.apply(this, arguments);
-              if (r) onWin((typeof w.WinnerCard.total === "function" ? Number(w.WinnerCard.total()) || 6000 : 6000) + 600);
+              if (r) onWin((typeof w.WinnerCard.total === "function" ? Number(w.WinnerCard.total(arguments[0] && arguments[0].slow)) || 6000 : 6000) + 600);
               return r;
             };
           }
