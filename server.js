@@ -100,14 +100,20 @@ async function openVote(reason) {
   });
 }
 
+function voteIsDue() {
+  return !!live.next_vote_at && new Date(live.next_vote_at).getTime() <= Date.now();
+}
+
 async function onRoundWin() {
   await refreshLive();
-  if (voteOpen() || pendingTimer) return; // a vote is open, or already waiting
-  const due = live.next_vote_at && new Date(live.next_vote_at).getTime() <= Date.now();
-  if (!due) return;
-  // Safety: if the next round never reports in, open the vote anyway after 60 seconds
-  pendingTimer = setTimeout(() => {
+  if (voteOpen() || pendingTimer || !voteIsDue()) return;
+  console.log('Round won and a vote is due: waiting for the leaderboard screens to finish');
+  // Safety: if nothing opens the vote within 60 seconds, open it, but only if it is still due
+  pendingTimer = setTimeout(async () => {
     pendingTimer = null;
+    await refreshLive();
+    if (voteOpen() || !voteIsDue()) { console.log('Vote already handled, no extra vote opened'); return; }
+    console.log('No new round seen in 60 seconds: opening the vote anyway');
     openVote('Vote opened (waited 60 seconds after a win)').catch((e) => console.log('Vote open error:', e.message));
   }, 60000);
 }
@@ -117,6 +123,9 @@ async function onRoundStart() {
   if (!pendingTimer) return;
   clearTimeout(pendingTimer);
   pendingTimer = null;
+  await refreshLive();
+  if (voteOpen() || !voteIsDue()) { console.log('A new round started, but the vote is already handled'); return; }
+  console.log('A new round started: opening the vote');
   await openVote('Vote opened after the leaderboard screens');
 }
 

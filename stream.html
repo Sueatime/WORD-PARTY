@@ -348,6 +348,7 @@
         .then(function (ok) { if (ok !== true) cur = old }).catch(function () { cur = old });
     }
     $("fr").addEventListener("load", function () {
+      hookGame();
       try {
         var w = $("fr").contentWindow;
         if (w.location.href === "about:blank") return;
@@ -360,6 +361,54 @@
         if (S) draw();
       } catch (e) { }
     });
+    // ---- Open the next-game vote right after the winner card and leaderboard screens ----
+    // The game page shows the winner card and starts its next round after the card is finished.
+    // We watch for that win here, wait the same time, and then open the vote (if one is due).
+    var winTimer = null;
+    function onWin(ms) {
+      if (winTimer) clearTimeout(winTimer);
+      winTimer = setTimeout(fireVote, ms);
+    }
+    function fireVote() {
+      winTimer = null;
+      var code = null; try { code = localStorage.getItem("wp_code") } catch (e) { }
+      if (!code) return;
+      getState().then(function (s) {
+        if (!s || s.vote_ends_at) return;
+        if (!(s.next_vote_at && new Date(s.next_vote_at).getTime() <= Date.now())) return;
+        var names = MENU.map(function (m) { return m[0] }).filter(function (n) { return n !== s.game }).sort(function () { return Math.random() - .5 }).slice(0, 8);
+        var secs = Number(s.vote_secs) || 35;
+        return rpc("set_state", { code: code, patch: { options: names, votes: [0, 0, 0, 0, 0, 0, 0, 0], vote_ends_at: new Date(Date.now() + secs * 1000).toISOString(), log: "Vote opened after the leaderboard screens" } });
+      }).catch(function () { });
+    }
+    function hookGame() {
+      var w, tries = 0;
+      try { w = $("fr").contentWindow; void w.location.href } catch (e) { return }
+      var iv = setInterval(function () {
+        tries++;
+        try {
+          if (w.WinnerCard && typeof w.WinnerCard.show === "function" && !w.WinnerCard.__wp) {
+            w.WinnerCard.__wp = true;
+            var os = w.WinnerCard.show;
+            w.WinnerCard.show = function () {
+              var r = os.apply(this, arguments);
+              if (r) onWin((typeof w.WinnerCard.total === "function" ? Number(w.WinnerCard.total()) || 6000 : 6000) + 600);
+              return r;
+            };
+          }
+          if (typeof w.sendScore === "function" && !w.sendScore.__wp) {
+            var oss = w.sendScore;
+            w.sendScore = function (u, g, p, win) {
+              if (win === true) setTimeout(function () { if (!winTimer) onWin(7000) }, 1500);
+              return oss.apply(this, arguments);
+            };
+            w.sendScore.__wp = true;
+          }
+        } catch (e) { }
+        if (tries > 40) clearInterval(iv);
+      }, 400);
+    }
+
     poll(); setInterval(poll, 1500); setInterval(tick, 500);
   </script>
 </body>
